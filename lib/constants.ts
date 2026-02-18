@@ -1,10 +1,57 @@
-export const NAV_ITEMS = [
+export type NavChild = {
+  label: string;
+  href: string;
+  external?: boolean;
+};
+
+export type NavItem = {
+  label: string;
+  href: string;
+  children?: NavChild[];
+};
+
+export const NAV_ITEMS: NavItem[] = [
   { label: "Home", href: "/" },
-  { label: "Developers", href: "/developers" },
-  { label: "Token", href: "/lpt" },
-  { label: "Community", href: "/community" },
-  { label: "Blog", href: "/blog" },
-] as const;
+  {
+    label: "Use Cases",
+    href: "/#capabilities",
+    children: [
+      { label: "AI-Generated Worlds", href: "/#capabilities" },
+      { label: "Real-Time Video Analysis", href: "/#capabilities" },
+      { label: "Composable AI Pipelines", href: "/#capabilities" },
+      { label: "Live Transcoding & Streaming", href: "/#capabilities" },
+      { label: "AI Avatars & Agents", href: "/#capabilities" },
+      { label: "Synthetic Data Generation", href: "/#capabilities" },
+    ],
+  },
+  {
+    label: "Network",
+    href: "https://explorer.livepeer.org",
+    children: [
+      { label: "Explorer", href: "https://explorer.livepeer.org", external: true },
+      { label: "Delegate", href: "https://explorer.livepeer.org/staking", external: true },
+      { label: "Provide Compute", href: "https://docs.livepeer.org/orchestrators/guides/get-started", external: true },
+      { label: "Roadmap", href: "https://github.com/livepeer/catalyst/milestones", external: true },
+    ],
+  },
+  {
+    label: "Developers",
+    href: "https://docs.livepeer.org",
+    children: [
+      { label: "Documentation", href: "https://docs.livepeer.org", external: true },
+      { label: "API Reference", href: "https://docs.livepeer.org/api-reference", external: true },
+    ],
+  },
+  {
+    label: "Resources",
+    href: "/brand",
+    children: [
+      { label: "Blog", href: "/blog" },
+      { label: "Brand", href: "/brand" },
+      { label: "Careers", href: "https://livepeer.org/jobs", external: true },
+    ],
+  },
+];
 
 export const EXTERNAL_LINKS = {
   docs: "https://docs.livepeer.org",

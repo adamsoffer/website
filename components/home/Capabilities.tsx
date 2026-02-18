@@ -639,7 +639,7 @@ export default function Capabilities() {
                   <cap.Visual />
                 </div>
                 <div className="px-5 py-5">
-                  <h3 className="text-base font-medium text-white/90">{cap.title}</h3>
+                  <h3 className="text-lg font-medium text-white/90">{cap.title}</h3>
                   <p className="mt-1.5 text-[13px] leading-relaxed text-white/40">
                     {cap.description}
                   </p>

@@ -5,21 +5,21 @@ import Footer from "@/components/layout/Footer";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Livepeer — The World's Open Video Infrastructure",
+  title: "Livepeer — Open Infrastructure for Real-Time AI Video",
   description:
-    "Livepeer is a decentralized video infrastructure network powering video transcoding, livestreaming, and AI video processing at a fraction of the cost.",
+    "Generate, transform, and interpret live video streams with low-latency AI inference on an open and permissionless elastic GPU network.",
   openGraph: {
-    title: "Livepeer — The World's Open Video Infrastructure",
+    title: "Livepeer — Open Infrastructure for Real-Time AI Video",
     description:
-      "Livepeer is a decentralized video infrastructure network powering video transcoding, livestreaming, and AI video processing at a fraction of the cost.",
+      "Generate, transform, and interpret live video streams with low-latency AI inference on an open and permissionless elastic GPU network.",
     siteName: "Livepeer",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Livepeer — The World's Open Video Infrastructure",
+    title: "Livepeer — Open Infrastructure for Real-Time AI Video",
     description:
-      "Livepeer is a decentralized video infrastructure network powering video transcoding, livestreaming, and AI video processing at a fraction of the cost.",
+      "Generate, transform, and interpret live video streams with low-latency AI inference on an open and permissionless elastic GPU network.",
   },
 };
 

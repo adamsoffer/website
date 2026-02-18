@@ -98,13 +98,13 @@ export default function ImageMask({
         )}
       </div>
 
-      {/* Layer 2: Frosted glass tile grid */}
+      {/* Layer 2: Frosted glass tile grid — square tiles, enough rows to fill any viewport */}
       <div
         className="absolute inset-x-0 top-0"
         style={{
           display: "grid",
           gridTemplateColumns: `repeat(${cols}, 1fr)`,
-          gridTemplateRows: `repeat(${rows}, calc(100vw / ${cols}))`,
+          gridAutoRows: `calc(100vw / ${cols})`,
         }}
       >
         {tiles.map((tile, i) => (

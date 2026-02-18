@@ -36,6 +36,11 @@ Next.js 15, React 19, TypeScript, Tailwind CSS v4, Framer Motion 11. No test fra
 - **Graphic elements**: Grain texture (on all gradients), grid overlays, pixel overlays, geometric line shapes. Layered to create depth.
 - Dark theme only. All pages use dark backgrounds with white/opacity text.
 
+## Dev Server
+
+- After making code changes, always restart the dev server: kill port 3000, then run `npm run dev` in the background.
+- Verify the server is healthy with a curl check before continuing.
+
 ## Key Patterns
 
 - All homepage sections and interactive components use `"use client"` directive.

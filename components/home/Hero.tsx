@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useRef } from "react";
+import { motion, useMotionValue, useMotionValueEvent, animate } from "framer-motion";
 import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
 import ImageMask from "@/components/ui/ImageMask";
@@ -26,105 +26,84 @@ const TILE = 100 / COLS; // tile size in vw — used for both axes
 
 const RAYS = [0, 22, 45, 68, 90, 135, 170, -15, -40, -70];
 
-/* ── Pulse trail: walks the tile grid from starburst origin ── */
+/* ── Pulse trail: follows a fixed scenic loop along grid lines + circle arcs ──
+   Route uses tangent entry/exit points for smooth line-to-arc transitions:
+   starburst (1,1) → up to row 0 → right to large circle top tangent (7.5,0) →
+   CW 180° to bottom tangent (7.5,3) → left along row 3 to small circle
+   top tangent (1,3) → CCW 270° to right tangent (2,4) → up col 2 → left → loop.
+   Uses SVG getPointAtLength() for uniform-speed traversal with no re-renders. */
+
+const PULSE_PATH = [
+  "M 100 100",                  // starburst at (1,1)
+  "L 100 0",                    // up col 1 to row 0
+  "L 750 0",                    // right along row 0 to large circle top tangent
+  "A 150 150 0 0 1 750 300",    // CW 180° arc to bottom tangent (7.5,3)
+  "L 100 300",                  // left along row 3 to small circle top tangent
+  "A 100 100 0 1 0 200 400",    // CCW 270° arc to right tangent (2,4)
+  "L 200 100",                  // up col 2 to row 1
+  "L 100 100",                  // left along row 1 back to starburst
+].join(" ");
+
 function PulseTrail() {
-  const [pos, setPos] = useState<{
-    col: number;
-    row: number;
-    opacity: number;
-  }>({
-    col: 1,
-    row: 1,
-    opacity: 0,
-  });
-  const pathRef = useRef<{ col: number; row: number }[]>([]);
-  const stepRef = useRef(0);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-
-  const generatePath = useCallback(() => {
-    let col = 1;
-    let row = 1;
-    const path = [{ col, row }];
-    const visited = new Set([`${col},${row}`]);
-
-    for (let i = 0; i < 6; i++) {
-      const dirs = [
-        { dc: 1, dr: 0 },
-        { dc: -1, dr: 0 },
-        { dc: 0, dr: 1 },
-        { dc: 0, dr: -1 },
-      ].filter((d) => {
-        const nc = col + d.dc;
-        const nr = row + d.dr;
-        return (
-          nc >= 0 &&
-          nc <= COLS &&
-          nr >= 0 &&
-          nr <= ROWS &&
-          !visited.has(`${nc},${nr}`)
-        );
-      });
-
-      if (!dirs.length) break;
-      const d = dirs[Math.floor(Math.random() * dirs.length)];
-      col += d.dc;
-      row += d.dr;
-      visited.add(`${col},${row}`);
-      path.push({ col, row });
-    }
-
-    return path;
-  }, []);
+  const dotRef = useRef<HTMLDivElement>(null);
+  const pathRef = useRef<SVGPathElement>(null);
+  const progress = useMotionValue(0);
 
   useEffect(() => {
-    const startPulse = () => {
-      pathRef.current = generatePath();
-      stepRef.current = 0;
-      advance();
-    };
-
-    const advance = () => {
-      const path = pathRef.current;
-      const step = stepRef.current;
-
-      if (step >= path.length) {
-        setPos((p) => ({ ...p, opacity: 0 }));
-        timeoutRef.current = setTimeout(startPulse, 4000);
-        return;
-      }
-
-      const point = path[step];
-      const fade = step / path.length;
-      setPos({
-        col: point.col,
-        row: point.row,
-        opacity: 0.8 * (1 - fade * 0.9),
+    const timeout = setTimeout(() => {
+      if (dotRef.current) dotRef.current.style.opacity = "0.8";
+      animate(progress, 1, {
+        duration: 20,
+        ease: "linear",
+        repeat: Infinity,
+        repeatType: "loop",
       });
-      stepRef.current = step + 1;
-      timeoutRef.current = setTimeout(advance, 900);
-    };
+    }, 3000);
 
-    timeoutRef.current = setTimeout(startPulse, 3000);
+    return () => clearTimeout(timeout);
+  }, [progress]);
 
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, [generatePath]);
+  useMotionValueEvent(progress, "change", (v) => {
+    const path = pathRef.current;
+    const dot = dotRef.current;
+    if (!path || !dot) return;
+
+    const totalLength = path.getTotalLength();
+    const point = path.getPointAtLength(v * totalLength);
+
+    // SVG units are tile-coords × 100; convert back to vw
+    dot.style.left = `${(point.x / 100) * TILE}vw`;
+    dot.style.top = `${(point.y / 100) * TILE}vw`;
+  });
 
   return (
-    <div
-      className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full transition-all duration-[800ms] ease-in-out"
-      style={{
-        left: `${pos.col * TILE}vw`,
-        top: `${pos.row * TILE}vw`,
-        opacity: pos.opacity,
-        width: "6px",
-        height: "6px",
-        background:
-          "radial-gradient(circle, rgba(64,191,134,0.9) 0%, rgba(64,191,134,0.3) 50%, transparent 70%)",
-        boxShadow: `0 0 10px 3px rgba(64,191,134,${pos.opacity * 0.4}), 0 0 20px 6px rgba(64,191,134,${pos.opacity * 0.15})`,
-      }}
-    />
+    <>
+      {/* Hidden SVG — only used for path geometry computation */}
+      <svg
+        width="0"
+        height="0"
+        viewBox="0 0 900 500"
+        style={{ position: "absolute", pointerEvents: "none" }}
+        aria-hidden="true"
+      >
+        <path ref={pathRef} d={PULSE_PATH} fill="none" />
+      </svg>
+      <div
+        ref={dotRef}
+        className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full"
+        style={{
+          left: `${1 * TILE}vw`,
+          top: `${1 * TILE}vw`,
+          opacity: 0,
+          width: "6px",
+          height: "6px",
+          background:
+            "radial-gradient(circle, rgba(64,191,134,0.9) 0%, rgba(64,191,134,0.3) 50%, transparent 70%)",
+          boxShadow:
+            "0 0 10px 3px rgba(64,191,134,0.32), 0 0 20px 6px rgba(64,191,134,0.12)",
+        }}
+      />
+    </>
   );
 }
 
@@ -137,7 +116,7 @@ export default function Hero() {
           video="/videos/hero-world.mp4"
           className="h-full w-full"
           cols={COLS}
-          rows={ROWS}
+          rows={20}
           seed={42}
         />
       </div>
@@ -247,9 +226,16 @@ export default function Hero() {
         <PulseTrail />
       </div>
 
-      {/* Center darken for text readability */}
+      {/* Center darken for text readability — wider/stronger on mobile */}
       <div
-        className="pointer-events-none absolute inset-0"
+        className="pointer-events-none absolute inset-0 lg:hidden"
+        style={{
+          background:
+            "radial-gradient(ellipse 90% 60% at 50% 48%, rgba(4,6,5,0.88) 0%, rgba(4,6,5,0.5) 70%, transparent 100%)",
+        }}
+      />
+      <div
+        className="pointer-events-none absolute inset-0 hidden lg:block"
         style={{
           background:
             "radial-gradient(ellipse 60% 50% at 50% 48%, rgba(4,6,5,0.78) 0%, rgba(4,6,5,0.35) 70%, transparent 100%)",
