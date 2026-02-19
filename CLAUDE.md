@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Stack
 
-Next.js 15, React 19, TypeScript, Tailwind CSS v4, Framer Motion 11. No test framework is configured yet.
+Next.js 15, React 19, TypeScript, Tailwind CSS v4, Framer Motion 11. No test framework is configured yet. Package manager is npm. No environment variables or secrets are needed — the project runs entirely without `.env` files.
 
 ## Architecture
 
@@ -20,6 +20,12 @@ Next.js 15, React 19, TypeScript, Tailwind CSS v4, Framer Motion 11. No test fra
 - **UI primitives**: `components/ui/` — Button, Card, Container, SectionHeader, Badge, ImageMask, etc. Reuse these; don't create new wrappers for the same purpose.
 - **Icons**: `components/icons/LivepeerLogo.tsx` exports `LivepeerSymbol` (icon only), `LivepeerTextmark` (text only), `LivepeerWordmark` (icon + text).
 - **Constants**: `lib/constants.ts` — navigation items and external links. `lib/fonts.ts` — Favorit Pro and Favorit Mono local font config.
+- **Custom hooks**: `lib/useCountUp.ts` — IntersectionObserver-triggered count-up animation, used in NetworkStats.
+- **Canvas/WebGL**: `components/ui/` contains `GenerativeCanvas.tsx` (procedural GLSL shader), `LiveNetwork.tsx` (Canvas 2D particle trails), and `AiVideoHero.tsx` (Sobel edge detection on live video texture). All follow the same `useEffect` + `useRef<HTMLCanvasElement>` + `requestAnimationFrame` + cleanup pattern.
+- **Placeholder pages**: Blog, developers, lpt, and community routes redirect to `/` via `redirect()`. Use-cases pages (`app/use-cases/`) are stubs with "Coming soon" content.
+- **Data**: All content is static/hardcoded. No API routes, no CMS, no external data fetching.
+- **State**: Local `useState` only — no global state management library. Keep it that way.
+- **Imports**: Path alias `@/*` maps to repo root. Use `@/components/...`, `@/lib/...`, etc.
 
 ## Brand & Styling
 
@@ -44,10 +50,14 @@ Next.js 15, React 19, TypeScript, Tailwind CSS v4, Framer Motion 11. No test fra
 ## Key Patterns
 
 - All homepage sections and interactive components use `"use client"` directive.
-- Scroll animations use Framer Motion's `whileInView` with `viewport={{ once: true }}` and staggered children.
+- Scroll animations use Framer Motion's `whileInView` with `viewport={{ once: true }}` and staggered children. Hero/brand pages use `initial`/`animate` (fires on mount) instead.
 - Section headers use the `SectionHeader` component with `label`, `title`, and `description` props.
 - Sections are separated with `.divider-gradient` divs at top or bottom.
 - The project brief with full messaging and positioning context is in `livepeer-website-brief.md`.
+- **No `next/image`** — the project uses raw `<img>` tags (with eslint-disable comments) deliberately. The `ImageMask` component requires direct CSS filter/absolute stacking that `next/image`'s wrapper div breaks. The primer page is mostly SVGs which `next/image` can't optimize, and its fluid CSS sizing is incompatible with required width/height props. WebGL components use `<video>` as GPU textures. Don't introduce `next/image` without discussion.
+- **Assets**: Static files in `public/images/`, `public/videos/`, `public/fonts/`. Videos use `autoPlay muted loop playsInline`.
+- **Accessibility**: `globals.css` includes a `prefers-reduced-motion` media query that blanket-disables all animations.
+- **SEO**: Global metadata in `app/layout.tsx`. OG image generated programmatically in `app/opengraph-image.tsx` using `next/og`. No per-page metadata on inner pages yet.
 
 ## Messaging
 
