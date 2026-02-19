@@ -16,7 +16,7 @@ export const NAV_ITEMS: NavItem[] = [
     label: "Use Cases",
     href: "/#capabilities",
     children: [
-      { label: "AI-Generated Worlds", href: "/#capabilities" },
+      { label: "AI-Generated Worlds", href: "/use-cases/world-models" },
       { label: "Real-Time Video Analysis", href: "/#capabilities" },
       { label: "Composable AI Pipelines", href: "/#capabilities" },
       { label: "Live Transcoding & Streaming", href: "/#capabilities" },

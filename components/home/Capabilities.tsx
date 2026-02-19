@@ -564,7 +564,7 @@ const capabilities: {
     title: "AI-Generated Worlds",
     description:
       "Interactive environments produced frame-by-frame with real-time inference on live video.",
-    href: "/use-cases/ai-generated-worlds",
+    href: "/use-cases/world-models",
     Visual: WorldsVisual,
     colSpan: 4,
   },
