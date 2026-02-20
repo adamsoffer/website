@@ -4,298 +4,309 @@ import { motion } from "framer-motion";
 import Container from "@/components/ui/Container";
 import SectionHeader from "@/components/ui/SectionHeader";
 
-
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
   visible: { opacity: 1, y: 0 },
 };
 
-const pipelines = [
-  {
-    name: "Real-time Object Detection",
-    model: "YOLOv8",
-    status: "running" as const,
-    region: "US East",
-    latency: "12ms",
-    cost: "$0.003/min",
-  },
-  {
-    name: "Live Stream Upscaling",
-    model: "ESRGAN",
-    status: "running" as const,
-    region: "EU West",
-    latency: "45ms",
-    cost: "$0.005/min",
-  },
-  {
-    name: "Speech-to-Text",
-    model: "Whisper v3",
-    status: "running" as const,
-    region: "US East",
-    latency: "180ms",
-    cost: "$0.002/min",
-  },
-  {
-    name: "Scene Classification",
-    model: "CLIP",
-    status: "queued" as const,
-    region: "—",
-    latency: "—",
-    cost: "—",
-  },
-  {
-    name: "Video Generation",
-    model: "Stable Video",
-    status: "completed" as const,
-    region: "AP South",
-    latency: "2.1s",
-    cost: "$0.012/min",
-  },
-  {
-    name: "Background Removal",
-    model: "SAM 2",
-    status: "running" as const,
-    region: "US West",
-    latency: "28ms",
-    cost: "$0.004/min",
-  },
-  {
-    name: "Audio Enhancement",
-    model: "Demucs v4",
-    status: "completed" as const,
-    region: "EU West",
-    latency: "95ms",
-    cost: "$0.003/min",
-  },
-];
+/* ── Panel 1: API Keys visual ── */
 
-function StatusIcon({ status }: { status: "running" | "queued" | "completed" }) {
-  if (status === "running")
-    return (
-      <span className="flex items-center gap-1.5 text-[12px] text-white/50">
-        <span className="h-[7px] w-[7px] rounded-full border-[1.5px] border-emerald-400/80 bg-emerald-400/20" />
-        Running
-      </span>
-    );
-  if (status === "queued")
-    return (
-      <span className="flex items-center gap-1.5 text-[12px] text-white/50">
-        <span className="h-[7px] w-[7px] rounded-full border-[1.5px] border-amber-400/80 bg-amber-400/20" />
-        Queued
-      </span>
-    );
+function ApiKeysVisual() {
   return (
-    <span className="flex items-center gap-1.5 text-[12px] text-white/50">
-      <span className="h-[7px] w-[7px] rounded-full border-[1.5px] border-white/20 bg-white/5" />
-      Done
-    </span>
-  );
-}
+    <div className="overflow-hidden rounded-lg border border-white/[0.08] bg-[#161616]">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-white/[0.08] bg-white/[0.03] px-5 py-3.5">
+        <span className="text-[14px] font-medium text-white/90">
+          Developer API Manager
+        </span>
+        <button className="flex items-center gap-1.5 rounded-md bg-emerald-500/20 px-3 py-1.5 text-[12px] font-medium text-emerald-400">
+          <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M6 3v6M3 6h6" strokeLinecap="round" />
+          </svg>
+          Create Key
+        </button>
+      </div>
 
-function ProductUI() {
-  return (
-    <div className="relative">
-      {/* Glow effect behind the frame — neutral, reduced */}
-      <div
-        className="pointer-events-none absolute -inset-8 rounded-3xl opacity-20 blur-3xl"
-        style={{
-          background:
-            "radial-gradient(ellipse at 50% 40%, rgba(255,255,255,0.15), transparent 70%)",
-        }}
-      />
-
-      {/* Gradient border wrapper — Linear-style */}
-      <div
-        className="relative rounded-xl p-px"
-        style={{
-          background:
-            "linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.04) 40%, rgba(255,255,255,0.02) 100%)",
-        }}
-      >
-      {/* App frame */}
-      <div className="relative overflow-hidden rounded-xl bg-[#0c0c0c]">
-        <div className="flex min-h-[520px]">
-          {/* Sidebar */}
-          <div className="hidden w-[200px] flex-shrink-0 border-r border-white/[0.06] sm:block">
-            {/* Sidebar header — account dropdown */}
-            <div className="flex items-center gap-2.5 border-b border-white/[0.06] px-4 py-3">
-              <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-purple-400 to-pink-400 text-[10px] font-bold text-white">
-                LI
-              </span>
-              <span className="text-[13px] font-medium text-white/70">Livepeer, Inc.</span>
-              <svg className="ml-auto h-3 w-3 text-white/25" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                <path d="M3 5l3 3 3-3" />
-              </svg>
-            </div>
-
-            <div className="px-2 py-3">
-              {/* Main nav */}
-              <div className="space-y-0.5">
-                <div className="flex items-center gap-2.5 rounded-md bg-white/[0.06] px-3 py-1.5 text-[13px] font-medium text-white/80">
-                  {/* Pipelines — stacked layers icon */}
-                  <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2">
-                    <path d="M8 1.5L1.5 5 8 8.5 14.5 5z" />
-                    <path d="M1.5 8L8 11.5 14.5 8" />
-                    <path d="M1.5 11L8 14.5 14.5 11" />
-                  </svg>
-                  Pipelines
-                </div>
-                <div className="flex items-center gap-2.5 rounded-md px-3 py-1.5 text-[13px] text-white/35">
-                  {/* Streams — play/broadcast icon */}
-                  <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2">
-                    <path d="M5.5 4v8l7-4z" />
-                  </svg>
-                  Streams
-                </div>
-                <div className="flex items-center gap-2.5 rounded-md px-3 py-1.5 text-[13px] text-white/35">
-                  {/* Assets — film frame icon */}
-                  <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2">
-                    <rect x="2" y="3" width="12" height="10" rx="1.5" />
-                    <path d="M2 6h12M2 10h12M5 3v10M11 3v10" />
-                  </svg>
-                  Assets
-                </div>
-                <div className="flex items-center gap-2.5 rounded-md px-3 py-1.5 text-[13px] text-white/35">
-                  {/* Models — grid/blocks icon */}
-                  <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2">
-                    <rect x="1.5" y="1.5" width="5" height="5" rx="1" />
-                    <rect x="9.5" y="1.5" width="5" height="5" rx="1" />
-                    <rect x="1.5" y="9.5" width="5" height="5" rx="1" />
-                    <rect x="9.5" y="9.5" width="5" height="5" rx="1" />
-                  </svg>
-                  Models
-                </div>
-              </div>
-
-              {/* Monitor section */}
-              <div className="mt-5">
-                <div className="mb-1 px-3 text-[11px] font-medium tracking-wider text-white/20 uppercase">
-                  Monitor
-                </div>
-                <div className="space-y-0.5">
-                  <div className="flex items-center gap-2.5 rounded-md px-3 py-1.5 text-[13px] text-white/35">
-                    {/* Usage — bar chart icon */}
-                    <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2">
-                      <path d="M3 13V8M7 13V5M11 13V3" strokeLinecap="round" />
-                    </svg>
-                    Usage
-                  </div>
-                  <div className="flex items-center gap-2.5 rounded-md px-3 py-1.5 text-[13px] text-white/35">
-                    {/* Logs — terminal/console icon */}
-                    <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2">
-                      <rect x="2" y="2.5" width="12" height="11" rx="1.5" />
-                      <path d="M5 7l2 1.5L5 10" strokeLinecap="round" strokeLinejoin="round" />
-                      <path d="M9 10h2" strokeLinecap="round" />
-                    </svg>
-                    Logs
-                  </div>
-                  <div className="flex items-center gap-2.5 rounded-md px-3 py-1.5 text-[13px] text-white/35">
-                    {/* API Keys — key icon */}
-                    <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2">
-                      <circle cx="5.5" cy="7" r="3" />
-                      <path d="M8 8.5l5 5M11 11.5l2-2" strokeLinecap="round" />
-                    </svg>
-                    API Keys
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Main content */}
+      {/* Key row */}
+      <div className="border-b border-white/[0.06] px-5 py-4">
+        <div className="flex items-center gap-3">
+          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-emerald-500/15">
+            <svg className="h-4 w-4 text-emerald-400/80" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3">
+              <circle cx="5.5" cy="7" r="3" />
+              <path d="M8 8.5l5 5M11 11.5l2-2" strokeLinecap="round" />
+            </svg>
+          </span>
           <div className="flex-1">
-            {/* Content header — tab navigation */}
-            <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-2.5">
-              <div className="flex items-center gap-1">
-                <span className="rounded-md px-2.5 py-1 text-[13px] font-medium text-white/50">
-                  Pipelines
-                </span>
-                <span className="rounded-md bg-white/[0.06] px-2.5 py-1 text-[13px] font-medium text-white/80">
-                  All pipelines
-                </span>
-                <span className="flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[13px] text-white/30">
-                  <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <circle cx="6" cy="6" r="5" />
-                    <path d="M6 4v4M4 6h4" strokeLinecap="round" />
-                  </svg>
-                  New view
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <button className="flex items-center gap-1.5 rounded-md bg-white/[0.06] px-3 py-1 text-[12px] font-medium text-white/50">
-                  + Add pipeline
-                </button>
-              </div>
-            </div>
+            <div className="text-[13px] font-medium text-white/80">production</div>
+            <div className="mt-0.5 font-mono text-[11px] text-white/30">lp_sk_1a2b•••c8d9</div>
+          </div>
+          <span className="rounded-full bg-emerald-400/15 px-2.5 py-0.5 text-[10px] font-medium text-emerald-400/80">
+            Active
+          </span>
+        </div>
+      </div>
 
-            {/* Filter bar */}
-            <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-2">
-              <div className="flex items-center gap-1.5 text-[12px] text-white/30">
-                <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3">
-                  <path d="M2 4h12M4 8h8M6 12h4" strokeLinecap="round" />
-                </svg>
-                Filter
-              </div>
-              <div className="flex items-center gap-1.5 rounded-md bg-white/[0.04] px-2.5 py-1 text-[12px] text-white/30">
-                <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3">
-                  <rect x="2" y="2" width="5" height="5" rx="0.5" />
-                  <rect x="9" y="2" width="5" height="5" rx="0.5" />
-                  <rect x="2" y="9" width="5" height="5" rx="0.5" />
-                  <rect x="9" y="9" width="5" height="5" rx="0.5" />
-                </svg>
-                Display
-              </div>
-            </div>
-
-            {/* Table */}
-            <div>
-              {/* Table header */}
-              <div className="grid grid-cols-[1fr_100px_90px_80px_70px_80px] items-center gap-2 border-b border-white/[0.06] px-5 py-2 text-[11px] font-medium text-white/25">
-                <span>Name</span>
-                <span>Model</span>
-                <span>Status</span>
-                <span className="hidden sm:block">Region</span>
-                <span className="hidden sm:block">Latency</span>
-                <span className="hidden sm:block">Cost</span>
-              </div>
-
-              {/* Table rows */}
-              {pipelines.map((p, i) => (
-                <div
-                  key={`${p.name}-${i}`}
-                  className={`grid grid-cols-[1fr_100px_90px_80px_70px_80px] items-center gap-2 px-5 py-2.5 text-[12px] ${
-                    i < pipelines.length - 1 ? "border-b border-white/[0.04]" : ""
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate text-white/70">
-                    <svg className="h-3.5 w-3.5 flex-shrink-0 text-white/15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3">
-                      <circle cx="8" cy="8" r="6" />
-                    </svg>
-                    {p.name}
-                  </span>
-                  <span className="text-[12px] text-white/30">
-                    {p.model}
-                  </span>
-                  <StatusIcon status={p.status} />
-                  <span className="hidden text-[12px] text-white/30 sm:block">
-                    {p.region}
-                  </span>
-                  <span className="hidden text-[12px] text-white/30 sm:block">
-                    {p.latency}
-                  </span>
-                  <span className="hidden text-[12px] text-white/30 sm:block">
-                    {p.cost}
-                  </span>
-                </div>
-              ))}
-            </div>
+      {/* Billing provider */}
+      <div className="px-5 py-4">
+        <div className="mb-3 text-[11px] font-medium tracking-wide text-white/25 uppercase">
+          Billing Provider
+        </div>
+        <div className="flex gap-2.5">
+          <div className="flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/[0.08] px-4 py-2.5">
+            <div
+              className="h-4 w-4 rounded-[4px]"
+              style={{
+                background: "linear-gradient(135deg, #F73B41, #FF982E, #2FBEC5, #36619D)",
+              }}
+            />
+            <span className="text-[12px] font-medium text-white/80">Daydream</span>
+            <svg className="ml-1 h-3.5 w-3.5 text-emerald-400/70" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M4 8l3 3 5-5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <div className="flex items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.03] px-4 py-2.5">
+            <div className="h-4 w-4 rounded-[4px] bg-white/15" />
+            <span className="text-[12px] font-medium text-white/30">Livepeer Studio</span>
           </div>
         </div>
       </div>
+
+      {/* Bottom bar */}
+      <div className="flex items-center justify-between border-t border-white/[0.08] bg-white/[0.02] px-5 py-2.5">
+        <span className="font-mono text-[10px] text-white/25">3 keys · 2 active</span>
+        <span className="font-mono text-[10px] text-white/25">CDN: Enabled</span>
       </div>
     </div>
   );
 }
+
+/* ── Panel 2: Models / Workflows visual ── */
+
+function ModelsVisual() {
+  return (
+    <div className="overflow-hidden rounded-lg border border-white/[0.08] bg-[#161616]">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-white/[0.08] bg-white/[0.03] px-5 py-3.5">
+        <span className="text-[14px] font-medium text-white/90">Models</span>
+        <div className="flex items-center gap-1.5 rounded-md bg-white/[0.05] px-2.5 py-1 text-[11px] text-white/30">
+          <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.3">
+            <circle cx="6" cy="6" r="4" />
+            <path d="M9 9l2 2" strokeLinecap="round" />
+          </svg>
+          Search models...
+        </div>
+      </div>
+
+      {/* Model rows */}
+      {[
+        { name: "GameNGen", desc: "Real-time world generation", type: "world", color: "#34d399", latency: "12ms", price: "$0.006/min" },
+        { name: "Depth Anything v2", desc: "Monocular depth estimation", type: "vision", color: "#60a5fa", latency: "8ms", price: "$0.003/min" },
+        { name: "StreamDiffusion", desc: "Real-time image generation", type: "gen", color: "#a78bfa", latency: "24ms", price: "$0.008/min" },
+        { name: "Whisper v3", desc: "Speech-to-text transcription", type: "audio", color: "#fbbf24", latency: "45ms", price: "$0.002/min" },
+      ].map((m, i) => (
+        <div
+          key={m.name}
+          className={`flex items-center gap-4 px-5 py-3.5 ${
+            i === 0 ? "bg-white/[0.03]" : ""
+          } ${i < 3 ? "border-b border-white/[0.05]" : ""}`}
+        >
+          <div
+            className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg"
+            style={{ background: `${m.color}18` }}
+          >
+            <div
+              className="h-3.5 w-3.5 rounded-[3px]"
+              style={{ background: `${m.color}66` }}
+            />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-[13px] font-medium text-white/80">{m.name}</div>
+            <div className="mt-0.5 text-[11px] text-white/30">{m.desc}</div>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="font-mono text-[10px] text-white/20">{m.price}</span>
+            <span className="font-mono text-[10px] text-white/25">{m.latency}</span>
+            <span
+              className="rounded-full px-2 py-0.5 text-[9px] font-medium"
+              style={{ background: `${m.color}20`, color: `${m.color}cc` }}
+            >
+              {m.type}
+            </span>
+          </div>
+        </div>
+      ))}
+
+      {/* Bottom bar */}
+      <div className="flex items-center justify-between border-t border-white/[0.08] bg-white/[0.02] px-5 py-2.5">
+        <span className="font-mono text-[10px] text-white/25">12 models available</span>
+        <span className="font-mono text-[10px] text-white/25">4 regions</span>
+      </div>
+    </div>
+  );
+}
+
+/* ── Panel 3: Start streaming visual ── */
+
+function StreamVisual() {
+  return (
+    <div className="overflow-hidden rounded-lg border border-white/[0.08] bg-[#161616]">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-white/[0.08] bg-white/[0.03] px-5 py-3.5">
+        <div className="flex items-center gap-2.5">
+          <span className="text-[14px] font-medium text-white/90">Stream</span>
+          <span className="rounded-full bg-emerald-400/15 px-2 py-0.5 text-[10px] font-medium text-emerald-400/80">
+            Live
+          </span>
+        </div>
+        <span className="font-mono text-[11px] text-white/25">stream_8f3k2m</span>
+      </div>
+
+      {/* Input/output flow */}
+      <div className="border-b border-white/[0.06] px-5 py-4">
+        <div className="flex items-center gap-4">
+          <div className="flex-1">
+            <div className="mb-1.5 font-mono text-[9px] font-medium tracking-wider text-white/25 uppercase">Input</div>
+            <div className="flex items-center gap-2 rounded-md border border-white/[0.08] bg-white/[0.03] px-3 py-2.5">
+              <div className="flex gap-1">
+                {[0.10, 0.15, 0.08, 0.12, 0.18, 0.10].map((o, j) => (
+                  <div key={j} className="h-6 w-4 rounded-[2px]" style={{ background: `rgba(245,158,11,${o + 0.08})` }} />
+                ))}
+              </div>
+              <span className="ml-auto font-mono text-[9px] text-white/25">30 fps</span>
+            </div>
+          </div>
+          <svg className="h-4 w-6 flex-shrink-0 text-white/20" viewBox="0 0 24 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M0 8h20M16 4l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <div className="flex-1">
+            <div className="mb-1.5 font-mono text-[9px] font-medium tracking-wider text-white/25 uppercase">Output</div>
+            <div className="flex items-center gap-2 rounded-md border border-white/[0.08] bg-white/[0.03] px-3 py-2.5">
+              <div className="flex gap-1">
+                {[0.12, 0.18, 0.10, 0.15, 0.20, 0.12].map((o, j) => (
+                  <div key={j} className="h-6 w-4 rounded-[2px]" style={{ background: `rgba(52,211,153,${o + 0.08})` }} />
+                ))}
+              </div>
+              <span className="ml-auto font-mono text-[9px] text-white/25">30 fps</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Session stats */}
+      <div className="grid grid-cols-3 divide-x divide-white/[0.05]">
+        {[
+          { label: "Latency", value: "14ms" },
+          { label: "Uptime", value: "4m 32s" },
+          { label: "Frames", value: "8,142" },
+        ].map((s) => (
+          <div key={s.label} className="px-4 py-3.5 text-center">
+            <div className="font-mono text-[9px] text-white/25">{s.label}</div>
+            <div className="mt-1 font-mono text-[14px] font-medium text-white/70">{s.value}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Request snippet */}
+      <div className="border-t border-white/[0.06] px-5 py-3">
+        <div className="rounded-md bg-black/30 px-3 py-2.5 font-mono text-[10px] leading-relaxed">
+          <span className="text-emerald-400/60">POST</span>{" "}
+          <span className="text-white/35">/v1/stream/start</span>
+          <br />
+          <span className="text-white/20">{"{"} workflow: </span>
+          <span className="text-amber-400/50">&quot;world-model-v1&quot;</span>
+          <span className="text-white/20">{" }"}</span>
+        </div>
+      </div>
+
+      {/* Bottom bar */}
+      <div className="flex items-center justify-between border-t border-white/[0.08] bg-white/[0.02] px-5 py-2.5">
+        <span className="font-mono text-[10px] text-white/25">US East · GPU A100</span>
+        <span className="font-mono text-[10px] text-emerald-400/50">● Connected</span>
+      </div>
+    </div>
+  );
+}
+
+/* ── Panel 4: Usage & SLAs visual ── */
+
+const sparklinePoints =
+  "0,32 15,30 30,34 45,28 60,31 75,25 90,29 105,22 120,27 135,20 150,24 165,18 180,22 195,16 210,20 225,14 240,19 255,15 270,18 285,13 300,17";
+
+function UsageVisual() {
+  return (
+    <div className="overflow-hidden rounded-lg border border-white/[0.08] bg-[#161616]">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-white/[0.08] bg-white/[0.03] px-5 py-3.5">
+        <span className="text-[14px] font-medium text-white/90">Usage & SLAs</span>
+        <span className="rounded-md bg-white/[0.06] px-2.5 py-1 text-[11px] text-white/35">
+          Last 24h
+        </span>
+      </div>
+
+      {/* Chart area */}
+      <div className="border-b border-white/[0.06] px-5 py-4">
+        <div className="mb-2 flex items-baseline gap-3">
+          <span className="font-mono text-[22px] font-semibold text-white/90">14ms</span>
+          <span className="font-mono text-[11px] text-white/30">avg latency</span>
+          <span className="ml-auto font-mono text-[11px] text-emerald-400/70">
+            ↓ 12% vs yesterday
+          </span>
+        </div>
+        <svg viewBox="0 0 300 40" className="h-[56px] w-full" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgba(52,211,153,0.15)" />
+              <stop offset="100%" stopColor="rgba(52,211,153,0)" />
+            </linearGradient>
+          </defs>
+          <polygon
+            points={`0,40 ${sparklinePoints} 300,40`}
+            fill="url(#chartFill)"
+          />
+          <polyline
+            points={sparklinePoints}
+            fill="none"
+            stroke="rgba(52,211,153,0.55)"
+            strokeWidth="1.5"
+          />
+        </svg>
+      </div>
+
+      {/* SLA rows */}
+      {[
+        { label: "Uptime", value: "99.97%", sla: "99.9%" },
+        { label: "Failure Rate", value: "0.02%", sla: "<0.1%" },
+        { label: "Swap Rate", value: "1.2%", sla: "<5%" },
+      ].map((m, i) => (
+        <div
+          key={m.label}
+          className={`flex items-center justify-between px-5 py-2.5 ${
+            i < 2 ? "border-b border-white/[0.05]" : ""
+          }`}
+        >
+          <span className="text-[12px] text-white/50">{m.label}</span>
+          <div className="flex items-center gap-3">
+            <span className="font-mono text-[12px] text-white/60">{m.value}</span>
+            <span className="font-mono text-[10px] text-white/20">{m.sla}</span>
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400/15">
+              <svg className="h-3 w-3 text-emerald-400/80" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M3 6l2 2 4-4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
+          </div>
+        </div>
+      ))}
+
+      {/* Bottom bar */}
+      <div className="flex items-center justify-between border-t border-white/[0.08] bg-white/[0.02] px-5 py-2.5">
+        <span className="font-mono text-[10px] text-white/25">All SLAs passing</span>
+        <span className="font-mono text-[10px] text-emerald-400/50">● Healthy</span>
+      </div>
+    </div>
+  );
+}
+
+/* ── Section ── */
 
 export default function WhatIsLivepeer() {
   return (
@@ -311,28 +322,87 @@ export default function WhatIsLivepeer() {
         >
           <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
             <SectionHeader
-              label="The Network"
-              title="Deploy real-time AI video pipelines"
-              description="A global GPU network with published SLAs, elastic scaling, and pay-as-you-go pricing. Run AI video pipelines with no vendor lock-in."
+              label="Network-as-a-Product"
+              title="One API for real‑time AI video"
+              description="Get an API key, pick a workflow, start sending frames. The network handles GPU routing, billing, and SLA enforcement."
               align="split"
             />
           </motion.div>
 
-          {/* Product UI showcase — Linear-style floating frame */}
+          {/* Single surface — all 4 panels */}
           <motion.div
-            className="relative mt-20"
+            className="mt-20 rounded-2xl border border-white/[0.06]"
             variants={fadeUp}
             transition={{ duration: 0.4 }}
           >
-            <ProductUI />
-            {/* Bottom fade to section bg */}
-            <div
-              className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 h-48"
-              style={{
-                background:
-                  "linear-gradient(to bottom, transparent, #181818)",
-              }}
-            />
+            <div className="grid grid-cols-1 sm:grid-cols-2">
+              {[
+                {
+                  Visual: ApiKeysVisual,
+                  title: "Authenticate & connect",
+                  description:
+                    "Create an API key and choose a billing provider. Your key authenticates requests, your provider handles routing and payments.",
+                  step: "1",
+                },
+                {
+                  Visual: ModelsVisual,
+                  title: "Pick a model",
+                  description:
+                    "Browse available models optimized for real-time inference. See latency, type, and health across the network.",
+                  step: "2",
+                },
+                {
+                  Visual: StreamVisual,
+                  title: "Start streaming",
+                  description:
+                    "Open a session, send frames, receive outputs. The gateway routes your stream to the best-performing GPU provider.",
+                  step: "3",
+                },
+                {
+                  Visual: UsageVisual,
+                  title: "Ship with confidence",
+                  description:
+                    "Published SLAs on latency, uptime, and failure rate. Track performance per workflow, region, and GPU provider.",
+                  step: "4",
+                },
+              ].map((panel, i) => (
+                <div
+                  key={i}
+                  className={`p-6 sm:p-8 ${
+                    /* vertical dividers */
+                    i % 2 === 0 ? "sm:border-r sm:border-white/[0.06]" : ""
+                  } ${
+                    /* horizontal dividers */
+                    i < 2 ? "border-b border-white/[0.06]" : ""
+                  }`}
+                >
+                  {/* Visual area — fixed height so all panels align */}
+                  <div className="relative h-[300px] sm:h-[340px] overflow-hidden">
+                    <div className="pt-6 sm:pt-8">
+                      <panel.Visual />
+                    </div>
+                    {/* Bottom fade-out */}
+                    <div
+                      className="pointer-events-none absolute bottom-0 left-0 right-0 h-20 sm:h-24"
+                      style={{
+                        background:
+                          "linear-gradient(to top, #181818 0%, rgba(24,24,24,0.7) 40%, transparent 100%)",
+                      }}
+                    />
+                  </div>
+                  {/* Text */}
+                  <div className="pt-8">
+                    <h3 className="text-base font-semibold text-white/90">
+                      <span className="mr-2.5 text-white/20">{panel.step}.</span>
+                      {panel.title}
+                    </h3>
+                    <p className="mt-2 text-[14px] leading-relaxed text-white/40">
+                      {panel.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </motion.div>
         </motion.div>
       </Container>
