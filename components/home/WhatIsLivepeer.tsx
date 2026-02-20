@@ -11,9 +11,38 @@ const fadeUp = {
 
 /* ── Panel 1: API Keys visual ── */
 
+function SpotlightCard({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      className="rounded-lg p-px"
+      style={{
+        background:
+          "radial-gradient(ellipse 80% 60% at 25% 0%, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.0) 100%)",
+      }}
+    >
+      <div className="relative overflow-hidden rounded-[7px] bg-[#161616]">
+        {/* Spotlight + vignette + bottom fade — single coherent overlay */}
+        <div
+          className="pointer-events-none absolute inset-0 z-10"
+          aria-hidden="true"
+          style={{
+            background: [
+              "radial-gradient(ellipse 60% 50% at 25% 20%, rgba(255,255,255,0.07) 0%, transparent 100%)",
+              "radial-gradient(ellipse 100% 80% at 50% 40%, transparent 30%, rgba(0,0,0,0.55) 100%)",
+              "linear-gradient(to top, #181818 0%, rgba(24,24,24,0.7) 20%, transparent 50%)",
+            ].join(", "),
+          }}
+        />
+        {children}
+      </div>
+    </div>
+  );
+}
+
 function ApiKeysVisual() {
   return (
-    <div className="overflow-hidden rounded-lg border border-white/[0.08] bg-[#161616]">
+    <SpotlightCard>
+    <div>
       {/* Header */}
       <div className="flex items-center justify-between border-b border-white/[0.08] bg-white/[0.03] px-5 py-3.5">
         <span className="text-[14px] font-medium text-white/90">
@@ -77,6 +106,7 @@ function ApiKeysVisual() {
         <span className="font-mono text-[10px] text-white/25">CDN: Enabled</span>
       </div>
     </div>
+    </SpotlightCard>
   );
 }
 
@@ -84,7 +114,8 @@ function ApiKeysVisual() {
 
 function ModelsVisual() {
   return (
-    <div className="overflow-hidden rounded-lg border border-white/[0.08] bg-[#161616]">
+    <SpotlightCard>
+    <div>
       {/* Header */}
       <div className="flex items-center justify-between border-b border-white/[0.08] bg-white/[0.03] px-5 py-3.5">
         <span className="text-[14px] font-medium text-white/90">Models</span>
@@ -142,6 +173,7 @@ function ModelsVisual() {
         <span className="font-mono text-[10px] text-white/25">4 regions</span>
       </div>
     </div>
+    </SpotlightCard>
   );
 }
 
@@ -149,7 +181,8 @@ function ModelsVisual() {
 
 function StreamVisual() {
   return (
-    <div className="overflow-hidden rounded-lg border border-white/[0.08] bg-[#161616]">
+    <SpotlightCard>
+    <div>
       {/* Header */}
       <div className="flex items-center justify-between border-b border-white/[0.08] bg-white/[0.03] px-5 py-3.5">
         <div className="flex items-center gap-2.5">
@@ -159,6 +192,18 @@ function StreamVisual() {
           </span>
         </div>
         <span className="font-mono text-[11px] text-white/25">stream_8f3k2m</span>
+      </div>
+
+      {/* Request snippet */}
+      <div className="border-b border-white/[0.06] px-5 py-3">
+        <div className="rounded-md bg-black/30 px-3 py-2.5 font-mono text-[10px] leading-relaxed">
+          <span className="text-emerald-400/60">POST</span>{" "}
+          <span className="text-white/35">/v1/stream/start</span>
+          <br />
+          <span className="text-white/20">{"{"} workflow: </span>
+          <span className="text-amber-400/50">&quot;world-model-v1&quot;</span>
+          <span className="text-white/20">{" }"}</span>
+        </div>
       </div>
 
       {/* Input/output flow */}
@@ -206,24 +251,13 @@ function StreamVisual() {
         ))}
       </div>
 
-      {/* Request snippet */}
-      <div className="border-t border-white/[0.06] px-5 py-3">
-        <div className="rounded-md bg-black/30 px-3 py-2.5 font-mono text-[10px] leading-relaxed">
-          <span className="text-emerald-400/60">POST</span>{" "}
-          <span className="text-white/35">/v1/stream/start</span>
-          <br />
-          <span className="text-white/20">{"{"} workflow: </span>
-          <span className="text-amber-400/50">&quot;world-model-v1&quot;</span>
-          <span className="text-white/20">{" }"}</span>
-        </div>
-      </div>
-
       {/* Bottom bar */}
       <div className="flex items-center justify-between border-t border-white/[0.08] bg-white/[0.02] px-5 py-2.5">
         <span className="font-mono text-[10px] text-white/25">US East · GPU A100</span>
         <span className="font-mono text-[10px] text-emerald-400/50">● Connected</span>
       </div>
     </div>
+    </SpotlightCard>
   );
 }
 
@@ -234,7 +268,8 @@ const sparklinePoints =
 
 function UsageVisual() {
   return (
-    <div className="overflow-hidden rounded-lg border border-white/[0.08] bg-[#161616]">
+    <SpotlightCard>
+    <div>
       {/* Header */}
       <div className="flex items-center justify-between border-b border-white/[0.08] bg-white/[0.03] px-5 py-3.5">
         <span className="text-[14px] font-medium text-white/90">Usage & SLAs</span>
@@ -303,6 +338,7 @@ function UsageVisual() {
         <span className="font-mono text-[10px] text-emerald-400/50">● Healthy</span>
       </div>
     </div>
+    </SpotlightCard>
   );
 }
 
