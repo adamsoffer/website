@@ -312,14 +312,15 @@ export default function WhatIsLivepeer() {
           <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
             <SectionHeader
               label="The Network"
-              title="Deploy AI video pipelines with guaranteed performance"
-              description="Deploy real-time AI inference workflows to a global GPU network with published SLAs, elastic scaling, and pay-as-you-go pricing. No vendor lock-in — the network is open, permissionless, and built to run production workloads."
+              title="Deploy real-time AI video pipelines"
+              description="A global GPU network with published SLAs, elastic scaling, and pay-as-you-go pricing. Run AI video pipelines with no vendor lock-in."
+              align="split"
             />
           </motion.div>
 
           {/* Product UI showcase — Linear-style floating frame */}
           <motion.div
-            className="relative -mx-4 mt-16 sm:-mx-8 lg:-mx-16"
+            className="relative mt-20"
             variants={fadeUp}
             transition={{ duration: 0.4 }}
           >

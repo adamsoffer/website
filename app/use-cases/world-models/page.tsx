@@ -1112,12 +1112,12 @@ export default function WorldModelsPage() {
               <SectionHeader
                 label="The Problem"
                 title="World models break standard infrastructure"
-                description="Most GPU infrastructure is built for batch inference: submit a request, wait for a result. World models are live systems that generate frames continuously and respond to input in real time. That requires a fundamentally different infrastructure layer."
-                align="left"
+                description="Most GPU infrastructure is built for batch inference. World models generate frames continuously and respond to input in real time — a fundamentally different workload."
+                align="split"
               />
             </motion.div>
 
-            <div className="mt-14 grid gap-4 sm:grid-cols-2">
+            <div className="mt-20 grid gap-4 sm:grid-cols-2">
               {infraChallenges.map((challenge) => (
                 <motion.div
                   key={challenge.title}
@@ -1160,11 +1160,12 @@ export default function WorldModelsPage() {
                 label="Livepeer Network"
                 title="What Livepeer provides"
                 description="An open, permissionless GPU network designed for real-time AI video workloads. Inference, encoding, and delivery in one integrated pipeline."
+                align="split"
               />
             </motion.div>
 
             {/* Capability list */}
-            <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-20 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {capabilityMapping.map((row, i) => (
                 <motion.div
                   key={i}
@@ -1218,11 +1219,12 @@ export default function WorldModelsPage() {
               <SectionHeader
                 label="Applications"
                 title="What you can build"
-                description="World models enable a range of interactive, visual applications across industries."
+                description="World models enable a new generation of interactive, visual applications — from gaming and simulation to robotics and autonomous systems."
+                align="split"
               />
             </motion.div>
 
-            <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-20 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {applications.map((app) => (
                 <motion.div
                   key={app.title}
@@ -1263,13 +1265,14 @@ export default function WorldModelsPage() {
                 label="Architecture"
                 title="Reference architecture"
                 description="A typical world model deployment on Livepeer follows this flow, from input signals through inference to delivered video."
+                align="split"
               />
             </motion.div>
 
             <motion.div
               variants={fadeUp}
               transition={{ duration: 0.4 }}
-              className="-mx-4 mt-14 overflow-x-auto px-4 sm:mx-0 sm:px-0"
+              className="-mx-4 mt-20 overflow-x-auto px-4 sm:mx-0 sm:px-0"
             >
               <div className="min-w-[640px]">
                 <ArchitectureDiagram />
