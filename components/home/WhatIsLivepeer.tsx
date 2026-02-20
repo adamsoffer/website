@@ -358,8 +358,8 @@ export default function WhatIsLivepeer() {
         >
           <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
             <SectionHeader
-              label="Network-as-a-Product"
-              title="One API for real‑time AI video"
+              label="How it works"
+              title="The real‑time AI video gateway for developers"
               description="Get an API key, pick a workflow, start sending frames. The network handles GPU routing, billing, and SLA enforcement."
               align="split"
             />
