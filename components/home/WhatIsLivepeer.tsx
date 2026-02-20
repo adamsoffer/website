@@ -367,7 +367,7 @@ export default function WhatIsLivepeer() {
 
           {/* Single surface — all 4 panels */}
           <motion.div
-            className="mt-20 rounded-2xl border border-white/[0.06]"
+            className="mt-20 rounded-2xl border border-white/[0.06] bg-[#181818]"
             variants={fadeUp}
             transition={{ duration: 0.4 }}
           >
@@ -417,12 +417,12 @@ export default function WhatIsLivepeer() {
                     <div className="pt-6 sm:pt-8">
                       <panel.Visual />
                     </div>
-                    {/* Bottom fade-out */}
+                    {/* Bottom fade-out — sits above SpotlightCard to blend into panel bg */}
                     <div
-                      className="pointer-events-none absolute bottom-0 left-0 right-0 h-20 sm:h-24"
+                      className="pointer-events-none absolute bottom-0 left-0 right-0 z-20 h-28 sm:h-36"
                       style={{
                         background:
-                          "linear-gradient(to top, #181818 0%, rgba(24,24,24,0.7) 40%, transparent 100%)",
+                          "linear-gradient(to top, #181818 0%, rgba(24,24,24,0.85) 30%, rgba(24,24,24,0.4) 60%, transparent 100%)",
                       }}
                     />
                   </div>
