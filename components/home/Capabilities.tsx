@@ -629,13 +629,14 @@ export default function Capabilities() {
           <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
             <SectionHeader
               label="Use Cases"
-              title="What you can build"
-              description="Livepeer powers real-time AI video use cases — from generated worlds and video analysis to autonomous avatars and beyond."
+              title="What you can build with Livepeer"
+              description="From generated worlds and real-time video analysis to autonomous avatars and live transcoding — the network powers every AI video use case."
+              align="split"
             />
           </motion.div>
 
           {/* Asymmetric bento grid — 6-col with zigzag */}
-          <div className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-6">
+          <div className="mt-20 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-6">
             {capabilities.map((cap) => (
               <motion.div
                 key={cap.title}

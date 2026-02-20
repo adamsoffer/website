@@ -87,6 +87,7 @@ export default function NetworkParticipants() {
               title="Who runs the network"
               description="Four key roles work together to power open video infrastructure."
               size="small"
+              align="split"
             />
           </motion.div>
 

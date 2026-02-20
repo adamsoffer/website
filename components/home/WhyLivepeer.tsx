@@ -219,12 +219,13 @@ export default function WhyLivepeer() {
           <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
             <SectionHeader
               label="Why Livepeer"
-              title="Built for real-time"
-              description="Where generic GPU clouds optimize for batch jobs and static inputs, Livepeer is purpose-built for continuous AI inference on live video."
+              title="Purpose-built for live AI inference"
+              description="Where generic GPU clouds optimize for batch workloads, Livepeer is built from the ground up for continuous inference on live video streams."
+              align="split"
             />
           </motion.div>
 
-          <div className="mt-16 grid gap-4 sm:grid-cols-2">
+          <div className="mt-20 grid gap-4 sm:grid-cols-2">
             <AdvantageCard>
               <div className="font-mono text-5xl font-bold tracking-tight text-gradient lg:text-6xl">
                 10x

@@ -427,12 +427,13 @@ export default function BuiltOnLivepeer() {
           <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
             <SectionHeader
               label="Ecosystem"
-              title="Built on Livepeer"
-              description="A growing ecosystem of applications and services powered by the Livepeer network."
+              title="An open and growing ecosystem"
+              description="Applications and platforms are building on the network to power video experiences — from AI-native creative tools to live streaming infrastructure."
+              align="split"
             />
           </motion.div>
 
-          <div className="mt-16 grid gap-4 sm:grid-cols-2">
+          <div className="mt-20 grid gap-4 sm:grid-cols-2">
             {projects.map((project, i) => (
               <motion.div
                 key={i}
