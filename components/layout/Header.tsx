@@ -156,10 +156,10 @@ export default function Header() {
 
           {/* CTA */}
           <a
-            href={EXTERNAL_LINKS.docs}
+            href="#"
             className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-1.5 text-sm font-medium text-dark transition-all hover:bg-white/90 active:bg-white/80"
           >
-            Start Building
+            Dashboard
             <svg
               className="h-3.5 w-3.5"
               fill="none"
@@ -301,10 +301,10 @@ export default function Header() {
             })}
             <div className="mt-4">
               <a
-                href={EXTERNAL_LINKS.docs}
+                href="#"
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-medium text-dark transition-colors hover:bg-white/90"
               >
-                Start Building
+                Dashboard
                 <span aria-hidden="true">&rarr;</span>
               </a>
             </div>

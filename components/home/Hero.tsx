@@ -296,11 +296,11 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.6 }}
           >
-            <Button href={EXTERNAL_LINKS.docs} variant="primary">
-              Start Building <span aria-hidden="true">&rarr;</span>
+            <Button href="#" variant="primary">
+              Dashboard <span aria-hidden="true">&rarr;</span>
             </Button>
-            <Button href={EXTERNAL_LINKS.explorer} variant="secondary">
-              Explore the Network
+            <Button href={EXTERNAL_LINKS.docs} variant="secondary">
+              Documentation
             </Button>
           </motion.div>
         </motion.div>
