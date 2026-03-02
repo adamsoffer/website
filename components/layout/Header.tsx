@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LivepeerTextmark } from "@/components/icons/LivepeerLogo";
+import { LivepeerWordmark } from "@/components/icons/LivepeerLogo";
 import { NAV_ITEMS, EXTERNAL_LINKS } from "@/lib/constants";
 import type { NavItem } from "@/lib/constants";
 
@@ -138,7 +138,7 @@ export default function Header() {
             className="flex flex-shrink-0 items-center rounded-full px-2 py-1 transition-colors hover:bg-white/5"
             aria-label="Livepeer home"
           >
-            <LivepeerTextmark className="h-3.5 w-auto text-white" />
+            <LivepeerWordmark className="h-3.5 w-auto text-white" />
           </Link>
 
           {/* Separator */}

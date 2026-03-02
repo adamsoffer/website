@@ -69,7 +69,7 @@ export default async function OGImage() {
           }}
         />
 
-        {/* Wordmark (symbol + LIVEPEER text) — 560px wide */}
+        {/* Lockup (symbol + LIVEPEER text) — 560px wide */}
         <svg
           width="560"
           height="70"

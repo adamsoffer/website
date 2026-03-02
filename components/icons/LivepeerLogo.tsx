@@ -36,8 +36,8 @@ export const LivepeerSymbol = forwardRef<SVGSVGElement, LogoProps>(
   }
 );
 
-export const LivepeerTextmark = forwardRef<SVGSVGElement, LogoProps>(
-  function LivepeerTextmark({ className = "", style }, ref) {
+export const LivepeerWordmark = forwardRef<SVGSVGElement, LogoProps>(
+  function LivepeerWordmark({ className = "", style }, ref) {
     return (
       <svg
         ref={ref}
@@ -60,8 +60,8 @@ export const LivepeerTextmark = forwardRef<SVGSVGElement, LogoProps>(
   }
 );
 
-export const LivepeerWordmark = forwardRef<SVGSVGElement, LogoProps>(
-  function LivepeerWordmark({ className = "", style }, ref) {
+export const LivepeerLockup = forwardRef<SVGSVGElement, LogoProps>(
+  function LivepeerLockup({ className = "", style }, ref) {
     return (
       <svg
         ref={ref}

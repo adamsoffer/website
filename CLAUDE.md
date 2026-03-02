@@ -18,7 +18,7 @@ Next.js 15, React 19, TypeScript, Tailwind CSS v4, Framer Motion 11. No test fra
 - **Homepage sections**: `components/home/` — each section is a self-contained component (Hero, WhatIsLivepeer, Capabilities, WhyLivepeer, NetworkStats, BuiltOnLivepeer, NetworkParticipants, DeveloperCTA, CommunityCTA). Section order is controlled in `app/page.tsx`.
 - **Layout**: `components/layout/` — Header and Footer, shared across all pages via `app/layout.tsx`.
 - **UI primitives**: `components/ui/` — Button, Card, Container, SectionHeader, Badge, ImageMask, etc. Reuse these; don't create new wrappers for the same purpose.
-- **Icons**: `components/icons/LivepeerLogo.tsx` exports `LivepeerSymbol` (icon only), `LivepeerTextmark` (text only), `LivepeerWordmark` (icon + text).
+- **Icons**: `components/icons/LivepeerLogo.tsx` exports `LivepeerSymbol` (icon only), `LivepeerWordmark` (text only), `LivepeerLockup` (icon + text).
 - **Constants**: `lib/constants.ts` — navigation items and external links. `lib/fonts.ts` — Favorit Pro and Favorit Mono local font config.
 - **Custom hooks**: `lib/useCountUp.ts` — IntersectionObserver-triggered count-up animation, used in NetworkStats.
 - **Canvas/WebGL**: `components/ui/` contains `GenerativeCanvas.tsx` (procedural GLSL shader), `LiveNetwork.tsx` (Canvas 2D particle trails), and `AiVideoHero.tsx` (Sobel edge detection on live video texture). All follow the same `useEffect` + `useRef<HTMLCanvasElement>` + `requestAnimationFrame` + cleanup pattern.

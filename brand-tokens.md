@@ -125,19 +125,24 @@ background: linear-gradient(to right, transparent, rgba(255,255,255,0.15) 25%, r
 ## 3. Logo
 
 ### Composition
-- **Full logo** = Symbol + Wordmark (separated by 3x spacing where x = symbol square width)
-- **Wordmark only** = "LIVEPEER" text, constructed in Favorit Pro with custom 'E' letters (notch cut from middle of each E, matching vertical stroke width)
-- **Symbol only** = 6 squares in a play-button arrangement (3 columns, 5 rows)
+- **Lockup** = Symbol + Wordmark (separated by 3x spacing where x = symbol square width)
+- **Wordmark** = "LIVEPEER" text, constructed in Favorit Pro with custom 'E' letters (notch cut from middle of each E, matching vertical stroke width)
+- **Symbol** = 6 squares in a play-button arrangement (3 columns, 5 rows)
 
-### Logo Variants
+### When to Use
+- **Symbol**: Favicons, app icons, avatars, social profiles, and compact spaces where the brand is already established
+- **Wordmark**: App and website headers, navigation bars, and product UI where a clean, text-forward identity is preferred
+- **Lockup**: Footers, splash screens, co-marketing, partner pages, event signage, and press kits — anywhere the audience may not already know the brand
+
+### Color Variants
 - **Black** (`#181818`) — default, for light/white backgrounds
 - **White** (`#FFFFFF`) — for dark/colored/gradient backgrounds
 - On green gradient backgrounds: use white logo
 
 ### Clear Space
-- **Full logo**: Minimum clear space = width of the symbol on all sides
-- **Wordmark alone**: Minimum clear space = height of the wordmark on all sides
-- **Symbol alone**: Minimum clear space = width of one square on all sides
+- **Lockup**: Minimum clear space = width of the symbol on all sides
+- **Wordmark**: Minimum clear space = height of the wordmark on all sides
+- **Symbol**: Minimum clear space = width of one square on all sides
 
 ### Logo Placement
 - **Primary**: Top-left or bottom-left corner

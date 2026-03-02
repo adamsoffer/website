@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LivepeerWordmark } from "@/components/icons/LivepeerLogo";
+import { LivepeerLockup } from "@/components/icons/LivepeerLogo";
 import Container from "@/components/ui/Container";
 import { EXTERNAL_LINKS } from "@/lib/constants";
 
@@ -88,7 +88,7 @@ export default function Footer() {
           {/* Logo + tagline */}
           <div className="col-span-2 md:col-span-4 lg:col-span-1">
             <Link href="/" aria-label="Livepeer home">
-              <LivepeerWordmark className="h-5 w-auto text-white" />
+              <LivepeerLockup className="h-5 w-auto text-white" />
             </Link>
             <p className="mt-4 text-sm text-white/50">
               The world&apos;s open video infrastructure.

@@ -6,8 +6,8 @@ import Container from "@/components/ui/Container";
 import ImageMask from "@/components/ui/ImageMask";
 import {
   LivepeerSymbol,
-  LivepeerTextmark,
   LivepeerWordmark,
+  LivepeerLockup,
 } from "@/components/icons/LivepeerLogo";
 
 const fadeUp = {
@@ -260,11 +260,11 @@ function LogoCard({
 export default function BrandPage() {
   /* Refs for downloadable SVGs */
   const symbolDarkRef = useRef<SVGSVGElement>(null);
-  const textmarkDarkRef = useRef<SVGSVGElement>(null);
   const wordmarkDarkRef = useRef<SVGSVGElement>(null);
+  const lockupDarkRef = useRef<SVGSVGElement>(null);
   const symbolLightRef = useRef<SVGSVGElement>(null);
-  const textmarkLightRef = useRef<SVGSVGElement>(null);
   const wordmarkLightRef = useRef<SVGSVGElement>(null);
+  const lockupLightRef = useRef<SVGSVGElement>(null);
 
   return (
     <>
@@ -472,8 +472,8 @@ export default function BrandPage() {
                 Logo
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-lg text-white/60">
-                Three variants: Symbol, Textmark, and Wordmark (symbol +
-                textmark). White on dark, black on light.
+                Three variants: Symbol, Wordmark, and Lockup (symbol +
+                wordmark). White on dark, black on light.
               </p>
             </motion.div>
 
@@ -501,19 +501,6 @@ export default function BrandPage() {
                   />
                 </LogoCard>
                 <LogoCard
-                  variant="Textmark"
-
-                  bgClass="bg-dark-card"
-                  textColor="text-white/40"
-                  svgRef={textmarkDarkRef}
-                  filename="livepeer-textmark-white.svg"
-                >
-                  <LivepeerTextmark
-                    className="h-6 w-auto text-white"
-                    ref={textmarkDarkRef}
-                  />
-                </LogoCard>
-                <LogoCard
                   variant="Wordmark"
 
                   bgClass="bg-dark-card"
@@ -524,6 +511,19 @@ export default function BrandPage() {
                   <LivepeerWordmark
                     className="h-6 w-auto text-white"
                     ref={wordmarkDarkRef}
+                  />
+                </LogoCard>
+                <LogoCard
+                  variant="Lockup"
+
+                  bgClass="bg-dark-card"
+                  textColor="text-white/40"
+                  svgRef={lockupDarkRef}
+                  filename="livepeer-lockup-white.svg"
+                >
+                  <LivepeerLockup
+                    className="h-6 w-auto text-white"
+                    ref={lockupDarkRef}
                   />
                 </LogoCard>
               </div>
@@ -553,19 +553,6 @@ export default function BrandPage() {
                   />
                 </LogoCard>
                 <LogoCard
-                  variant="Textmark"
-
-                  bgClass="bg-white"
-                  textColor="text-[#181818]/40"
-                  svgRef={textmarkLightRef}
-                  filename="livepeer-textmark-black.svg"
-                >
-                  <LivepeerTextmark
-                    className="h-6 w-auto text-[#181818]"
-                    ref={textmarkLightRef}
-                  />
-                </LogoCard>
-                <LogoCard
                   variant="Wordmark"
 
                   bgClass="bg-white"
@@ -578,6 +565,60 @@ export default function BrandPage() {
                     ref={wordmarkLightRef}
                   />
                 </LogoCard>
+                <LogoCard
+                  variant="Lockup"
+
+                  bgClass="bg-white"
+                  textColor="text-[#181818]/40"
+                  svgRef={lockupLightRef}
+                  filename="livepeer-lockup-black.svg"
+                >
+                  <LivepeerLockup
+                    className="h-6 w-auto text-[#181818]"
+                    ref={lockupLightRef}
+                  />
+                </LogoCard>
+              </div>
+            </motion.div>
+
+            {/* When to use each variant */}
+            <motion.div
+              variants={fadeUp}
+              transition={{ duration: 0.5 }}
+              className="mt-12"
+            >
+              <p className="mb-4 font-mono text-xs tracking-wider text-white/40 uppercase">
+                When to use
+              </p>
+              <div className="grid gap-6 sm:grid-cols-3">
+                <div className="rounded-xl border border-dark-border bg-dark-card p-6">
+                  <p className="font-mono text-xs font-medium tracking-wider text-white/40 uppercase">
+                    Symbol
+                  </p>
+                  <p className="mt-2 text-sm text-white/60">
+                    Favicons, app icons, avatars, social profiles, and compact
+                    spaces where the brand is already established.
+                  </p>
+                </div>
+                <div className="rounded-xl border border-dark-border bg-dark-card p-6">
+                  <p className="font-mono text-xs font-medium tracking-wider text-white/40 uppercase">
+                    Wordmark
+                  </p>
+                  <p className="mt-2 text-sm text-white/60">
+                    App and website headers, navigation bars, and product UI
+                    where a clean, text-forward identity is preferred.
+                  </p>
+                </div>
+                <div className="rounded-xl border border-dark-border bg-dark-card p-6">
+                  <p className="font-mono text-xs font-medium tracking-wider text-white/40 uppercase">
+                    Lockup
+                  </p>
+                  <p className="mt-2 text-sm text-white/60">
+                    Footers, splash screens, co-marketing, partner pages, event
+                    signage, and press kits — anywhere the audience may not
+                    already know the brand.
+                  </p>
+                </div>
               </div>
             </motion.div>
 
@@ -585,7 +626,7 @@ export default function BrandPage() {
             <motion.div
               variants={fadeUp}
               transition={{ duration: 0.5 }}
-              className="mt-12 grid gap-6 sm:grid-cols-3"
+              className="mt-8 grid gap-6 sm:grid-cols-3"
             >
               <div className="rounded-xl border border-dark-border bg-dark-card p-6">
                 <p className="font-mono text-xs font-medium tracking-wider text-white/40 uppercase">
