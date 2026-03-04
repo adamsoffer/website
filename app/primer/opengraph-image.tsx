@@ -59,7 +59,7 @@ export default async function OGImage() {
             style={{
               display: "flex",
               alignItems: "center",
-              marginTop: 36,
+              marginTop: 48,
               gap: 10,
               transform: "rotate(-2deg)",
             }}
@@ -85,7 +85,7 @@ export default async function OGImage() {
             >
               {/* Gentle rightward curve with slight bow */}
               <path
-                d="M4 20C20 10 40 8 62 14"
+                d="M4 24C14 6 38 2 62 14"
                 stroke="black"
                 strokeWidth="2"
                 strokeLinecap="round"
