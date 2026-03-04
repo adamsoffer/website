@@ -1,4 +1,5 @@
 import localFont from "next/font/local";
+import { Raleway } from "next/font/google";
 
 export const favoritPro = localFont({
   variable: "--font-favorit-pro",
@@ -30,6 +31,13 @@ export const favoritPro = localFont({
       style: "normal",
     },
   ],
+});
+
+export const raleway = Raleway({
+  subsets: ["latin"],
+  variable: "--font-raleway",
+  display: "swap",
+  weight: ["300", "400", "700", "800", "900"],
 });
 
 export const favoritMono = localFont({
