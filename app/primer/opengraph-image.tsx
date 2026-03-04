@@ -43,7 +43,7 @@ export default async function OGImage() {
           }}
         >
           {/* Livepeer Wordmark — black fill, large */}
-          <svg width="380" height="56" viewBox="115 0 596 90" fill="none">
+          <svg width="420" height="62" viewBox="115 0 596 90" fill="none">
             <path d="M118.899 88.6863V0.97998H135.921V73.6405H185.815V88.6863H118.899Z" fill="black" />
             <path d="M195.932 88.6863V0.97998H212.954V88.6863H195.932Z" fill="black" />
             <path d="M291.653 0.97998H310.34L277.221 88.6863H255.142L221.283 0.97998H240.34L266.551 70.9493L291.653 0.97998Z" fill="black" />
@@ -61,12 +61,12 @@ export default async function OGImage() {
               alignItems: "center",
               marginTop: 36,
               gap: 10,
-              transform: "rotate(2deg)",
+              transform: "rotate(-2deg)",
             }}
           >
             <div
               style={{
-                fontSize: 24,
+                fontSize: 27,
                 fontWeight: 400,
                 color: "black",
                 letterSpacing: "0.06em",
@@ -76,24 +76,26 @@ export default async function OGImage() {
             >
               A 10 MINUTE PRIMER
             </div>
-            {/* Hand-drawn curved arrow with arched path */}
+            {/* Hand-drawn curved arrow */}
             <svg
-              width="90"
-              height="36"
-              viewBox="0 0 90 36"
+              width="100"
+              height="40"
+              viewBox="0 0 100 40"
               fill="none"
             >
+              {/* Smooth sweeping curve */}
               <path
-                d="M4 30C12 10 32 4 58 6C65 7 72 10 78 16"
+                d="M6 32C16 12 40 2 68 8C76 10 82 14 88 20"
                 stroke="black"
-                strokeWidth="2.5"
+                strokeWidth="2.2"
                 strokeLinecap="round"
                 fill="none"
               />
+              {/* Arrowhead */}
               <path
-                d="M72 8L79 16L70 20"
+                d="M82 12L89 20L80 23"
                 stroke="black"
-                strokeWidth="2.5"
+                strokeWidth="2.2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 fill="none"
