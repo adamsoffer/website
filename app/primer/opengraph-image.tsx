@@ -74,7 +74,7 @@ export default async function OGImage() {
                 display: "flex",
               }}
             >
-              A 10 MINUTE PRIMER
+              A 10-MINUTE PRIMER
             </div>
             {/* Hand-drawn arrow */}
             <svg
