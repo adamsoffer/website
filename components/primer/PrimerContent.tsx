@@ -414,9 +414,9 @@ export default function PrimerContent({ stats }: { stats: ProtocolStats }) {
             <TextBlock maxW="350px">
               <Text28>Meet: Bob</Text28>
               <Text18>
-                Bob runs a GPU rig. He&rsquo;s connected his hardware to the
-                Livepeer network as a GPU provider, earning fees by running
-                AI inference for developers like Alice.
+                Bob is a gamer. He&rsquo;s exploring Alice&rsquo;s world model
+                &mdash; an AI-generated environment that reacts to his every
+                move in real-time.
               </Text18>
             </TextBlock>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -431,17 +431,17 @@ export default function PrimerContent({ stats }: { stats: ProtocolStats }) {
           <FlexSection flush="left" reverse>
             <TextBlock className="px-6 lg:pr-[max(2rem,calc((100vw-960px)/2))]">
               <Text18>
-                When Alice&rsquo;s users interact with her app, each input
-                triggers a new frame of AI-generated video. The app sends
-                these requests to Livepeer, which routes the work to GPU
-                providers like Bob. They run the world model and return
-                generated frames in real-time &mdash; inference, encoding,
-                and delivery in one pipeline.
+                When Bob plays, every input he makes triggers a new frame of
+                AI-generated video. Alice&rsquo;s app sends these requests to
+                Livepeer, which routes the GPU-intensive work across the
+                network and returns generated frames in real-time &mdash;
+                inference, encoding, and delivery in one pipeline.
               </Text18>
               <Text18>
-                Alice&rsquo;s app is gaining users fast. She needs her world
-                model to scale on demand without centralized cloud
-                bills eating her runway. How does Livepeer make this possible?
+                Bob&rsquo;s experience is seamless. But behind the scenes,
+                Alice needs massive GPU compute to keep up &mdash; and her
+                app is gaining users fast. How does Livepeer make this
+                affordable?
               </Text18>
             </TextBlock>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -458,7 +458,8 @@ export default function PrimerContent({ stats }: { stats: ProtocolStats }) {
               <Text18>
                 There are two key roles in the Livepeer protocol that make
                 this work:{" "}
-                <strong>Orchestrators</strong> (GPU providers like Bob) and{" "}
+                <strong>Orchestrators</strong> (GPU providers who run the
+                compute) and{" "}
                 <strong>Delegators</strong> (token holders who help secure
                 the network).
               </Text18>
@@ -486,7 +487,7 @@ export default function PrimerContent({ stats }: { stats: ProtocolStats }) {
           <ContentBlock className="mb-16">
             <TextBlock maxW="700px">
               <Text18>
-                In the Livepeer protocol, GPU providers like Bob are called{" "}
+                In the Livepeer protocol, GPU providers are called{" "}
                 <strong>orchestrators</strong>. They run the AI models
                 &mdash; image generation, video analysis, style transfer,
                 depth estimation &mdash; and earn fees in ETH or stablecoins
