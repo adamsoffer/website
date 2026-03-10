@@ -289,9 +289,9 @@ export default function PrimerContent({ stats }: { stats: ProtocolStats }) {
             />
           </FlexSection>
 
-          {/* Image flush left, text right */}
-          <FlexSection flush="left" reverse>
-            <TextBlock className="px-6 lg:pr-[max(2rem,calc((100vw-960px)/2))]">
+          {/* Image left, text right */}
+          <FlexSection reverse>
+            <TextBlock className="max-w-[360px]">
               <Text18>
                 AI-generated worlds, real-time video analysis, AI-driven
                 avatars and agents &mdash; demand for these applications is
@@ -303,9 +303,9 @@ export default function PrimerContent({ stats }: { stats: ProtocolStats }) {
             </TextBlock>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={`${IMG}/scissors.svg`}
-              alt="Cost barrier"
-              className="w-full max-w-[750px] flex-shrink-0"
+              src={`${IMG}/bob_gpu.svg`}
+              alt="GPU compute demand"
+              className="w-full max-w-[260px] flex-shrink-0"
             />
           </FlexSection>
 
