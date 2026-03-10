@@ -297,7 +297,7 @@ export default function PrimerContent({ stats }: { stats: ProtocolStats }) {
                 avatars and agents &mdash; demand for these applications is
                 accelerating. The developers building them &mdash; creative
                 technologists, startups, independent builders &mdash; need GPU
-                infrastructure that&rsquo;s fast, affordable, and always
+                providers that are fast, affordable, and always
                 available.
               </Text18>
             </TextBlock>
@@ -581,8 +581,11 @@ export default function PrimerContent({ stats }: { stats: ProtocolStats }) {
                 You can think about staking like putting a deposit down. When
                 you stake, your tokens become locked up for a period of time
                 and then you can take them back or stake them to a different
-                Orchestrator. Doing this helps ensure that the network is more
-                secure.
+                orchestrator. By delegating stake to high-performing
+                orchestrators, delegators signal to the network which ones
+                are most reliable &mdash; the network uses this
+                signal to route video streams to the best orchestrators,
+                ensuring high-quality inference across the network.
               </Text18>
               <div className="text-[22px] leading-relaxed lg:text-[28px] lg:leading-relaxed">
                 You may be wondering, why would a Livepeer tokenholder choose
