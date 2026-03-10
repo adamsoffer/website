@@ -249,18 +249,21 @@ export default function PrimerContent({ stats }: { stats: ProtocolStats }) {
           <FlexSection reverse>
             <TextBlock>
               <Text28>
-                Today, 80% of all internet bandwidth is consumed by video
-                streaming.
+                Today, roughly 80% of all internet bandwidth is consumed by
+                video.
               </Text28>
               <Text18>
-                It&rsquo;s easy to understand why: video is engaging,
-                educational, illuminating, and empowering.
+                It&rsquo;s already the dominant share of all internet traffic
+                &mdash; and AI is making it even more dominant. A growing
+                wave of applications now use AI models to create, transform,
+                and interpret video in real-time, requiring continuous GPU
+                inference on every frame.
               </Text18>
             </TextBlock>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={`${IMG}/pie-chart.svg`}
-              alt="80% of bandwidth is video"
+              alt="AI video is the fastest-growing GPU workload"
               className="w-full max-w-[420px] lg:max-w-[500px]"
             />
           </FlexSection>
@@ -269,18 +272,19 @@ export default function PrimerContent({ stats }: { stats: ProtocolStats }) {
           <FlexSection flush="right">
             <TextBlock className="px-6 lg:pl-[max(2rem,calc((100vw-960px)/2))]">
               <Text18>
-                But, for companies, video is insanely expensive to stream
-                &mdash; and even more expensive to live stream.
-              </Text18>
-              <Text18>
-                Why? Because broadcasters who want to distribute video on the
-                internet need to first <strong>transcode</strong> it.
+                But running AI on video is compute-intensive &mdash; and
+                expensive. Real-time video AI requires continuous{" "}
+                <strong>GPU inference</strong> &mdash; processing every frame
+                through AI models as it arrives, with no room for delay.
+                Centralized GPU clouds aren&rsquo;t built for this. They&rsquo;re
+                optimized for batch processing &mdash; not the continuous,
+                low-latency inference that real-time video demands.
               </Text18>
             </TextBlock>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={`${IMG}/transcoding-in.svg`}
-              alt="Transcoding illustration"
+              alt="Video AI processing"
               className="w-full max-w-[750px] flex-shrink-0"
             />
           </FlexSection>
@@ -289,71 +293,26 @@ export default function PrimerContent({ stats }: { stats: ProtocolStats }) {
           <FlexSection flush="left" reverse>
             <TextBlock className="px-6 lg:pr-[max(2rem,calc((100vw-960px)/2))]">
               <Text18>
-                Transcoding is the process of taking a raw video file and
-                reformatting it so that no matter what bandwidth you have
-                &mdash; whether 2g or 5g &mdash; and no matter what device,
-                you&rsquo;re ensured the most optimal viewing experience.
-              </Text18>
-            </TextBlock>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`${IMG}/transcoder-pickup.svg`}
-              alt="Transcoder pickup"
-              className="w-full max-w-[500px] flex-shrink-0"
-            />
-          </FlexSection>
-
-          {/* Text left, image right — contained */}
-          <FlexSection>
-            <TextBlock>
-              <Text18>
-                Today, this process costs around $3 per stream per hour to a
-                cloud service such as Amazon, up to $4,500 per month for one
-                media server, and up to $1,500 per month before bandwidth for
-                a content delivery network. That&rsquo;s a lot!
-              </Text18>
-            </TextBlock>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`${IMG}/transcoder-running.svg`}
-              alt="Transcoder running"
-              className="w-full max-w-[530px]"
-            />
-          </FlexSection>
-
-          {/* Image flush left, text right */}
-          <FlexSection flush="left" reverse>
-            <TextBlock className="px-6 lg:pr-[max(2rem,calc((100vw-960px)/2))]">
-              <Text18>
-                Due to such high infrastructure costs, it&rsquo;s become
-                commonplace for aspiring social video startups to find initial
-                success upon launch, adding hundreds of thousands of users in
-                a single month, only to end up with multi-million dollar
-                streaming bills that drain their funding prior to finding a
-                working business model. As a result, startups are forced to
-                tax their users by selling their data, bombard them with ads,
-                or shut down operations completely.
-              </Text18>
-              <Text18>
-                Demand for video services is increasing exponentially on the
-                infrastructure side with the arrival of 4k video, ultra-HD, VR
-                streaming, and all the cord-cutting that&rsquo;s moving
-                broadcasts off of the traditional broadcast pipes and on to
-                the internet.
+                AI-generated worlds, real-time video analysis, AI-driven
+                avatars and agents &mdash; demand for these applications is
+                accelerating. The developers building them &mdash; creative
+                technologists, startups, independent builders &mdash; need GPU
+                infrastructure that&rsquo;s fast, affordable, and always
+                available.
               </Text18>
             </TextBlock>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={`${IMG}/scissors.svg`}
-              alt="Cost cutting"
+              alt="Cost barrier"
               className="w-full max-w-[750px] flex-shrink-0"
             />
           </FlexSection>
 
           <ContentBlock className="mb-40">
             <Text28 center>
-              Video infrastructure needs a more scalable and cost-effective
-              solution to keep up with this growth.
+              Real-time video AI needs GPU infrastructure that&rsquo;s
+              specialized, scalable, and cost-effective.
             </Text28>
           </ContentBlock>
         </div>
@@ -370,15 +329,15 @@ export default function PrimerContent({ stats }: { stats: ProtocolStats }) {
           <FlexSection className="mb-40">
             <TextBlock>
               <Text18>
-                Livepeer is a protocol for developers who want to add live or
-                on-demand video to their project. It aims to increase the
-                reliability of video streaming while reducing costs associated
-                with it by up to 50x.
+                <strong>Livepeer is a specialized GPU network for real-time
+                video AI.</strong> It coordinates a global pool of GPU
+                providers to deliver low-latency AI inference on video streams
+                &mdash; frame-by-frame processing, not batch jobs.
               </Text18>
               <Text18>
-                To achieve this Livepeer is building p2p infrastructure that
-                interacts through a marketplace secured by the Ethereum
-                blockchain.
+                The network is open-source, built on Ethereum for coordination
+                and permissionless access, and 60&ndash;85% cheaper than
+                centralized cloud alternatives.
               </Text18>
             </TextBlock>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -405,17 +364,17 @@ export default function PrimerContent({ stats }: { stats: ProtocolStats }) {
               <PersonaCard
                 icon={`${IMG}/icon-developers.svg`}
                 title="Developers"
-                description="who want to build applications that include live or on demand video can use Livepeer to power their video functionality."
-              />
-              <PersonaCard
-                icon={`${IMG}/icon-users.svg`}
-                title="Users"
-                description="who want to stream video, gaming, coding, entertainment, educational courses, and other types of content can use applications built on Livepeer to do so."
+                description="building real-time AI video applications — generative worlds, live video analysis, AI avatars, interactive streaming — can use Livepeer to access GPU compute via simple API calls."
               />
               <PersonaCard
                 icon={`${IMG}/icon-broadcasters.svg`}
-                title="Broadcasters"
-                description="such as Twitch who have large audiences and high streaming bills or infrastructure costs can use Livepeer to reduce costs or infrastructure overhead."
+                title="GPU Providers"
+                description="contribute GPU compute to the network by running nodes. Anyone with capable hardware can join and earn fees for running AI inference workloads."
+              />
+              <PersonaCard
+                icon={`${IMG}/icon-users.svg`}
+                title="Token Holders"
+                description="who hold LPT can stake their tokens to GPU providers, helping secure the network and earning rewards for their participation."
               />
             </div>
           </ContentBlock>
@@ -436,10 +395,10 @@ export default function PrimerContent({ stats }: { stats: ProtocolStats }) {
             <TextBlock maxW="350px">
               <Text28>Meet: Alice</Text28>
               <Text18>
-                Alice is an app developer. She&rsquo;s using Livepeer to add
-                live video streaming capabilities to an app she&rsquo;s
-                building for high schools that want to broadcast their
-                team&rsquo;s sporting events.
+                Alice is a developer building an interactive world model
+                &mdash; an AI-generated environment that responds to user
+                input in real-time, rendering 30&ndash;60 frames per second
+                of generated video, continuously.
               </Text18>
             </TextBlock>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -455,8 +414,9 @@ export default function PrimerContent({ stats }: { stats: ProtocolStats }) {
             <TextBlock maxW="350px">
               <Text28>Meet: Bob</Text28>
               <Text18>
-                Bob is an event coordinator in charge of broadcasting his high
-                school&rsquo;s basketball games using Alice&rsquo;s app.
+                Bob runs a GPU rig. He&rsquo;s connected his hardware to the
+                Livepeer network as a GPU provider, earning fees by running
+                AI inference for developers like Alice.
               </Text18>
             </TextBlock>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -471,17 +431,17 @@ export default function PrimerContent({ stats }: { stats: ProtocolStats }) {
           <FlexSection flush="left" reverse>
             <TextBlock className="px-6 lg:pr-[max(2rem,calc((100vw-960px)/2))]">
               <Text18>
-                When Bob opens the app and taps &lsquo;Record&rsquo; at the
-                start of each game, the app sends the live video along with
-                broadcaster fees into the Livepeer network. Livepeer then
-                transcodes the video into all the formats and bitrates that
-                his viewers can consume.
+                When Alice&rsquo;s users interact with her app, each input
+                triggers a new frame of AI-generated video. The app sends
+                these requests to Livepeer, which routes the work to GPU
+                providers like Bob. They run the world model and return
+                generated frames in real-time &mdash; inference, encoding,
+                and delivery in one pipeline.
               </Text18>
               <Text18>
-                Today is a really important broadcast for Bob. It&rsquo;s the
-                championship game! How can Alice be sure that the live
-                streaming experience will be high-quality for Bob&rsquo;s
-                viewers?
+                Alice&rsquo;s app is gaining users fast. She needs her world
+                model to scale on demand without centralized cloud
+                bills eating her runway. How does Livepeer make this possible?
               </Text18>
             </TextBlock>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -496,13 +456,14 @@ export default function PrimerContent({ stats }: { stats: ProtocolStats }) {
           <FlexSection className="mb-40">
             <TextBlock>
               <Text18>
-                There are two key actors in the Livepeer network that ensure
-                the quality of the live stream:{" "}
-                <strong>Orchestrators</strong> and{" "}
-                <strong>Delegators</strong>.
+                There are two key roles in the Livepeer protocol that make
+                this work:{" "}
+                <strong>Orchestrators</strong> (GPU providers like Bob) and{" "}
+                <strong>Delegators</strong> (token holders who help secure
+                the network).
               </Text18>
               <Text18>
-                First, let&rsquo;s go over the role of Orchestrators.
+                Let&rsquo;s start with Orchestrators.
               </Text18>
             </TextBlock>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -525,16 +486,12 @@ export default function PrimerContent({ stats }: { stats: ProtocolStats }) {
           <ContentBlock className="mb-16">
             <TextBlock maxW="700px">
               <Text18>
-                In Livepeer, anyone can join the network and become what&rsquo;s
-                known as an <strong>orchestrator</strong> by running software
-                that allows you to contribute your computer&rsquo;s resources
-                (CPU, GPU, and bandwidth) in service of transcoding and
-                distributing video for paying broadcasters and developers like
-                Alice.
-              </Text18>
-              <Text18>
-                For doing so, you earn fees in the form of a cryptocurrency
-                like ETH or a stablecoin pegged to the US dollar like DAI.
+                In the Livepeer protocol, GPU providers like Bob are called{" "}
+                <strong>orchestrators</strong>. They run the AI models
+                &mdash; image generation, video analysis, style transfer,
+                depth estimation &mdash; and earn fees in ETH or stablecoins
+                for the work they perform. Anyone with capable GPU hardware
+                can join the network and become an orchestrator.
               </Text18>
             </TextBlock>
           </ContentBlock>
@@ -589,9 +546,9 @@ export default function PrimerContent({ stats }: { stats: ProtocolStats }) {
                 bootstrap, and incentivize participants to make sure the
                 Livepeer network is as cheap, effective, secure, reliable and
                 useful as possible. In the Livepeer protocol, LPT is required
-                to perform the work of transcoding and distributing video on
-                the network. The more LPT you own, the more work you&rsquo;re
-                able to perform on the network in exchange for fees.
+                to perform AI inference work on the network. The more LPT you
+                own, the more work you&rsquo;re able to perform on the network
+                in exchange for fees.
               </Text18>
               <Text18>
                 As the network&rsquo;s usage grows, so does the demand for
@@ -659,9 +616,9 @@ export default function PrimerContent({ stats }: { stats: ProtocolStats }) {
           <FlexSection>
             <TextBlock>
               <Text18>
-                When a broadcaster pays fees into the network, both
-                orchestrators and Delegators earn a portion of those fees as
-                a reward for ensuring a high-quality and secure network.
+                When a developer pays fees for AI inference on the network,
+                both orchestrators and delegators earn a portion of those fees
+                as a reward for ensuring a high-quality and secure network.
               </Text18>
             </TextBlock>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -678,7 +635,7 @@ export default function PrimerContent({ stats }: { stats: ProtocolStats }) {
               <Text18>
                 In addition to earning fees, Livepeer mints new token over
                 time, much like Bitcoin and Ethereum block rewards, which are
-                split amongst Delegators and orchestrators in proportion to
+                split amongst delegators and orchestrators in proportion to
                 their total stake relative to others in the network.
               </Text18>
               <Text18>
@@ -687,11 +644,10 @@ export default function PrimerContent({ stats }: { stats: ProtocolStats }) {
               </Text18>
               <Text18>
                 It also gives orchestrators a powerful economic advantage over
-                traditional centralized video providers since the value of the
-                token offsets what they need to charge broadcasters to break
-                even. With traditional centralized video providers, they have
-                to charge you their cost of service for transcoding and
-                distributing video plus a margin.
+                centralized GPU cloud providers since the value of the token
+                offsets what they need to charge developers to break even.
+                This is a key reason Livepeer can offer GPU compute at
+                60&ndash;85% lower cost than centralized alternatives.
               </Text18>
             </TextBlock>
             <MintingDiagram
@@ -817,8 +773,8 @@ export default function PrimerContent({ stats }: { stats: ProtocolStats }) {
             <TextBlock>
               <Text18>
                 Today, there are <strong>{stats.delegatorsCount}</strong> delegators securing
-                the network, with more and more participants joining the
-                network every day.
+                the network, with more and more participants joining every
+                day.
               </Text18>
             </TextBlock>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -829,12 +785,47 @@ export default function PrimerContent({ stats }: { stats: ProtocolStats }) {
             />
           </FlexSection>
 
+          <ContentBlock className="mb-20">
+            <Text28 center>
+              Livepeer is open GPU infrastructure for real-time video AI
+              &mdash; specialized, affordable, and built to scale. Here&rsquo;s
+              how to get involved.
+            </Text28>
+          </ContentBlock>
+
           {/* Three columns */}
           <ContentBlock className="mb-40">
             <div className="grid grid-cols-1 gap-12 md:grid-cols-3 md:gap-10">
               <InvolvedCard
+                icon={`${IMG}/icon-developers.svg`}
+                title="Want to build with Livepeer?"
+              >
+                <Text18>
+                  Build real-time AI video applications with affordable GPU
+                  compute. Get an API key and start building with Livepeer.
+                </Text18>
+                <InvolvedButton
+                  href="https://docs.livepeer.org"
+                  label="Start building"
+                />
+              </InvolvedCard>
+              <InvolvedCard
+                icon={`${IMG}/icon-mining.svg`}
+                title="Want to provide GPU compute?"
+              >
+                <Text18>
+                  Run an orchestrator node and earn fees for performing AI
+                  inference on video streams. Contribute your GPU hardware to
+                  the network.
+                </Text18>
+                <InvolvedButton
+                  href="https://docs.livepeer.org"
+                  label="Run a node"
+                />
+              </InvolvedCard>
+              <InvolvedCard
                 icon={`${IMG}/icon-wallet.svg`}
-                title="Interested in participating?"
+                title="Want to participate in the network?"
               >
                 <Text18>Get Livepeer token</Text18>
                 <InvolvedButton
@@ -845,34 +836,6 @@ export default function PrimerContent({ stats }: { stats: ProtocolStats }) {
                 <InvolvedButton
                   href="https://explorer.livepeer.org"
                   label="Stake"
-                />
-              </InvolvedCard>
-              <InvolvedCard
-                icon={`${IMG}/icon-video.svg`}
-                title="Are you a video engineer?"
-              >
-                <Text18>
-                  Learn how to build and scale next generation streaming
-                  platforms and services at an industry shattering price through
-                  quick and reliable API access to the Livepeer network.
-                </Text18>
-                <InvolvedButton
-                  href="https://docs.livepeer.org"
-                  label="Learn more"
-                />
-              </InvolvedCard>
-              <InvolvedCard
-                icon={`${IMG}/icon-mining.svg`}
-                title="Are you a cryptocurrency miner?"
-              >
-                <Text18>
-                  Learn how you can earn additional income on Livepeer&rsquo;s
-                  open marketplace by renting out the idle capacity on your GPU
-                  mining rig.
-                </Text18>
-                <InvolvedButton
-                  href="https://docs.livepeer.org"
-                  label="Learn more"
                 />
               </InvolvedCard>
             </div>
