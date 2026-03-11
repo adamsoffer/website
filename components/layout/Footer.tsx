@@ -19,7 +19,6 @@ const footerNav = [
       { label: "10-Minute Primer", href: "/primer" },
       { label: "Blog", href: "/blog" },
       { label: "Brand", href: "/brand" },
-      { label: "Careers", href: "https://livepeer.org/jobs" },
     ],
   },
   {
@@ -139,7 +138,7 @@ export default function Footer() {
 
         <div className="mt-16 border-t border-white/5 pt-8">
           <p className="text-center text-xs text-white/30">
-            &copy; {new Date().getFullYear()} Livepeer, Inc. All rights
+            &copy; {new Date().getFullYear()} Livepeer Foundation. All rights
             reserved.
           </p>
         </div>

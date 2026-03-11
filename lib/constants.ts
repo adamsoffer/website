@@ -13,18 +13,6 @@ export type NavItem = {
 export const NAV_ITEMS: NavItem[] = [
   { label: "Home", href: "/" },
   {
-    label: "Use Cases",
-    href: "/#capabilities",
-    children: [
-      { label: "AI-Generated Worlds", href: "/use-cases/world-models" },
-      { label: "Real-Time Video Analysis", href: "/#capabilities" },
-      { label: "Composable AI Pipelines", href: "/#capabilities" },
-      { label: "Live Transcoding & Streaming", href: "/#capabilities" },
-      { label: "AI Avatars & Agents", href: "/#capabilities" },
-      { label: "Synthetic Data Generation", href: "/#capabilities" },
-    ],
-  },
-  {
     label: "Network",
     href: "https://explorer.livepeer.org",
     children: [
@@ -41,7 +29,6 @@ export const NAV_ITEMS: NavItem[] = [
       { label: "10-Minute Primer", href: "/primer" },
       { label: "Blog", href: "/blog" },
       { label: "Brand", href: "/brand" },
-      { label: "Careers", href: "https://livepeer.org/jobs", external: true },
     ],
   },
 ];

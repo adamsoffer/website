@@ -169,6 +169,16 @@ export default function Header() {
             ))}
           </nav>
 
+          {/* Desktop CTA */}
+          <div className="hidden md:flex items-center ml-1">
+            <Link
+              href="/#early-access"
+              className="inline-flex items-center rounded-full bg-white px-3.5 py-1.5 text-sm font-medium text-dark transition-colors hover:bg-white/90 active:bg-white/80"
+            >
+              Get Early Access
+            </Link>
+          </div>
+
           {/* Mobile hamburger */}
           <button
             className="relative flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-white/5 md:hidden"
@@ -295,6 +305,17 @@ export default function Header() {
               </Link>
             );
           })}
+
+          {/* Mobile CTA */}
+          <div className="mt-6 px-4">
+            <Link
+              href="/#early-access"
+              onClick={() => setMobileOpen(false)}
+              className="flex w-full items-center justify-center rounded-xl bg-green px-5 py-3 text-base font-medium text-white transition-colors hover:bg-green-light active:bg-green-dark"
+            >
+              Get Early Access
+            </Link>
+          </div>
         </nav>
       </div>
     )}

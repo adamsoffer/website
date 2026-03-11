@@ -4,7 +4,6 @@ import Capabilities from "@/components/home/Capabilities";
 
 import WhyLivepeer from "@/components/home/WhyLivepeer";
 import BuiltOnLivepeer from "@/components/home/BuiltOnLivepeer";
-import NetworkStats from "@/components/home/NetworkStats";
 import DeveloperCTA from "@/components/home/DeveloperCTA";
 import CommunityCTA from "@/components/home/CommunityCTA";
 
@@ -16,8 +15,6 @@ export default function Home() {
       <WhatIsLivepeer />
       <WhyLivepeer />
       <BuiltOnLivepeer />
-      <NetworkStats />
-
       <DeveloperCTA />
       <CommunityCTA />
     </>

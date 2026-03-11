@@ -21,10 +21,21 @@ const channels = [
   {
     name: "Governance",
     description: "Participate in proposals that shape the network's future.",
-    href: "/community",
+    href: "https://explorer.livepeer.org/voting",
     icon: (
       <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none">
         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
+  {
+    name: "Treasury",
+    description: "Submit proposals for grants and funding from the Livepeer Treasury.",
+    href: "/blog/using-the-livepeer-community-treasury",
+    icon: (
+      <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none">
+        <path d="M2 7h20M2 7v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7M2 7l2-4h16l2 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="12" cy="13" r="3" stroke="currentColor" strokeWidth="1.5" />
       </svg>
     ),
   },
@@ -93,7 +104,7 @@ export default function CommunityCTA() {
             </div>
           </motion.div>
 
-          <div className="mt-16 grid gap-4 md:grid-cols-3">
+          <div className="mt-16 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {channels.map((channel) => (
               <motion.a
                 key={channel.name}

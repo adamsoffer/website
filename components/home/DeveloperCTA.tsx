@@ -29,9 +29,9 @@ const resources = [
     ),
   },
   {
-    title: "Grants Program",
-    description: "Funding for teams building on the Livepeer network.",
-    href: EXTERNAL_LINKS.grants,
+    title: "Livepeer Treasury",
+    description: "Submit proposals for grants and funding from the community treasury.",
+    href: "/blog/using-the-livepeer-community-treasury",
     icon: (
       <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none">
         <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -47,7 +47,7 @@ const fadeUp = {
 
 export default function DeveloperCTA() {
   return (
-    <section className="relative py-24 lg:py-32">
+    <section id="early-access" className="relative scroll-mt-24 py-24 lg:py-32">
       <div className="divider-gradient absolute top-0 left-0 right-0" />
 
       <Container className="relative">
@@ -69,9 +69,8 @@ export default function DeveloperCTA() {
               Be first to build
             </h2>
             <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-white/50 text-pretty">
-              Get early access to the Livepeer Gateway — a single API for
-              real-time AI video inference, built for developers and AI agents
-              alike.
+              Get early access to Livepeer — a single API for real-time AI
+              video inference, built for developers and AI agents alike.
             </p>
             <div className="mt-8 w-full max-w-lg mx-auto">
               <EarlyAccessCTA />
