@@ -5,7 +5,13 @@ import Footer from "@/components/layout/Footer";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://livepeer.org"),
+  metadataBase: new URL(
+    process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "https://livepeer.org"
+  ),
   title: "Livepeer — Open Infrastructure for Real-Time AI Video",
   description:
     "Generate, transform, and interpret live video streams with low-latency AI inference on an open and permissionless elastic GPU network.",
