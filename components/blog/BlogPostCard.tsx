@@ -31,7 +31,7 @@ export default function BlogPostCard({
         className="group flex h-full flex-col overflow-hidden rounded-2xl border border-dark-border bg-dark-card transition-colors hover:border-white/10"
       >
         {post.image && (
-          <div className="aspect-[16/9] overflow-hidden">
+          <div className="aspect-[16/9] overflow-hidden border-b border-white/[0.06]">
             <img
               src={post.image}
               alt={post.imageAlt || post.title}
