@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-export const alt = "Livepeer — Open infrastructure for real-time AI video";
+export const alt = "Livepeer Blog — The latest in Livepeer";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -26,7 +26,7 @@ export default async function OGImage() {
           position: "relative",
         }}
       >
-        {/* Centered radial glow — larger and slightly stronger */}
+        {/* Centered radial glow */}
         <div
           style={{
             position: "absolute",
@@ -103,7 +103,7 @@ export default async function OGImage() {
             display: "flex",
           }}
         >
-          Open infrastructure for real-time AI video
+          The latest in Livepeer
         </div>
 
         {/* Accent line */}

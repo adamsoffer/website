@@ -92,7 +92,7 @@ export default function EarlyAccessCTA() {
         <p className="text-xs text-red-400">Something went wrong. Try again.</p>
       ) : (
         <p className="text-xs text-white/30">
-          We&apos;ll notify you when access opens up
+          We&apos;ll notify you when access opens up.
         </p>
       )}
     </div>

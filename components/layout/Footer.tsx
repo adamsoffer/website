@@ -9,7 +9,7 @@ const footerNav = [
     links: [
       { label: "Explorer", href: EXTERNAL_LINKS.explorer },
       { label: "Delegate", href: EXTERNAL_LINKS.staking },
-      { label: "Provide Compute", href: "https://docs.livepeer.org/orchestrators/guides/get-started" },
+      { label: "Provide Compute", href: "https://docs.livepeer.org/v1/orchestrators/guides/get-started" },
       { label: "Roadmap", href: "https://github.com/livepeer/catalyst/milestones" },
     ],
   },
@@ -116,9 +116,22 @@ export default function Footer() {
                           href={link.href}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-sm text-white/40 transition-colors hover:text-white"
+                          className="inline-flex items-center gap-1 text-sm text-white/40 transition-colors hover:text-white"
                         >
                           {link.label}
+                          <svg
+                            className="h-3 w-3 text-white/30"
+                            fill="none"
+                            viewBox="0 0 12 12"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                          >
+                            <path
+                              d="M3.5 2H10v6.5M10 2L2 10"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
                         </a>
                       ) : (
                         <Link
