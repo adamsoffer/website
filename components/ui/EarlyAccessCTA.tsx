@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { EXTERNAL_LINKS } from "@/lib/constants";
-
 type State = "idle" | "submitting" | "success" | "error";
 
 export default function EarlyAccessCTA() {
@@ -14,7 +12,7 @@ export default function EarlyAccessCTA() {
     setState("submitting");
 
     try {
-      const res = await fetch(EXTERNAL_LINKS.earlyAccess, {
+      const res = await fetch("/api/early-access", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),

@@ -43,5 +43,4 @@ export const EXTERNAL_LINKS = {
   grants: "https://github.com/livepeer/grants",
   studio: "https://livepeer.studio",
   staking: "https://explorer.livepeer.org/staking",
-  earlyAccess: "https://example.com/api/early-access", // placeholder — swap with real endpoint
 } as const;
