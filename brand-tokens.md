@@ -11,7 +11,7 @@ Design system reference. Originally derived from the Holographik brand guideline
 | Name | Hex | RGB | CMYK | Usage |
 |------|-----|-----|------|-------|
 | **Accent Green** | `#18794E` | 24, 121, 78 | 30, 0, 17, 53 | Primary accent, links, CTAs |
-| **Primary Black** | `#181818` | 24, 24, 24 | 0, 0, 0, 91 | Backgrounds, text on light |
+| **Primary Black** | `#121212` | 18, 18, 18 | 0, 0, 0, 93 | Backgrounds, text on light |
 | **Primary White** | `#FFFFFF` | 255, 255, 255 | 0, 0, 0, 0 | Text on dark, logo on dark bg |
 
 ### Green Variants
@@ -38,16 +38,16 @@ Design system reference. Originally derived from the Holographik brand guideline
 
 | Token | Hex | Usage |
 |-------|-----|-------|
-| `dark` | `#181818` | Page background |
-| `dark-lighter` | `#1E1E1E` | Elevated surfaces |
-| `dark-card` | `#242424` | Cards, panels |
+| `dark` | `#121212` | Page background |
+| `dark-lighter` | `#181818` | Elevated surfaces |
+| `dark-card` | `#1E1E1E` | Cards, panels |
 | `dark-border` | `#2A2A2A` | Borders, dividers |
 
 ### Greyscale Ramp
 
 | Token | Hex |
 |-------|-----|
-| Black 100 | `#181818` |
+| Black 100 | `#121212` |
 | Black 90 | `#2F2F2F` |
 | Black 80 | `#464646` |
 | Black 70 | `#5D5D5D` |
@@ -135,7 +135,7 @@ background: linear-gradient(to right, transparent, rgba(255,255,255,0.15) 25%, r
 - **Lockup**: Footers, splash screens, co-marketing, partner pages, event signage, and press kits — anywhere the audience may not already know the brand
 
 ### Color Variants
-- **Black** (`#181818`) — default, for light/white backgrounds
+- **Black** (`#121212`) — default, for light/white backgrounds
 - **White** (`#FFFFFF`) — for dark/colored/gradient backgrounds
 - On green gradient backgrounds: use white logo
 
@@ -200,7 +200,7 @@ Component: `components/ui/ImageMask.tsx`. Props: `src`, `video`, `children`, `co
 
 | Background | Logo Color |
 |------------|-----------|
-| White / light | Black (`#181818`) |
+| White / light | Black (`#121212`) |
 | Black / dark | White (`#FFFFFF`) |
 | Green gradient | White (`#FFFFFF`) |
 

@@ -74,7 +74,7 @@ Full spec in `brand-tokens.md` — colors, typography, logo rules, greyscale ram
 - Colors: `green`, `green-light`, `green-dark`, `green-bright`, `green-subtle`, `blue`, `blue-light`, `blue-bright`, `blue-dark`, `blue-subtle`, `dark`, `dark-lighter`, `dark-card`, `dark-border`
 - Fonts: `--font-sans` (Favorit Pro — Light/Book/Regular/Medium/Bold), `--font-mono` (Favorit Mono — Regular/Medium/Bold)
 
-**Primary colors:** Green `#18794E`, Black `#181818`, White `#FFFFFF`. Use Tailwind tokens, not raw hex.
+**Primary colors:** Green `#18794E`, Black `#121212`, White `#FFFFFF`. Use Tailwind tokens, not raw hex.
 
 **Utility classes:** `.text-gradient` (green gradient text), `.divider-gradient` (section separator), `.tile-bg` (subtle grid)
 
