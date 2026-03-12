@@ -59,6 +59,15 @@ const fadeUp = {
 export default function CommunityCTA() {
   return (
     <section className="relative py-32 lg:py-44 overflow-hidden">
+      {/* Top fade — blends into section above */}
+      <div
+        className="pointer-events-none absolute top-0 left-0 right-0 z-10 h-64"
+        aria-hidden="true"
+        style={{
+          background: "linear-gradient(to bottom, #121212 0%, #121212 20%, transparent 100%)",
+        }}
+      />
+
       {/* Animated green glow */}
       <GlowOverlay x={50} y={30} radius={70} opacity={0.2} duration={10} />
 

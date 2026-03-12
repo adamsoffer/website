@@ -20,7 +20,7 @@ function SpotlightCard({ children }: { children: React.ReactNode }) {
           "radial-gradient(ellipse 80% 60% at 25% 0%, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.0) 100%)",
       }}
     >
-      <div className="relative overflow-hidden rounded-[7px] bg-[#161616]">
+      <div className="relative overflow-hidden rounded-[7px] bg-[#181818]">
         {/* Spotlight + vignette + bottom fade — single coherent overlay */}
         <div
           className="pointer-events-none absolute inset-0 z-10"
@@ -29,7 +29,7 @@ function SpotlightCard({ children }: { children: React.ReactNode }) {
             background: [
               "radial-gradient(ellipse 60% 50% at 25% 20%, rgba(255,255,255,0.07) 0%, transparent 100%)",
               "radial-gradient(ellipse 100% 80% at 50% 40%, transparent 30%, rgba(0,0,0,0.55) 100%)",
-              "linear-gradient(to top, #181818 0%, rgba(24,24,24,0.7) 20%, transparent 50%)",
+              "linear-gradient(to top, #121212 0%, rgba(18,18,18,0.7) 20%, transparent 50%)",
             ].join(", "),
           }}
         />
@@ -367,7 +367,7 @@ export default function WhatIsLivepeer() {
 
           {/* Single surface — all 4 panels */}
           <motion.div
-            className="mt-20 rounded-2xl border border-white/[0.06] bg-[#181818]"
+            className="mt-20 rounded-2xl border border-white/[0.06] bg-dark"
             variants={fadeUp}
             transition={{ duration: 0.4 }}
           >
@@ -422,7 +422,7 @@ export default function WhatIsLivepeer() {
                       className="pointer-events-none absolute bottom-0 left-0 right-0 z-20 h-28 sm:h-36"
                       style={{
                         background:
-                          "linear-gradient(to top, #181818 0%, rgba(24,24,24,0.85) 30%, rgba(24,24,24,0.4) 60%, transparent 100%)",
+                          "linear-gradient(to top, #121212 0%, rgba(18,18,18,0.85) 30%, rgba(18,18,18,0.4) 60%, transparent 100%)",
                       }}
                     />
                   </div>
