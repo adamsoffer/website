@@ -29,6 +29,7 @@ export const NAV_ITEMS: NavItem[] = [
       { label: "10-Minute Primer", href: "/primer" },
       { label: "Blog", href: "/blog" },
       { label: "Brand", href: "/brand" },
+      { label: "Foundation", href: "/foundation" },
     ],
   },
 ];
