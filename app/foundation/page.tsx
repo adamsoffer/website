@@ -255,16 +255,6 @@ function IllustrationCocreation() {
           <circle cx="100" cy="85" r="42" fill="rgba(255,255,255,0.08)" />
         </g>
       </g>
-      {/* Person icons (head + body) in each circle */}
-      {/* Left circle person */}
-      <circle cx="68" cy="48" r="5" fill="rgba(255,255,255,0.35)" />
-      <path d="M 58 68 Q 68 60, 78 68" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" fill="none" />
-      {/* Right circle person */}
-      <circle cx="132" cy="48" r="5" fill="rgba(255,255,255,0.35)" />
-      <path d="M 122 68 Q 132 60, 142 68" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" fill="none" />
-      {/* Bottom circle person */}
-      <circle cx="100" cy="98" r="5" fill="rgba(255,255,255,0.35)" />
-      <path d="M 90 118 Q 100 110, 110 118" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" fill="none" />
       {/* Center — collaborative node */}
       <circle cx="100" cy="65" r="7" stroke="rgba(255,255,255,0.50)" strokeWidth="1.5" fill="rgba(255,255,255,0.08)" />
       <circle cx="100" cy="65" r="3" fill="rgba(255,255,255,0.70)" />
