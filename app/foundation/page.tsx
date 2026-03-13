@@ -578,8 +578,8 @@ export default function FoundationPage() {
         </section>
 
         {/* ---- Mission ---- */}
-        <section ref={missionRef} className="relative flex items-center justify-center py-24 pb-36 sm:py-36 sm:pb-48 lg:py-44 lg:pb-56" style={{ zIndex: 16 }}>
-          <div className="relative px-6 text-center md:px-0" style={{ maxWidth: "55.55vw" }}>
+        <section ref={missionRef} className="relative flex items-center justify-center py-16 pb-20 sm:py-36 sm:pb-48 lg:py-44 lg:pb-56" style={{ zIndex: 16 }}>
+          <div className="relative px-6 text-center md:px-0 max-w-[90vw] md:max-w-[55.55vw]">
             <p className="absolute inset-x-0 -top-12 font-mono text-xs font-medium tracking-wider text-white/30 uppercase">
               Our Mission
             </p>
@@ -599,7 +599,7 @@ export default function FoundationPage() {
       </div>
 
       {/* ---- Pillars ---- */}
-      <section className="relative py-24 lg:py-32">
+      <section className="relative py-16 sm:py-24 lg:py-32">
 
         <Container>
           <motion.div
