@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const post = getPostBySlug(slug);
     return {
-      title: `${post.title} — Livepeer Blog`,
+      title: `${post.title} | Livepeer Blog`,
       description: post.description,
       openGraph: {
         title: post.title,
