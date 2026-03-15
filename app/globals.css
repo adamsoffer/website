@@ -156,6 +156,22 @@ body {
   50% { box-shadow: 0 0 20px 2px rgba(30, 153, 96, 0.18), 0 0 40px 4px rgba(24, 121, 78, 0.08); }
 }
 
+@keyframes glassSpecular {
+  0% { transform: translateX(-30%); }
+  50% { transform: translateX(30%); }
+  100% { transform: translateX(-30%); }
+}
+
+@keyframes glassRefraction {
+  0% { transform: rotate(0deg) scale(1); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes glassFloat {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(5%, -5%) scale(1.1); }
+}
+
 /* Text wrap utilities */
 .text-balance { text-wrap: balance; }
 .text-pretty { text-wrap: pretty; }

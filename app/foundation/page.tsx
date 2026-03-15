@@ -405,51 +405,27 @@ function GrainCanvas() {
 /* ------------------------------------------------------------------ */
 
 function TileGrid({
-  cutoutTargetRef,
   children,
 }: {
-  cutoutTargetRef: React.RefObject<HTMLDivElement | null>;
   children?: React.ReactNode;
 }) {
   const gridRef = useRef<HTMLDivElement>(null);
   const [tile, setTile] = useState(0);
   const [gridOffsetX, setGridOffsetX] = useState(0);
-  const [cutout, setCutout] = useState<{ top: number; bottom: number; left: number; right: number } | null>(null);
 
   const calculate = useCallback(() => {
     const grid = gridRef.current;
-    const target = cutoutTargetRef.current;
-    if (!grid || !target) return;
+    if (!grid) return;
 
     const w = grid.offsetWidth;
     const maxTile = 160;
     const t = Math.min(w / 9, maxTile);
     setTile(t);
 
-    // When tile is capped, grid is narrower than viewport — center it
     const gridWidth = t * 9;
     const offsetX = (w - gridWidth) / 2;
     setGridOffsetX(offsetX);
-
-    const targetTop = target.offsetTop;
-    const targetBottom = targetTop + target.offsetHeight;
-
-    const top = Math.ceil(targetTop / t) * t;
-    const bottom = Math.floor(targetBottom / t) * t;
-    const isMobile = w < 768;
-    const left = offsetX + (isMobile ? 1 : 2) * t;
-    const right = offsetX + (isMobile ? 8 : 7) * t;
-
-    setCutout({ top, bottom, left, right });
-
-    // Snap wrapper height to full tile row so bottom grid line isn't clipped
-    const parent = grid.parentElement;
-    if (parent) {
-      const parentHeight = parent.scrollHeight;
-      const snappedHeight = Math.ceil(parentHeight / t) * t;
-      parent.style.minHeight = `${snappedHeight}px`;
-    }
-  }, [cutoutTargetRef]);
+  }, []);
 
   useEffect(() => {
     calculate();
@@ -457,16 +433,8 @@ function TileGrid({
     return () => window.removeEventListener("resize", calculate);
   }, [calculate]);
 
-  const crosshair = (x: number, y: number) => (
-    <div className="absolute" style={{ left: x, top: y }}>
-      <div style={{ position: "absolute", left: -8, top: -0.5, width: 17, height: 1, background: "rgba(255,255,255,0.25)" }} />
-      <div style={{ position: "absolute", left: -0.5, top: -8, width: 1, height: 17, background: "rgba(255,255,255,0.25)" }} />
-    </div>
-  );
-
   return (
-    <div ref={gridRef} className="pointer-events-none absolute inset-0 hidden md:block" aria-hidden="true" style={{ zIndex: 15 }}>
-      {/* Grid lines — use JS-computed tile size so grid + cutout share the same math */}
+    <div ref={gridRef} className="pointer-events-none absolute inset-0 hidden md:block" aria-hidden="true" style={{ zIndex: 15, maskImage: "linear-gradient(to bottom, white 50%, transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, white 50%, transparent 100%)" }}>
       {tile > 0 && (
         <div
           className="absolute inset-0"
@@ -478,74 +446,6 @@ function TileGrid({
           }}
         />
       )}
-
-      {/* Liquid glass overlay — grid lines visible through it */}
-      {cutout && (
-        <>
-          <div
-            style={{
-              position: "absolute",
-              top: cutout.top,
-              left: cutout.left,
-              width: cutout.right - cutout.left,
-              height: cutout.bottom - cutout.top,
-              background: "linear-gradient(160deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.005) 40%, rgba(255,255,255,0.018) 100%)",
-              backdropFilter: "blur(1.5px)",
-              WebkitBackdropFilter: "blur(1.5px)",
-              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04), inset 0 -1px 0 rgba(255,255,255,0.015)",
-              border: "1px solid rgba(255,255,255,0.04)",
-              borderRadius: "2px",
-              overflow: "hidden",
-            }}
-          >
-            {/* Top glossy sheen */}
-            <div
-              style={{
-                position: "absolute",
-                inset: "0",
-                background: "linear-gradient(to bottom, rgba(255,255,255,0.02) 0%, transparent 30%)",
-                pointerEvents: "none",
-              }}
-            />
-            {/* Specular highlight — angled gloss strip */}
-            <div
-              style={{
-                position: "absolute",
-                top: 0,
-                left: "-20%",
-                width: "60%",
-                height: "100%",
-                background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.015) 45%, rgba(255,255,255,0.005) 55%, transparent 60%)",
-                pointerEvents: "none",
-              }}
-            />
-            {/* Chromatic / rainbow refraction */}
-            <div
-              style={{
-                position: "absolute",
-                inset: "0",
-                background: "linear-gradient(135deg, rgba(255,0,0,0.015) 0%, rgba(255,165,0,0.012) 15%, rgba(255,255,0,0.012) 30%, rgba(0,255,100,0.015) 45%, rgba(0,150,255,0.015) 60%, rgba(130,0,255,0.012) 75%, rgba(255,0,100,0.012) 100%)",
-                pointerEvents: "none",
-                mixBlendMode: "screen",
-              }}
-            />
-            {/* Second refraction band — offset angle for depth */}
-            <div
-              style={{
-                position: "absolute",
-                inset: "0",
-                background: "radial-gradient(ellipse at 20% 30%, rgba(0,180,255,0.02) 0%, transparent 50%), radial-gradient(ellipse at 80% 70%, rgba(255,100,200,0.02) 0%, transparent 50%)",
-                pointerEvents: "none",
-                mixBlendMode: "screen",
-              }}
-            />
-          </div>
-          {crosshair(cutout.left, cutout.top)}
-          {crosshair(cutout.right, cutout.top)}
-          {crosshair(cutout.left, cutout.bottom)}
-          {crosshair(cutout.right, cutout.bottom)}
-        </>
-      )}
     </div>
   );
 }
@@ -555,15 +455,12 @@ function TileGrid({
 /* ------------------------------------------------------------------ */
 
 export default function FoundationPage() {
-  const missionRef = useRef<HTMLDivElement>(null);
-
   return (
     <>
-      {/* ---- Hero + Mission wrapper — continuous grid ---- */}
+      {/* ---- Hero ---- */}
       <div className="relative overflow-hidden">
-        <TileGrid cutoutTargetRef={missionRef} />
+        <TileGrid />
 
-        {/* ---- Hero ---- */}
         <section className="relative flex min-h-screen items-center">
           {/* Dark B&W background photograph */}
           <img
@@ -611,40 +508,31 @@ export default function FoundationPage() {
             </motion.div>
           </Container>
 
-          {/* bottom fade — sits above grain but below grid */}
+          {/* Bottom fade to page bg */}
           <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-48"
+            className="pointer-events-none absolute bottom-0 left-0 right-0 h-48"
             aria-hidden="true"
             style={{
-              background: "linear-gradient(to bottom, transparent 0%, #121212 100%)",
+              background: "linear-gradient(to bottom, transparent, #121212)",
               zIndex: 14,
             }}
           />
         </section>
-
-        {/* ---- Mission ---- */}
-        <section ref={missionRef} className="relative flex items-center justify-center py-16 pb-20 sm:py-36 sm:pb-48 lg:py-44 lg:pb-56" style={{ zIndex: 16 }}>
-          <div className="relative px-6 text-center md:px-0 max-w-[90vw] md:max-w-[55.55vw]">
-            <p className="absolute inset-x-0 -top-12 font-mono text-xs font-medium tracking-wider text-white/30 uppercase">
-              Our Mission
-            </p>
-            <ScrollRevealMission />
-          </div>
-        </section>
-
-        {/* Bottom fade */}
-        <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-48"
-          aria-hidden="true"
-          style={{
-            background: "linear-gradient(to bottom, transparent 0%, #121212 100%)",
-            zIndex: 20,
-          }}
-        />
       </div>
+
+      {/* ---- Mission ---- */}
+      <section className="relative flex items-center justify-center py-24 sm:py-36 lg:py-48">
+        <div className="relative px-6 text-center md:px-0 max-w-[90vw] md:max-w-[55.55vw]">
+          <p className="absolute inset-x-0 -top-12 font-mono text-xs font-medium tracking-wider text-white/30 uppercase">
+            Our Mission
+          </p>
+          <ScrollRevealMission />
+        </div>
+      </section>
 
       {/* ---- Pillars ---- */}
       <section className="relative py-16 sm:py-24 lg:py-32">
+        <div className="divider-gradient absolute top-0 right-0 left-0" />
 
         <Container>
           <motion.div
@@ -654,11 +542,13 @@ export default function FoundationPage() {
             transition={{ staggerChildren: 0.1 }}
           >
             <motion.div variants={fadeUp} transition={{ duration: 0.5 }}>
-              <SectionHeader
-                label="Our Pillars"
-                title="Three pillars of network stewardship"
-                align="center"
-              />
+              <div className="mx-auto max-w-2xl">
+                <SectionHeader
+                  label="Our Pillars"
+                  title="Three pillars of network stewardship"
+                  align="center"
+                />
+              </div>
             </motion.div>
 
             <div className="mt-20 grid gap-4 sm:grid-cols-3">
