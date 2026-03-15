@@ -18,9 +18,81 @@ const fadeUp = {
 /* ── Grid units matching homepage hero (9×5) ── */
 const COLS = 9;
 const ROWS = 5;
+const TILE = 100 / COLS; // tile size in vw — used for both axes (matches homepage)
 const CW = 100 / COLS;
 const CH = 100 / ROWS;
 const RAYS = [0, 22, 45, 68, 90, 135, 170, -15, -40, -70];
+
+/* ── Pulse trail path (shared by hero + layer demo) ── */
+const PULSE_PATH = [
+  "M 100 100",
+  "L 100 0",
+  "L 750 0",
+  "A 150 150 0 0 1 750 300",
+  "L 100 300",
+  "A 100 100 0 1 0 200 400",
+  "L 200 100",
+  "L 100 100",
+].join(" ");
+
+/* ── Hero pulse trail — vw-based like homepage ── */
+function HeroPulseTrail() {
+  const dotRef = useRef<HTMLDivElement>(null);
+  const pathRef = useRef<SVGPathElement>(null);
+  const progress = useMotionValue(0);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (dotRef.current) dotRef.current.style.opacity = "0.8";
+      animate(progress, 1, {
+        duration: 20,
+        ease: "linear",
+        repeat: Infinity,
+        repeatType: "loop",
+      });
+    }, 3000);
+    return () => clearTimeout(timeout);
+  }, [progress]);
+
+  useMotionValueEvent(progress, "change", (v) => {
+    const path = pathRef.current;
+    const dot = dotRef.current;
+    if (!path || !dot) return;
+    const totalLength = path.getTotalLength();
+    const point = path.getPointAtLength(v * totalLength);
+    dot.style.left = `${(point.x / 100) * TILE}vw`;
+    dot.style.top = `${(point.y / 100) * TILE}vw`;
+  });
+
+  return (
+    <>
+      <svg
+        width="0"
+        height="0"
+        viewBox="0 0 900 500"
+        style={{ position: "absolute", pointerEvents: "none" }}
+        aria-hidden="true"
+      >
+        <path ref={pathRef} d={PULSE_PATH} fill="none" />
+      </svg>
+      <div
+        ref={dotRef}
+        className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full"
+        style={{
+          left: `${1 * TILE}vw`,
+          top: `${1 * TILE}vw`,
+          opacity: 0,
+          width: "6px",
+          height: "6px",
+          background:
+            "radial-gradient(circle, rgba(64,191,134,0.9) 0%, rgba(64,191,134,0.3) 50%, transparent 70%)",
+          boxShadow:
+            "0 0 10px 3px rgba(64,191,134,0.32), 0 0 20px 6px rgba(64,191,134,0.12)",
+        }}
+      />
+    </>
+  );
+}
 
 /* ── Pulse trail for Combined layer demo ── */
 const DEMO_PULSE_PATH = [
@@ -339,155 +411,166 @@ export default function BrandPage() {
 
   return (
     <>
-      {/* Section 1: Hero — ImageMask + percentage-based shapes (matches homepage) */}
+      {/* Section 1: Hero — matches homepage grid/shapes/pulse, different background */}
       <section className="relative flex min-h-[70vh] items-center overflow-hidden">
-        {/* Full-bleed ImageMask — top-aligned so tiles start flush at viewport top */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div
-            className="absolute top-0 left-1/2 -translate-x-1/2"
-            style={{ minWidth: "100%", minHeight: "100%", aspectRatio: "9/5" }}
+        {/* Full-bleed ImageMask */}
+        <div className="absolute inset-0">
+          <ImageMask
+            className="h-full w-full"
+            cols={COLS}
+            rows={20}
+            seed={7}
+            scanLine={false}
           >
-            <ImageMask
-              className="h-full w-full"
-              cols={COLS}
-              rows={ROWS}
-              seed={7}
-              scanLine={false}
-            >
-              <div
-                className="h-full w-full"
-                style={{
-                  background:
-                    "linear-gradient(160deg, #030d09 0%, #0a2818 40%, #18794e 100%)",
-                }}
-              />
-            </ImageMask>
-
-            {/* Geometric shapes — inside 9/5 container so percentages align with tile grid */}
             <div
-              className="pointer-events-none absolute inset-0"
-              aria-hidden="true"
-            >
-              {/* Large circle — cols 6–8, rows 0–2 (3×3 tiles, perfect circle) */}
-              <div
-                className="absolute rounded-full animate-[breathe_8s_ease-in-out_infinite]"
-                style={{
-                  left: `${6 * CW}%`,
-                  top: "0%",
-                  width: `${3 * CW}%`,
-                  aspectRatio: "1",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                }}
-              />
-
-              {/* Small circle — cols 0–1, rows 3–4 (2×2 tiles, perfect circle) */}
-              <div
-                className="absolute rounded-full animate-[breathe_8s_ease-in-out_infinite_3s]"
-                style={{
-                  left: "0%",
-                  top: `${3 * CH}%`,
-                  width: `${2 * CW}%`,
-                  aspectRatio: "1",
-                  border: "1px solid rgba(255,255,255,0.10)",
-                }}
-              />
-
-              {/* Starburst — (col 1, row 1) */}
-              <div
-                className="absolute rounded-full animate-[node-pulse_6s_ease-in-out_infinite]"
-                style={{
-                  left: `calc(${CW}% - 20px)`,
-                  top: `calc(${CH}% - 20px)`,
-                  width: "40px",
-                  height: "40px",
-                  background:
-                    "radial-gradient(circle, rgba(64,191,134,0.25) 0%, rgba(64,191,134,0.08) 40%, transparent 70%)",
-                }}
-              />
-              {RAYS.map((angle, i) => (
-                <div
-                  key={`hero-ray-${i}`}
-                  className="absolute"
-                  style={{
-                    left: `${1 * CW}%`,
-                    top: `${1 * CH}%`,
-                    width: "40%",
-                    height: "1px",
-                    background:
-                      "linear-gradient(to right, rgba(255,255,255,0.12), rgba(255,255,255,0.03) 35%, transparent 70%)",
-                    transformOrigin: "0% 50%",
-                    transform: `rotate(${angle}deg)`,
-                  }}
-                />
-              ))}
-
-              {/* H-line — row 3 seam, cols 0–4 */}
-              <div
-                className="absolute"
-                style={{
-                  left: "0%",
-                  top: `${3 * CH}%`,
-                  width: `${4 * CW}%`,
-                  height: "1px",
-                  background:
-                    "linear-gradient(to right, rgba(255,255,255,0.08), rgba(255,255,255,0.12) 40%, transparent 100%)",
-                }}
-              />
-
-              {/* V-line — col 7 seam, rows 3–5 */}
-              <div
-                className="absolute"
-                style={{
-                  left: `${7 * CW}%`,
-                  top: `${3 * CH}%`,
-                  width: "1px",
-                  height: `${2 * CH}%`,
-                  background:
-                    "linear-gradient(to bottom, rgba(255,255,255,0.10), transparent 100%)",
-                }}
-              />
-
-              {/* Crosshair — (col 6, row 4) */}
-              <div
-                className="absolute"
-                style={{
-                  left: `${6 * CW}%`,
-                  top: `${4 * CH}%`,
-                }}
-              >
-                <div
-                  style={{
-                    position: "absolute",
-                    left: "-6px",
-                    top: "-0.5px",
-                    width: "13px",
-                    height: "1px",
-                    background: "rgba(255,255,255,0.12)",
-                  }}
-                />
-                <div
-                  style={{
-                    position: "absolute",
-                    left: "-0.5px",
-                    top: "-6px",
-                    width: "1px",
-                    height: "13px",
-                    background: "rgba(255,255,255,0.12)",
-                  }}
-                />
-              </div>
-            </div>
-          </div>
+              className="h-full w-full"
+              style={{
+                background:
+                  "linear-gradient(160deg, #030d09 0%, #0a2818 40%, #18794e 100%)",
+              }}
+            />
+          </ImageMask>
         </div>
 
-        {/* Center darken for text readability */}
+        {/* Geometric shapes + pulse trail — vw-based like homepage */}
         <div
           className="pointer-events-none absolute inset-0"
+          aria-hidden="true"
+        >
+          {/* Large circle — cols 6–8, rows 0–2 */}
+          <div
+            className="absolute rounded-full animate-[breathe_8s_ease-in-out_infinite]"
+            style={{
+              left: `${6 * TILE}vw`,
+              top: "0vw",
+              width: `${3 * TILE}vw`,
+              aspectRatio: "1 / 1",
+              border: "1px solid rgba(255,255,255,0.15)",
+            }}
+          />
+
+          {/* Small circle — cols 0–1, rows 3–4 */}
+          <div
+            className="absolute rounded-full animate-[breathe_8s_ease-in-out_infinite_3s]"
+            style={{
+              left: "0vw",
+              top: `${3 * TILE}vw`,
+              width: `${2 * TILE}vw`,
+              aspectRatio: "1 / 1",
+              border: "1px solid rgba(255,255,255,0.10)",
+            }}
+          />
+
+          {/* Starburst — (col 1, row 1) — white rays, emerald pulsing center */}
+          <div
+            className="absolute rounded-full animate-[node-pulse_6s_ease-in-out_infinite]"
+            style={{
+              left: `calc(${1 * TILE}vw - 20px)`,
+              top: `calc(${1 * TILE}vw - 20px)`,
+              width: "40px",
+              height: "40px",
+              background:
+                "radial-gradient(circle, rgba(64,191,134,0.25) 0%, rgba(64,191,134,0.08) 40%, transparent 70%)",
+            }}
+          />
+          {RAYS.map((angle, i) => (
+            <div
+              key={`hero-ray-${i}`}
+              className="absolute"
+              style={{
+                left: `${1 * TILE}vw`,
+                top: `${1 * TILE}vw`,
+                width: "40%",
+                height: "1px",
+                background:
+                  "linear-gradient(to right, rgba(255,255,255,0.12), rgba(255,255,255,0.03) 35%, transparent 70%)",
+                transformOrigin: "0% 50%",
+                transform: `rotate(${angle}deg)`,
+              }}
+            />
+          ))}
+
+          {/* V-line — col 7 seam, rows 3–5 */}
+          <div
+            className="absolute"
+            style={{
+              left: `${7 * TILE}vw`,
+              top: `${3 * TILE}vw`,
+              width: "1px",
+              height: `${2 * TILE}vw`,
+              background:
+                "linear-gradient(to bottom, rgba(255,255,255,0.10), transparent 100%)",
+            }}
+          />
+
+          {/* Crosshair — (col 6, row 4) */}
+          <div
+            className="absolute"
+            style={{
+              left: `${6 * TILE}vw`,
+              top: `${4 * TILE}vw`,
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                left: "-6px",
+                top: "-0.5px",
+                width: "13px",
+                height: "1px",
+                background: "rgba(255,255,255,0.12)",
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                left: "-0.5px",
+                top: "-6px",
+                width: "1px",
+                height: "13px",
+                background: "rgba(255,255,255,0.12)",
+              }}
+            />
+          </div>
+
+          {/* Pulse trail — walks the grid from starburst origin */}
+          <HeroPulseTrail />
+        </div>
+
+        {/* Center darken for text readability — wider/stronger on mobile */}
+        <div
+          className="pointer-events-none absolute inset-0 lg:hidden"
+          style={{
+            background:
+              "radial-gradient(ellipse 90% 60% at 50% 48%, rgba(4,6,5,0.88) 0%, rgba(4,6,5,0.5) 70%, transparent 100%)",
+          }}
+        />
+        <div
+          className="pointer-events-none absolute inset-0 hidden lg:block"
           style={{
             background:
               "radial-gradient(ellipse 60% 50% at 50% 48%, rgba(4,6,5,0.78) 0%, rgba(4,6,5,0.35) 70%, transparent 100%)",
           }}
         />
+
+        {/* "GENERATING" label — near starburst origin */}
+        <div
+          className="pointer-events-none absolute inset-0 z-[1]"
+          aria-hidden="true"
+        >
+          <div
+            className="absolute flex items-center gap-2"
+            style={{
+              left: `${0.3 * TILE}vw`,
+              top: `${0.25 * TILE}vw`,
+            }}
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/70 animate-pulse" />
+            <span className="font-mono text-[10px] tracking-wider text-emerald-400/50 uppercase">
+              Generating
+            </span>
+          </div>
+        </div>
 
         <Container className="relative z-10 py-24 lg:py-32">
           <motion.div
