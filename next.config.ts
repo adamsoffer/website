@@ -20,12 +20,12 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // Old livepeer.org routes → new site equivalents
       {
         source: "/lpt",
         destination: "/",
         permanent: false,
       },
-      // Old livepeer.org routes → new site equivalents
       {
         source: "/learn",
         destination: "/primer",
