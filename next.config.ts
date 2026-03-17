@@ -24,89 +24,89 @@ const nextConfig: NextConfig = {
       {
         source: "/developers",
         destination: "/",
-        permanent: true,
+        permanent: false,
       },
       {
         source: "/lpt",
         destination: "/",
-        permanent: true,
+        permanent: false,
       },
       {
         source: "/community",
         destination: "/",
-        permanent: true,
+        permanent: false,
       },
       {
         source: "/use-cases/world-models",
         destination: "/",
-        permanent: true,
+        permanent: false,
       },
       {
         source: "/use-cases/ai-generated-worlds",
         destination: "/",
-        permanent: true,
+        permanent: false,
       },
       // Old livepeer.org routes → new site equivalents
       {
         source: "/learn",
         destination: "/primer",
-        permanent: true,
+        permanent: false,
       },
       {
         source: "/network",
         destination: "https://explorer.livepeer.org",
-        permanent: true,
+        permanent: false,
       },
       {
         source: "/delegate",
         destination: "https://explorer.livepeer.org/",
-        permanent: true,
+        permanent: false,
       },
       {
         source: "/orchestrate",
         destination:
           "https://docs.livepeer.org/orchestrators/guides/get-started",
-        permanent: true,
+        permanent: false,
       },
       {
         source: "/dev-hub",
         destination: "https://docs.livepeer.org",
-        permanent: true,
+        permanent: false,
       },
       {
         source: "/community-hub",
         destination: "https://discord.gg/livepeer",
-        permanent: true,
+        permanent: false,
       },
       {
         source: "/ecosystem",
         destination: "/",
-        permanent: true,
+        permanent: false,
       },
       {
         source: "/developers/quick-start",
         destination: "https://docs.livepeer.org",
-        permanent: true,
+        permanent: false,
       },
       {
         source: "/jobs",
         destination: "/",
-        permanent: true,
+        permanent: false,
       },
       {
         source: "/media-kit",
         destination: "/brand",
-        permanent: true,
+        permanent: false,
       },
       {
         source: "/primer-new-design",
         destination: "/primer",
-        permanent: true,
+        permanent: false,
       },
       {
         source: "/reference/:path*",
         destination: "https://docs.livepeer.org",
-        permanent: true,
+        permanent: false,
       },
     ];
   },
