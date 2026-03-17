@@ -36,16 +36,6 @@ const nextConfig: NextConfig = {
         destination: "/",
         permanent: false,
       },
-      {
-        source: "/use-cases/world-models",
-        destination: "/",
-        permanent: false,
-      },
-      {
-        source: "/use-cases/ai-generated-worlds",
-        destination: "/",
-        permanent: false,
-      },
       // Old livepeer.org routes → new site equivalents
       {
         source: "/learn",
