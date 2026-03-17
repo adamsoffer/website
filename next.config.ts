@@ -20,19 +20,8 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      // Existing routes that no longer have dedicated pages
-      {
-        source: "/developers",
-        destination: "/",
-        permanent: false,
-      },
       {
         source: "/lpt",
-        destination: "/",
-        permanent: false,
-      },
-      {
-        source: "/community",
         destination: "/",
         permanent: false,
       },
