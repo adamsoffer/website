@@ -19,8 +19,14 @@
   --color-purple-dark: #5b21b6;
   --color-purple-subtle: rgba(124, 58, 237, 0.15);
 
+  /* Semantic accent — reserved for liveness/activity indicators (warm orchestrators, live pipelines). Not decorative. */
+  --color-warm: #f59e0b;
+  --color-warm-bright: #fbbf24;
+  --color-warm-subtle: rgba(245, 158, 11, 0.12);
+
   --color-dark: #121212;
   --color-dark-lighter: #181818;
+  --color-dark-surface: #1a1a1a;
   --color-dark-card: #1e1e1e;
   --color-dark-border: #2a2a2a;
 
@@ -37,6 +43,15 @@ body {
   color: #ffffff;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+[role="button"],
+a[href],
+input[type="range"],
+select,
+summary {
+  cursor: pointer;
 }
 
 /* Tile grid background — subtle, structural */
@@ -267,6 +282,62 @@ body {
   }
 }
 
+/* Price range slider — vertical-line thumbs */
+.price-range-thumb::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 4px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.price-range-thumb::-webkit-slider-thumb:hover {
+  background: #ffffff;
+  box-shadow: 0 0 8px rgba(64, 191, 134, 0.5);
+}
+.price-range-thumb::-moz-range-thumb {
+  width: 4px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.price-range-thumb::-moz-range-thumb:hover {
+  background: #ffffff;
+  box-shadow: 0 0 8px rgba(64, 191, 134, 0.5);
+}
+.price-range-thumb::-webkit-slider-runnable-track {
+  background: transparent;
+}
+.price-range-thumb::-moz-range-track {
+  background: transparent;
+}
+
+/* Dark scrollbar for scrollable panels */
+.scrollbar-dark::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-dark::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-dark::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+.scrollbar-dark::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+.scrollbar-dark {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
 /* Text wrap utilities */
 .text-balance {
   text-wrap: balance;
@@ -419,7 +490,7 @@ body {
   margin-bottom: 0;
 }
 
-/* Accessibility */
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;

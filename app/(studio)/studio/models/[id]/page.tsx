@@ -1,0 +1,677 @@
+"use client";
+
+import { useState, useCallback, useEffect } from "react";
+import { useParams } from "next/navigation";
+import Link from "next/link";
+import {
+  Flame,
+  Snowflake,
+  Copy,
+  Check,
+  ExternalLink,
+  BarChart3,
+  Play,
+  Code,
+  FileText,
+  Clock,
+  Server,
+  RotateCcw,
+} from "lucide-react";
+import StudioFooter from "@/components/studio/StudioFooter";
+import StarButton from "@/components/studio/StarButton";
+import { getModelById } from "@/lib/studio/mock-data";
+import { getModelIcon, formatRuns, formatPrice } from "@/lib/studio/utils";
+import PlaygroundForm from "@/components/studio/playground/PlaygroundForm";
+import JsonInput from "@/components/studio/playground/JsonInput";
+import PlaygroundOutput from "@/components/studio/playground/PlaygroundOutput";
+import CodeSnippets from "@/components/studio/playground/CodeSnippets";
+import WebcamPlayground from "@/components/studio/playground/WebcamPlayground";
+import ModelAnalytics from "@/components/studio/stats/ModelAnalytics";
+import type { Model } from "@/lib/studio/types";
+
+// ─── Tabs ───
+
+type Tab = "playground" | "api" | "readme" | "stats";
+
+const TABS: { key: Tab; label: string; icon: React.ElementType }[] = [
+  { key: "playground", label: "Playground", icon: Play },
+  { key: "api", label: "API", icon: Code },
+  { key: "readme", label: "README", icon: FileText },
+  { key: "stats", label: "Stats", icon: BarChart3 },
+];
+
+// ─── Playground Tab ───
+
+function PlaygroundTab({ model }: { model: Model }) {
+  const [inputMode, setInputMode] = useState<"form" | "json" | "python" | "node" | "http">("form");
+  const [isRunning, setIsRunning] = useState(false);
+  const [result, setResult] = useState<string | null>(null);
+  const [inferenceTime, setInferenceTime] = useState<number | undefined>();
+
+  const handleRun = useCallback(
+    (_values: Record<string, unknown>) => {
+      setIsRunning(true);
+      setResult(null);
+      const time = 0.3 + Math.random() * 1.5;
+      setTimeout(() => {
+        setIsRunning(false);
+        setInferenceTime(parseFloat(time.toFixed(1)));
+
+        const cfg = model.playgroundConfig;
+        if (!cfg) return;
+
+        if (cfg.outputType === "text" && cfg.mockOutputText) {
+          setResult(cfg.mockOutputText);
+        } else if (
+          (cfg.outputType === "image" || cfg.outputType === "video") &&
+          cfg.mockOutputUrl
+        ) {
+          setResult(cfg.mockOutputUrl);
+        } else if (cfg.outputType === "audio") {
+          setResult("audio-mock");
+        } else if (cfg.outputType === "json") {
+          setResult(
+            JSON.stringify(
+              {
+                embedding: [0.023, -0.041, 0.087, 0.012, -0.056],
+                model: model.id,
+                usage: { prompt_tokens: 12, total_tokens: 12 },
+              },
+              null,
+              2,
+            ),
+          );
+        } else {
+          setResult(cfg.mockOutputUrl || "Output generated successfully");
+        }
+      }, time * 1000);
+    },
+    [model],
+  );
+
+  // Ctrl+Enter shortcut
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter" && !isRunning) {
+        handleRun({});
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [handleRun, isRunning]);
+
+  if (!model.playgroundConfig) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <Play className="h-10 w-10 text-white/10" />
+        <p className="mt-3 text-sm text-white/40">
+          Playground not available for this model
+        </p>
+      </div>
+    );
+  }
+
+  if (model.playgroundConfig.playgroundVariant === "webcam") {
+    return <WebcamPlayground model={model} />;
+  }
+
+  const INPUT_MODES = [
+    { key: "form" as const, label: "Form" },
+    { key: "json" as const, label: "JSON" },
+    { key: "python" as const, label: "Python" },
+    { key: "node" as const, label: "Node.js" },
+    { key: "http" as const, label: "HTTP" },
+  ];
+
+  return (
+    <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+      {/* Left: Input */}
+      <div>
+        <div className="mb-4 flex items-center gap-0 border-b border-white/[0.06]">
+          {INPUT_MODES.map((mode) => (
+            <button
+              key={mode.key}
+              onClick={() => setInputMode(mode.key)}
+              className={`border-b-2 px-3 py-1.5 text-xs font-medium transition-colors focus:outline-none ${
+                inputMode === mode.key
+                  ? "border-green-bright text-white"
+                  : "border-transparent text-white/50 hover:text-white/60"
+              }`}
+            >
+              {mode.label}
+            </button>
+          ))}
+        </div>
+
+        {inputMode === "form" && (
+          <PlaygroundForm
+            config={model.playgroundConfig}
+            onRun={handleRun}
+            isRunning={isRunning}
+          />
+        )}
+        {inputMode === "json" && (
+          <JsonInput
+            config={model.playgroundConfig}
+            onRun={handleRun}
+            isRunning={isRunning}
+          />
+        )}
+        {(inputMode === "python" ||
+          inputMode === "node" ||
+          inputMode === "http") && (
+          <div className="flex flex-col">
+            <div className="pb-4">
+              <CodeSnippets model={model} fixedLang={inputMode} />
+            </div>
+            <div className="flex items-center gap-2 border-t border-white/[0.06] pt-4">
+              <button
+                type="button"
+                className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] px-3 py-2 text-xs text-white/40 transition-colors hover:bg-white/[0.04] hover:text-white/60 focus:outline-none"
+              >
+                <RotateCcw className="h-3 w-3" />
+                Reset to defaults
+              </button>
+              <button
+                type="button"
+                onClick={() => handleRun({})}
+                disabled={isRunning}
+                className="flex items-center gap-2 rounded-lg bg-green px-4 py-2 text-sm font-medium text-white transition-all hover:bg-green-light disabled:opacity-50 focus:outline-none"
+              >
+                {isRunning ? (
+                  <>
+                    <span className="h-3 w-3 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    Running...
+                  </>
+                ) : (
+                  "Run"
+                )}
+              </button>
+              <span className="ml-auto text-[10px] text-white/40">
+                ctrl+enter
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Right: Output */}
+      <div>
+        <h3 className="mb-4 text-sm font-medium text-white/50">Output</h3>
+        <PlaygroundOutput
+          outputType={model.playgroundConfig.outputType}
+          result={result}
+          isRunning={isRunning}
+          inferenceTime={inferenceTime}
+          category={model.category}
+          modelName={model.name}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ─── API Tab ───
+
+function ApiTab({ model }: { model: Model }) {
+  const baseUrl = model.apiEndpoint ?? "https://gateway.livepeer.org/v1";
+  const endpoint =
+    model.category === "Language"
+      ? `${baseUrl}/chat/completions`
+      : `${baseUrl}/${model.id}`;
+
+  const hasTokenPricing =
+    model.pricing.inputPrice !== undefined &&
+    model.pricing.outputPrice !== undefined;
+
+  return (
+    <div className="space-y-6">
+      {/* Endpoint */}
+      <div>
+        <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-white/50">
+          Endpoint
+        </p>
+        <div className="flex items-center gap-2 rounded-xl border border-white/[0.06] bg-dark-surface p-4">
+          <span className="rounded bg-green/15 px-1.5 py-0.5 text-[10px] font-bold text-green-bright">
+            POST
+          </span>
+          <code className="font-mono text-sm text-white/80">{endpoint}</code>
+        </div>
+      </div>
+
+      {/* Authentication */}
+      <div className="rounded-xl border border-white/[0.06] bg-dark-surface p-5">
+        <h4 className="text-sm font-medium text-white">Authentication</h4>
+        <p className="mt-1 text-xs text-white/50">
+          Pass a Studio API token in the{" "}
+          <code className="font-mono text-white/70">Authorization</code> header.
+          Tokens are scoped, revocable, and route payment through your connected
+          signers.
+        </p>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <Link
+            href="/studio/settings?tab=tokens"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-green-bright/10 px-3 py-2 text-xs font-medium text-green-bright transition-colors hover:bg-green-bright/20 focus:outline-none"
+          >
+            Create API token
+          </Link>
+          {model.providerUrl && (
+            <a
+              href={model.providerUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs text-white/50 transition-colors hover:text-white/70"
+            >
+              Running through {model.provider}? Use a {model.provider} key
+              instead
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          )}
+        </div>
+      </div>
+
+      {/* Quick start */}
+      <div>
+        <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-white/50">
+          Quick start
+        </p>
+        <CodeSnippets model={model} />
+      </div>
+
+      {/* Pricing */}
+      <div className="rounded-xl border border-white/[0.06] bg-dark-surface p-5">
+        <h4 className="text-sm font-medium text-white">Pricing</h4>
+        <p className="mt-1 text-xs text-white/50">
+          Pay-per-inference on the network. Orchestrators are paid directly from
+          your connected signers — no minimums, no egress fees.
+        </p>
+        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          <div>
+            <p className="text-[11px] font-medium uppercase tracking-wider text-white/50">
+              {hasTokenPricing ? "Token pricing" : "List price"}
+            </p>
+            {hasTokenPricing ? (
+              <div className="mt-1 font-mono text-2xl font-semibold text-white">
+                ${model.pricing.inputPrice}
+                <span className="ml-1 text-sm font-normal text-white/50">
+                  in
+                </span>
+                <span className="mx-1.5 text-sm font-normal text-white/30">
+                  /
+                </span>
+                ${model.pricing.outputPrice}
+                <span className="ml-1 text-sm font-normal text-white/50">
+                  out
+                </span>
+                <span className="ml-1 text-xs font-normal text-white/40">
+                  per {model.pricing.unit.toLowerCase()}
+                </span>
+              </div>
+            ) : (
+              <div className="mt-1 font-mono text-2xl font-semibold text-white">
+                ${model.pricing.amount}
+                <span className="ml-1 text-xs font-normal text-white/40">
+                  per {model.pricing.unit.toLowerCase()}
+                </span>
+              </div>
+            )}
+          </div>
+          {model.networkPrice && (
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-wider text-white/50">
+                Network price
+              </p>
+              <div className="mt-1 font-mono text-2xl font-semibold text-white">
+                ${model.networkPrice.amount}
+                <span className="ml-1 text-xs font-normal text-white/40">
+                  per {model.networkPrice.unit.toLowerCase()}
+                </span>
+              </div>
+              <p className="mt-1 text-[11px] text-white/40">
+                Paid to orchestrators on the network.
+              </p>
+            </div>
+          )}
+        </div>
+        <p className="mt-5 border-t border-white/[0.06] pt-4 text-[11px] text-white/40">
+          Throughput scales with your connected signers.{" "}
+          <Link
+            href="/studio/settings?tab=billing"
+            className="text-white/60 underline-offset-2 hover:text-white/80 hover:underline"
+          >
+            Add a payment signer →
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ─── README Tab ───
+
+function ReadmeTab({ model }: { model: Model }) {
+  if (!model.readme) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <FileText className="h-10 w-10 text-white/10" />
+        <p className="mt-3 text-sm text-white/40">No README available</p>
+      </div>
+    );
+  }
+
+  // Simple markdown-ish rendering (headers, code blocks, lists, tables)
+  const lines = model.readme.split("\n");
+  const elements: React.ReactNode[] = [];
+  let inCodeBlock = false;
+  let codeContent = "";
+  let inTable = false;
+  let tableRows: string[][] = [];
+
+  const flushTable = () => {
+    if (tableRows.length > 0) {
+      elements.push(
+        <div
+          key={`table-${elements.length}`}
+          className="overflow-hidden rounded-lg border border-white/[0.06]"
+        >
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="border-b border-white/[0.06] bg-dark-surface">
+                {tableRows[0].map((cell, i) => (
+                  <th
+                    key={i}
+                    className="px-3 py-2 text-left font-medium text-white/50"
+                  >
+                    {cell.trim()}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {tableRows.slice(2).map((row, ri) => (
+                <tr
+                  key={ri}
+                  className="border-b border-white/[0.04] last:border-0"
+                >
+                  {row.map((cell, ci) => (
+                    <td key={ci} className="px-3 py-2 text-white/40">
+                      {cell.trim()}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>,
+      );
+      tableRows = [];
+    }
+    inTable = false;
+  };
+
+  lines.forEach((line, i) => {
+    if (line.startsWith("```")) {
+      if (inCodeBlock) {
+        elements.push(
+          <pre
+            key={`code-${i}`}
+            className="scrollbar-dark overflow-x-auto rounded-lg border border-white/[0.06] bg-black/40 p-4 font-mono text-xs leading-relaxed text-white/60"
+          >
+            {codeContent.trim()}
+          </pre>,
+        );
+        codeContent = "";
+        inCodeBlock = false;
+      } else {
+        if (inTable) flushTable();
+        inCodeBlock = true;
+      }
+      return;
+    }
+
+    if (inCodeBlock) {
+      codeContent += line + "\n";
+      return;
+    }
+
+    if (line.startsWith("|")) {
+      if (!inTable) inTable = true;
+      const cells = line
+        .split("|")
+        .filter((c) => c.trim() !== "");
+      tableRows.push(cells);
+      return;
+    } else if (inTable) {
+      flushTable();
+    }
+
+    if (line.startsWith("# ")) {
+      elements.push(
+        <h1
+          key={i}
+          className="mt-5 mb-2 text-xl font-semibold text-white first:mt-0"
+        >
+          {line.slice(2)}
+        </h1>,
+      );
+    } else if (line.startsWith("## ")) {
+      elements.push(
+        <h2
+          key={i}
+          className="mt-5 mb-2 text-lg font-semibold text-white/90 first:mt-0"
+        >
+          {line.slice(3)}
+        </h2>,
+      );
+    } else if (line.startsWith("### ")) {
+      elements.push(
+        <h3
+          key={i}
+          className="mt-4 mb-2 text-sm font-semibold text-white/80 first:mt-0"
+        >
+          {line.slice(4)}
+        </h3>,
+      );
+    } else if (line.startsWith("- **")) {
+      const match = line.match(/^- \*\*(.+?)\*\*\s*[—–-]\s*(.+)$/);
+      if (match) {
+        elements.push(
+          <div key={i} className="ml-4 text-sm text-white/50">
+            <span className="font-medium text-white/70">{match[1]}</span>
+            <span className="text-white/30"> — </span>
+            {match[2]}
+          </div>,
+        );
+      } else {
+        elements.push(
+          <div key={i} className="ml-4 text-sm text-white/50">
+            {line.slice(2).replace(/\*\*/g, "")}
+          </div>,
+        );
+      }
+    } else if (line.startsWith("- ")) {
+      elements.push(
+        <div key={i} className="ml-4 text-sm text-white/50">
+          <span className="text-white/20 mr-2">-</span>
+          {line.slice(2)}
+        </div>,
+      );
+    } else if (line.trim() === "") {
+      elements.push(<div key={i} className="h-2" />);
+    } else {
+      elements.push(
+        <p key={i} className="text-sm leading-relaxed text-white/50">
+          {line}
+        </p>,
+      );
+    }
+  });
+
+  if (inTable) flushTable();
+
+  return (
+    <article className="rounded-xl border border-white/[0.06] bg-dark-surface p-5">
+      <div className="max-w-3xl space-y-1">{elements}</div>
+    </article>
+  );
+}
+
+// ─── Stats Tab ───
+
+function StatsTab({ model }: { model: Model }) {
+  return <ModelAnalytics model={model} />;
+}
+
+// ─── Main Page ───
+
+export default function ModelDetailPage() {
+  const { id } = useParams<{ id: string }>();
+  const [activeTab, setActiveTab] = useState<Tab>("playground");
+  const [copied, setCopied] = useState(false);
+  const model = getModelById(id);
+
+  if (!model) {
+    return (
+      <main id="main-content" className="flex flex-1 flex-col">
+        <div className="flex flex-1 flex-col items-center justify-center text-center">
+          <p className="text-sm text-white/40">Model not found</p>
+          <Link
+            href="/studio/explore"
+            className="mt-3 text-xs text-green-bright hover:underline focus:outline-none rounded"
+          >
+            Back to Explore
+          </Link>
+        </div>
+        <StudioFooter />
+      </main>
+    );
+  }
+
+  const Icon = getModelIcon(model.category);
+
+  const handleCopyId = () => {
+    navigator.clipboard.writeText(model.id);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <main id="main-content" className="flex flex-1 flex-col">
+      <div className="flex-1">
+        <div className="mx-auto max-w-5xl px-5 py-8">
+          {/* Hero */}
+          <div className="flex items-start justify-between">
+            <div className="flex items-start gap-4">
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/[0.06]">
+                <Icon className="h-6 w-6 text-white/50" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-white/50">
+                    {model.provider}
+                  </span>
+                  <span className="text-white/30">/</span>
+                  <h1 className="text-xl font-semibold text-white">
+                    {model.name}
+                  </h1>
+                  {model.precision && (
+                    <span className="text-xs text-white/40">
+                      {model.precision}
+                    </span>
+                  )}
+                </div>
+                <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-white/60">
+                  {model.description}
+                </p>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-2">
+              <StarButton modelId={model.id} variant="inline" />
+              <button
+                onClick={handleCopyId}
+                className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] px-3 py-1.5 text-xs text-white/40 transition-colors hover:bg-white/[0.04] focus:outline-none"
+              >
+                {copied ? (
+                  <Check className="h-3.5 w-3.5 text-green-bright" />
+                ) : (
+                  <Copy className="h-3.5 w-3.5" />
+                )}
+                Copy ID
+              </button>
+            </div>
+          </div>
+
+          {/* Badges row */}
+          <div className="mt-4 flex flex-wrap items-center gap-3 text-xs">
+            {model.status === "hot" ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-green-bright/10 px-2 py-0.5 font-medium text-green-bright">
+                <span className="h-1.5 w-1.5 rounded-full bg-green-bright" />
+                Ready
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 rounded-full bg-white/[0.06] px-2 py-0.5 text-white/40">
+                <Snowflake className="h-2.5 w-2.5" />
+                Cold
+              </span>
+            )}
+            <span className="flex items-center gap-1 text-white/50">
+              <Flame className="h-3 w-3" />
+              {formatRuns(model.runs7d)} runs
+            </span>
+            <span className="flex items-center gap-1 text-white/50">
+              <Clock className="h-3 w-3" />
+              {model.latency}ms
+            </span>
+            <span className="flex items-center gap-1 text-white/50">
+              <Server className="h-3 w-3" />
+              {model.orchestrators} orchestrators
+            </span>
+            <span className="font-mono text-white/50">
+              {formatPrice(model)}
+            </span>
+            {model.networkPrice && (
+              <span className="font-mono text-white/40">
+                Network: ${model.networkPrice.amount} /{model.networkPrice.unit}
+              </span>
+            )}
+          </div>
+
+          {/* Tabs */}
+          <div className="mt-8 flex gap-0 border-b border-white/[0.06]" role="tablist">
+            {TABS.map((tab) => (
+              <button
+                key={tab.key}
+                role="tab"
+                aria-selected={activeTab === tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`flex items-center gap-1.5 border-b-2 px-4 py-2.5 text-sm font-medium transition-colors focus:outline-none ${
+                  activeTab === tab.key
+                    ? "border-green-bright text-white"
+                    : "border-transparent text-white/50 hover:text-white/60"
+                }`}
+              >
+                <tab.icon
+                  className={`h-3.5 w-3.5 ${
+                    activeTab === tab.key ? "text-green-bright" : ""
+                  }`}
+                />
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab content */}
+          <div className="mt-6 pb-12" role="tabpanel" id={`tabpanel-${activeTab}`}>
+            {activeTab === "playground" && <PlaygroundTab model={model} />}
+            {activeTab === "api" && <ApiTab model={model} />}
+            {activeTab === "readme" && <ReadmeTab model={model} />}
+            {activeTab === "stats" && <StatsTab model={model} />}
+          </div>
+        </div>
+      </div>
+      <StudioFooter />
+    </main>
+  );
+}

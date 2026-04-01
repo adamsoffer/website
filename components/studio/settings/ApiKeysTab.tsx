@@ -1,0 +1,151 @@
+"use client";
+
+import { useState } from "react";
+import { Copy, Trash2, Info } from "lucide-react";
+import Link from "next/link";
+import { SETTINGS_API_KEYS } from "@/lib/studio/mock-data";
+import type { ApiKey } from "@/lib/studio/types";
+import RowMenu from "./RowMenu";
+
+function formatRequests(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k`;
+  return n.toString();
+}
+
+export default function ApiKeysTab() {
+  const [keys, setKeys] = useState<ApiKey[]>(SETTINGS_API_KEYS);
+  const [newKeyName, setNewKeyName] = useState("");
+
+  const handleCreate = () => {
+    if (!newKeyName.trim()) return;
+    const key: ApiKey = {
+      id: `key-${Date.now()}`,
+      name: newKeyName.trim(),
+      prefix: `lpk_live_${Math.random().toString(36).slice(2, 6)}`,
+      status: "active",
+      created: new Date().toISOString().split("T")[0],
+      lastUsed: "—",
+      calls7d: 0,
+    };
+    setKeys((prev) => [...prev, key]);
+    setNewKeyName("");
+  };
+
+  const handleCopy = (prefix: string) => {
+    navigator.clipboard.writeText(`${prefix}${"•".repeat(24)}`);
+  };
+
+  const handleRevoke = (id: string) => {
+    setKeys((prev) =>
+      prev.map((k) =>
+        k.id === id ? { ...k, status: "revoked" as const } : k,
+      ),
+    );
+  };
+
+  return (
+    <div className="space-y-12 px-6 py-8">
+      <section>
+        <h2 className="text-base font-medium text-white">API tokens</h2>
+        <p className="mt-1 text-sm text-white/50">
+          One token routes to every connected payment provider via OAuth.
+        </p>
+
+        {/* Routing model banner */}
+        <div className="mt-4 flex items-start gap-3 rounded-lg border border-white/[0.08] bg-dark-surface px-4 py-3">
+          <Info className="mt-0.5 h-4 w-4 shrink-0 text-white/40" />
+          <p className="text-xs text-white/60">
+            The Free tier runs on a community-owned signer with rate limits.{" "}
+            <Link
+              href="/studio/settings?tab=billing"
+              className="text-green-bright hover:underline"
+            >
+              Connect your own signer
+            </Link>{" "}
+            in Billing for higher limits.
+          </p>
+        </div>
+
+        {/* Create form */}
+        <div className="mt-4 flex gap-2">
+          <input
+            type="text"
+            value={newKeyName}
+            onChange={(e) => setNewKeyName(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleCreate()}
+            placeholder="Enter token name"
+            className="flex-1 rounded-md border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-white/40 transition-colors focus:border-white/20 focus:bg-white/[0.05] focus:outline-none"
+          />
+          <button
+            onClick={handleCreate}
+            disabled={!newKeyName.trim()}
+            className="shrink-0 rounded-md border border-white/[0.12] px-3.5 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Create token
+          </button>
+        </div>
+
+        {/* Token list */}
+        <div className="mt-4 rounded-lg border border-white/[0.06]">
+          {keys.map((key) => (
+            <div
+              key={key.id}
+              className="group flex items-center gap-4 border-b border-white/[0.06] px-4 py-3.5 transition-colors first:rounded-t-lg last:rounded-b-lg last:border-0 hover:bg-white/[0.02]"
+            >
+              {/* Name + prefix + status */}
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-medium text-white">{key.name}</p>
+                  {key.status === "revoked" && (
+                    <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-medium text-red-400">
+                      Revoked
+                    </span>
+                  )}
+                </div>
+                <p className="mt-0.5 truncate font-mono text-xs text-white/50">
+                  {key.prefix}
+                  {"•".repeat(24)}
+                </p>
+                <p className="mt-1 text-[12px] text-white/45">
+                  Free tier
+                  <span className="mx-1.5 text-white/20">·</span>
+                  <span className="font-mono text-white/60">
+                    {formatRequests(key.calls7d)}
+                  </span>{" "}
+                  requests this week
+                </p>
+              </div>
+
+              {/* Right rail: badge + actions */}
+              <div className="flex shrink-0 items-center gap-3">
+                {key.isDefault && (
+                  <span className="inline-flex items-center rounded-full border border-green-bright/20 bg-green-bright/[0.08] px-2.5 py-1 text-[11px] font-medium text-green-bright">
+                    Free tier
+                  </span>
+                )}
+                <RowMenu
+                  ariaLabel={`Actions for ${key.name}`}
+                  items={[
+                    {
+                      label: "Copy token",
+                      icon: Copy,
+                      onClick: () => handleCopy(key.prefix),
+                    },
+                    {
+                      label: "Revoke",
+                      icon: Trash2,
+                      destructive: true,
+                      disabled: key.isDefault || key.status === "revoked",
+                      onClick: () => handleRevoke(key.id),
+                    },
+                  ]}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}

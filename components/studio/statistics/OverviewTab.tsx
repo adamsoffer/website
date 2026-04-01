@@ -1,0 +1,235 @@
+"use client";
+
+import { useState, useMemo } from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import StatCard from "./StatCard";
+import PeriodToggle from "./PeriodToggle";
+import { StackedChartTooltip } from "./ChartTooltip";
+import {
+  NETWORK_STATS,
+  API_REQUEST_SERIES,
+  TOP_APIS,
+  API_COLORS,
+  MODELS,
+} from "@/lib/studio/mock-data";
+import { formatRuns, getModelIcon } from "@/lib/studio/utils";
+import Link from "next/link";
+import type { NetworkStat } from "@/lib/studio/types";
+
+// ─── KPI subset for overview ───
+
+const OVERVIEW_KPI: NetworkStat[] = [
+  NETWORK_STATS[3], // Requests / sec
+  NETWORK_STATS[6], // Success Rate
+  NETWORK_STATS[7], // Total GPUs
+  NETWORK_STATS[2], // Median Latency
+  NETWORK_STATS[0], // Active Orchestrators
+];
+
+// ─── Time period filter ───
+
+type Period = "7d" | "30d" | "3m";
+
+const PERIOD_OPTIONS: { key: Period; label: string }[] = [
+  { key: "7d", label: "7D" },
+  { key: "30d", label: "30D" },
+  { key: "3m", label: "3M" },
+];
+
+function filterByPeriod<T extends { date: string }>(data: T[], period: Period): T[] {
+  const now = new Date();
+  const days = period === "7d" ? 7 : period === "30d" ? 30 : 90;
+  const cutoff = new Date(now);
+  cutoff.setDate(cutoff.getDate() - days);
+  return data.filter((d) => new Date(d.date) >= cutoff);
+}
+
+// ─── Top Pipelines grid ───
+
+function TopPipelinesGrid() {
+  const sorted = useMemo(
+    () =>
+      [...MODELS]
+        .sort((a, b) => b.runs7d - a.runs7d)
+        .slice(0, 9),
+    [],
+  );
+
+  const othersRuns = MODELS
+    .sort((a, b) => b.runs7d - a.runs7d)
+    .slice(9)
+    .reduce((s, m) => s + m.runs7d, 0);
+
+  const totalRuns = MODELS.reduce((s, m) => s + m.runs7d, 0);
+
+  return (
+    <div className="rounded-xl border border-white/[0.06] bg-dark-surface">
+      <div className="border-b border-white/[0.06] px-5 py-3">
+        <h3 className="text-sm font-medium text-white">Top Pipelines</h3>
+        <p className="text-[11px] text-white/40">By request volume (last 3 months)</p>
+      </div>
+
+      {/* Column headers */}
+      <div className="flex items-center gap-3 border-b border-white/[0.06] px-5 py-2">
+        <span className="w-5" />
+        <span className="w-7" />
+        <span className="min-w-0 flex-1 text-[11px] font-medium uppercase tracking-wider text-white/30">Pipeline</span>
+        <span className="w-12 shrink-0 text-right text-[11px] font-medium uppercase tracking-wider text-white/30">Share</span>
+        <span className="w-16 shrink-0 text-right text-[11px] font-medium uppercase tracking-wider text-white/30">Requests</span>
+      </div>
+
+      <div className="divide-y divide-white/[0.04]">
+        {sorted.map((model, i) => {
+          const Icon = getModelIcon(model.category);
+          const color = API_COLORS[i % API_COLORS.length];
+          const pct = ((model.runs7d / totalRuns) * 100).toFixed(1);
+          return (
+            <Link
+              key={model.id}
+              href={`/studio/models/${model.id}`}
+              className="group flex items-center gap-3 px-5 py-3 transition-colors hover:bg-white/[0.03]"
+            >
+              <span className="w-5 text-right font-mono text-[11px] text-white/25">
+                {i + 1}
+              </span>
+              <div
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md"
+                style={{ backgroundColor: `${color}15` }}
+              >
+                <Icon className="h-3.5 w-3.5" style={{ color }} />
+              </div>
+              <p className="min-w-0 flex-1 truncate text-sm text-white/80 group-hover:text-white transition-colors">
+                {model.name}
+              </p>
+              <span className="w-12 shrink-0 text-right font-mono text-[11px] text-white/30">
+                {pct}%
+              </span>
+              <span className="w-16 shrink-0 text-right font-mono text-xs text-white/50">
+                {formatRuns(model.runs7d)}
+              </span>
+            </Link>
+          );
+        })}
+        {othersRuns > 0 && (
+          <div className="flex items-center gap-3 px-5 py-3">
+            <span className="w-5 text-right font-mono text-[11px] text-white/25">+</span>
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white/[0.04]">
+              <span className="text-xs text-white/30">...</span>
+            </div>
+            <p className="min-w-0 flex-1 text-sm text-white/50">Others</p>
+            <span className="w-12 shrink-0 text-right font-mono text-[11px] text-white/20">
+              {((othersRuns / totalRuns) * 100).toFixed(1)}%
+            </span>
+            <span className="w-16 shrink-0 text-right font-mono text-xs text-white/40">
+              {formatRuns(othersRuns)}
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Main ───
+
+export default function OverviewTab() {
+  const [period, setPeriod] = useState<Period>("3m");
+  const chartData = useMemo(() => filterByPeriod(API_REQUEST_SERIES, period), [period]);
+
+  // Compute total requests from chart data
+  const totalRequests = useMemo(() => {
+    let sum = 0;
+    for (const row of chartData) {
+      for (const key of Object.keys(row)) {
+        if (key !== "date" && typeof row[key] === "number") sum += row[key] as number;
+      }
+    }
+    return sum;
+  }, [chartData]);
+
+  return (
+    <div className="flex flex-1 flex-col gap-6 p-5">
+      {/* Header */}
+      <div>
+        <h2 className="text-lg font-semibold text-white">Network Stats</h2>
+        <p className="mt-1 text-sm text-white/50">
+          Network-wide request volumes, top APIs, and growth metrics for the Livepeer AI inference network.
+        </p>
+      </div>
+
+      {/* KPI cards */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        {OVERVIEW_KPI.map((stat) => (
+          <StatCard key={stat.label} stat={stat} />
+        ))}
+      </div>
+
+      {/* Total Requests section */}
+      <div className="rounded-xl border border-white/[0.06] bg-dark-surface p-5">
+        <div className="mb-1 flex items-start justify-between">
+          <div>
+            <p className="text-[11px] font-medium uppercase tracking-wider text-white/40">
+              Total Requests
+            </p>
+            <p className="mt-1 font-mono text-4xl font-bold text-white">
+              {(totalRequests / 1_000_000).toFixed(1)}M
+            </p>
+            <p className="mt-1 text-sm text-white/50">
+              Total inference requests across all APIs on the network.
+            </p>
+          </div>
+          <PeriodToggle value={period} onChange={setPeriod} options={PERIOD_OPTIONS} />
+        </div>
+
+        <div className="mt-4">
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={chartData} barCategoryGap="15%">
+              <XAxis
+                dataKey="date"
+                tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 10 }}
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(v: string) => v.slice(5)}
+                interval={period === "7d" ? 0 : period === "30d" ? 4 : 12}
+              />
+              <YAxis hide />
+              <Tooltip content={<StackedChartTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
+              {TOP_APIS.map((api, i) => (
+                <Bar
+                  key={api}
+                  dataKey={api}
+                  stackId="requests"
+                  fill={API_COLORS[i]}
+                  radius={i === TOP_APIS.length - 1 ? [2, 2, 0, 0] : [0, 0, 0, 0]}
+                />
+              ))}
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Legend */}
+        <div className="mt-3 flex flex-wrap gap-3">
+          {TOP_APIS.map((api, i) => (
+            <div key={api} className="flex items-center gap-1.5">
+              <span
+                className="h-2 w-2 rounded-full"
+                style={{ backgroundColor: API_COLORS[i] }}
+              />
+              <span className="text-[11px] text-white/50">{api}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Top Pipelines grid */}
+      <TopPipelinesGrid />
+    </div>
+  );
+}
