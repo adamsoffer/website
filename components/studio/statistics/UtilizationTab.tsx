@@ -60,22 +60,28 @@ function LiveJobFeed() {
 
   return (
     <div className="rounded-xl border border-white/[0.06] bg-dark-surface">
-      <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3">
-        <div>
-          <h3 className="text-sm font-medium text-white/80">Live Job Feed</h3>
-          <p className="text-[11px] text-white/40">
-            Showing {LIVE_JOBS.length} of {activeJobCount + 9} active jobs
-          </p>
+      <div className="flex flex-col gap-3 border-b border-white/[0.06] px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+        <div className="flex items-center justify-between gap-3 sm:block">
+          <div className="min-w-0">
+            <h3 className="text-sm font-medium text-white/80">Live Job Feed</h3>
+            <p className="text-[11px] text-white/40">
+              Showing {LIVE_JOBS.length} of {activeJobCount + 9} active jobs
+            </p>
+          </div>
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-green-bright/10 px-2.5 py-1 text-[11px] font-medium text-green-bright sm:hidden">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-bright" />
+            LIVE
+          </span>
         </div>
         <div className="flex items-center gap-3">
           {/* Refresh interval toggle */}
-          <div className="flex items-center gap-1 rounded-lg bg-white/[0.04] p-0.5">
-            <RefreshCw className="ml-1.5 h-3 w-3 text-white/30" />
+          <div className="flex flex-1 items-center gap-1 overflow-x-auto rounded-lg bg-white/[0.04] p-0.5 sm:flex-none">
+            <RefreshCw className="ml-1.5 h-3 w-3 shrink-0 text-white/30" />
             {REFRESH_OPTIONS.map((opt) => (
               <button
                 key={opt}
                 onClick={() => setRefreshInterval(opt)}
-                className={`rounded-md px-2 py-1 text-[11px] transition-colors ${
+                className={`shrink-0 rounded-md px-2 py-1 text-[11px] transition-colors ${
                   refreshInterval === opt
                     ? "bg-white/[0.1] font-medium text-white"
                     : "text-white/40 hover:text-white/60"
@@ -85,15 +91,15 @@ function LiveJobFeed() {
               </button>
             ))}
           </div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-green-bright/10 px-2.5 py-1 text-[11px] font-medium text-green-bright">
+          <span className="hidden shrink-0 items-center gap-1.5 rounded-full bg-green-bright/10 px-2.5 py-1 text-[11px] font-medium text-green-bright sm:inline-flex">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-bright" />
             LIVE
           </span>
         </div>
       </div>
 
-      {/* Column headers — outside scroll */}
-      <div className="overflow-x-auto">
+      {/* Column headers — outside scroll, desktop only */}
+      <div className="hidden md:block overflow-x-auto">
         <div className="flex min-w-[600px] items-center gap-4 border-b border-white/[0.06] px-5 py-2 text-[11px] font-medium uppercase tracking-wider text-white/30">
           <span className="flex-1">Pipeline</span>
           <span className="w-44">Model</span>
@@ -103,29 +109,48 @@ function LiveJobFeed() {
         </div>
       </div>
 
-      {/* Scrollable rows only */}
-      <div className="scrollbar-dark max-h-[360px] overflow-y-auto overflow-x-auto">
+      {/* Scrollable rows — desktop table, mobile card list */}
+      <div className="scrollbar-dark max-h-[360px] overflow-y-auto md:overflow-x-auto">
         <div className="divide-y divide-white/[0.04]">
-          {LIVE_JOBS.map((job) => (
-            <div
-              key={job.id}
-              className="flex min-w-[600px] items-center gap-4 px-5 py-2.5 transition-colors hover:bg-white/[0.02]"
-            >
-              <span className="flex-1 text-sm text-white/70">{job.pipeline}</span>
-              <span className="w-44 truncate font-mono text-xs text-white/50">{job.model}</span>
-              <span className="w-20 text-right font-mono text-xs text-white/50">
-                {job.fpsIn != null
-                  ? `${job.fpsIn.toFixed(0)} / ${job.fpsOut?.toFixed(0)}`
-                  : job.latencyMs != null
-                    ? `${job.latencyMs}ms`
-                    : "—"}
-              </span>
-              <span className="w-14 text-right font-mono text-[11px] text-white/40">{job.age}</span>
-              <span className="w-20">
-                <StatusBadge status={job.status} />
-              </span>
-            </div>
-          ))}
+          {LIVE_JOBS.map((job) => {
+            const fps =
+              job.fpsIn != null
+                ? `${job.fpsIn.toFixed(0)} / ${job.fpsOut?.toFixed(0)}`
+                : job.latencyMs != null
+                  ? `${job.latencyMs}ms`
+                  : "—";
+            return (
+              <div key={job.id}>
+                {/* Desktop row */}
+                <div className="hidden md:flex min-w-[600px] items-center gap-4 px-5 py-2.5 transition-colors hover:bg-white/[0.02]">
+                  <span className="flex-1 text-sm text-white/70">{job.pipeline}</span>
+                  <span className="w-44 truncate font-mono text-xs text-white/50">{job.model}</span>
+                  <span className="w-20 text-right font-mono text-xs text-white/50">{fps}</span>
+                  <span className="w-14 text-right font-mono text-[11px] text-white/40">{job.age}</span>
+                  <span className="w-20">
+                    <StatusBadge status={job.status} />
+                  </span>
+                </div>
+                {/* Mobile card */}
+                <div className="flex flex-col gap-1.5 px-4 py-3 transition-colors hover:bg-white/[0.02] md:hidden">
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="min-w-0 flex-1 truncate text-sm text-white/80">
+                      {job.pipeline}
+                    </span>
+                    <StatusBadge status={job.status} />
+                  </div>
+                  <div className="truncate font-mono text-[11px] text-white/40">
+                    {job.model}
+                  </div>
+                  <div className="flex items-center gap-4 font-mono text-[11px] text-white/50">
+                    <span>FPS {fps}</span>
+                    <span className="text-white/30">·</span>
+                    <span>Age {job.age}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -134,8 +159,11 @@ function LiveJobFeed() {
 
 // ─── Main ───
 
+const PIPELINE_PAGE_SIZE = 5;
+
 export default function UtilizationTab() {
   const [search, setSearch] = useState("");
+  const [pipelinePage, setPipelinePage] = useState(0);
 
   const kpi: NetworkStat[] = useMemo(() => {
     const active = PIPELINE_UTILIZATION.filter((p) => p.status !== "cold");
@@ -155,12 +183,18 @@ export default function UtilizationTab() {
     return PIPELINE_UTILIZATION.filter((p) => p.name.toLowerCase().includes(q));
   }, [search]);
 
+  const pipelineTotalPages = Math.ceil(filteredPipelines.length / PIPELINE_PAGE_SIZE);
+  const pipelinePageItems = filteredPipelines.slice(
+    pipelinePage * PIPELINE_PAGE_SIZE,
+    (pipelinePage + 1) * PIPELINE_PAGE_SIZE,
+  );
+
   return (
-    <div className="flex flex-1 flex-col gap-6 p-5">
+    <div className="flex flex-1 flex-col gap-6 p-5 lg:p-6">
       {/* Header */}
       <div>
         <h2 className="text-lg font-semibold text-white">Utilization</h2>
-        <p className="mt-1 text-sm text-white/50">
+        <p className="mt-1 text-sm text-white/60">
           Real-time network activity and pipeline capacity across the Livepeer AI inference network.
         </p>
       </div>
@@ -177,27 +211,30 @@ export default function UtilizationTab() {
 
       {/* Pipelines */}
       <div className="rounded-xl border border-white/[0.06] bg-dark-surface">
-        <div className="flex items-center justify-between gap-4 border-b border-white/[0.06] px-5 py-3">
+        <div className="flex flex-col gap-3 border-b border-white/[0.06] px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-5">
           <div className="min-w-0">
             <h3 className="text-sm font-medium text-white/80">Pipelines</h3>
-            <p className="text-[11px] text-white/40">
-              {filteredPipelines.length} active across the network
+            <p className="text-[11px] text-white/55">
+              {filteredPipelines.length} active · {PIPELINE_UTILIZATION.filter((p) => p.status !== "cold").length} warm · {Math.round(
+                PIPELINE_UTILIZATION.filter((p) => p.status !== "cold").reduce((s, p) => s + p.utilizationPct, 0) /
+                  PIPELINE_UTILIZATION.filter((p) => p.status !== "cold").length,
+              )}% avg utilization
             </p>
           </div>
-          <div className="relative shrink-0">
+          <div className="relative w-full sm:w-auto sm:shrink-0">
             <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-white/30" />
             <input
               type="text"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => { setSearch(e.target.value); setPipelinePage(0); }}
               placeholder="Search pipelines..."
-              className="w-56 rounded-lg border border-white/[0.08] bg-white/[0.03] py-1.5 pl-9 pr-3 text-xs text-white placeholder:text-white/30 focus:border-white/20 focus:outline-none"
+              className="w-full rounded-lg border border-white/[0.08] bg-white/[0.03] py-1.5 pl-9 pr-3 text-xs text-white placeholder:text-white/30 focus:border-white/20 focus:outline-none sm:w-56"
             />
           </div>
         </div>
 
-        {/* Column headers — outside scroll */}
-        <div className="overflow-x-auto">
+        {/* Column headers — outside scroll, desktop only */}
+        <div className="hidden md:block overflow-x-auto">
           <div className="flex min-w-[700px] items-center gap-4 border-b border-white/[0.06] px-5 py-2 text-[11px] font-medium uppercase tracking-wider text-white/30">
             <span className="flex-1">Pipeline</span>
             <span className="w-16 text-right">Warm</span>
@@ -209,61 +246,90 @@ export default function UtilizationTab() {
           </div>
         </div>
 
-        {/* Scrollable rows only */}
-        <div className="scrollbar-dark max-h-[480px] overflow-y-auto overflow-x-auto">
+        {/* Paginated rows — desktop table, mobile card list */}
+        <div className="md:overflow-x-auto">
           <div className="divide-y divide-white/[0.04]">
-            {filteredPipelines.map((p) => (
-              <div
-                key={p.id}
-                className="flex min-w-[700px] items-center gap-4 px-5 py-3 transition-colors hover:bg-white/[0.02]"
-              >
-                <span className="flex-1 text-sm text-white/70">{p.name}</span>
-                <span className="w-16 text-right font-mono text-xs text-green-bright">
-                  {p.warmOrchestrators}
-                </span>
-                <span className="w-16 text-right font-mono text-xs text-white/50">
-                  {p.totalCapacity}
-                </span>
-                <span className="w-32">
+            {pipelinePageItems.map((p) => (
+              <div key={p.id}>
+                {/* Desktop row */}
+                <div className="hidden md:flex min-w-[700px] items-center gap-4 px-5 py-3 transition-colors hover:bg-white/[0.02]">
+                  <span className="flex-1 text-sm text-white/70">{p.name}</span>
+                  <span className="w-16 text-right font-mono text-xs text-green-bright">
+                    {p.warmOrchestrators}
+                  </span>
+                  <span className="w-16 text-right font-mono text-xs text-white/50">
+                    {p.totalCapacity}
+                  </span>
+                  <span className="w-32">
+                    <UtilBar pct={p.utilizationPct} />
+                  </span>
+                  <span className="w-20 text-right font-mono text-xs text-white/50">
+                    {p.avgLatencyMs > 0 ? `${p.avgLatencyMs}ms` : "—"}
+                  </span>
+                  <span className="w-20 text-right font-mono text-xs text-white/50">
+                    ${p.price}{p.priceUnit}
+                  </span>
+                  <span className="w-20">
+                    <StatusBadge status={p.status} />
+                  </span>
+                </div>
+                {/* Mobile card */}
+                <div className="flex flex-col gap-2 px-4 py-3 transition-colors hover:bg-white/[0.02] md:hidden">
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="min-w-0 flex-1 truncate text-sm text-white/80">
+                      {p.name}
+                    </span>
+                    <StatusBadge status={p.status} />
+                  </div>
                   <UtilBar pct={p.utilizationPct} />
-                </span>
-                <span className="w-20 text-right font-mono text-xs text-white/50">
-                  {p.avgLatencyMs > 0 ? `${p.avgLatencyMs}ms` : "—"}
-                </span>
-                <span className="w-20 text-right font-mono text-xs text-white/50">
-                  ${p.price}{p.priceUnit}
-                </span>
-                <span className="w-20">
-                  <StatusBadge status={p.status} />
-                </span>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 font-mono text-[11px] text-white/50">
+                    <span>
+                      <span className="text-white/30">Warm </span>
+                      <span className="text-green-bright">{p.warmOrchestrators}</span>
+                      <span className="text-white/30"> / {p.totalCapacity}</span>
+                    </span>
+                    <span>
+                      <span className="text-white/30">Latency </span>
+                      {p.avgLatencyMs > 0 ? `${p.avgLatencyMs}ms` : "—"}
+                    </span>
+                    <span>
+                      <span className="text-white/30">Price </span>${p.price}
+                      {p.priceUnit}
+                    </span>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Summary strip */}
-        <div className="grid grid-cols-2 gap-px border-t border-white/[0.06] sm:grid-cols-4">
-          {(() => {
-            const totalCap = PIPELINE_UTILIZATION.length;
-            const warmCap = PIPELINE_UTILIZATION.filter((p) => p.status !== "cold").length;
-            const coldCap = totalCap - warmCap;
-            const avgUtil = Math.round(
-              PIPELINE_UTILIZATION.filter((p) => p.status !== "cold").reduce((s, p) => s + p.utilizationPct, 0) /
-                warmCap,
-            );
-            return [
-              { label: "Total Pipelines", value: `${totalCap}` },
-              { label: "Warm", value: `${warmCap}` },
-              { label: "Cold", value: `${coldCap}` },
-              { label: "Avg Utilization", value: `${avgUtil}%` },
-            ].map((stat) => (
-              <div key={stat.label} className="px-5 py-3">
-                <p className="text-[11px] text-white/40">{stat.label}</p>
-                <p className="mt-0.5 font-mono text-sm font-semibold text-white">{stat.value}</p>
-              </div>
-            ));
-          })()}
-        </div>
+        {/* Pagination */}
+        {pipelineTotalPages > 1 && (
+          <div className="flex items-center justify-between border-t border-white/[0.06] px-5 py-2.5">
+            <span className="text-xs text-white/50">
+              {pipelinePage * PIPELINE_PAGE_SIZE + 1}–
+              {Math.min((pipelinePage + 1) * PIPELINE_PAGE_SIZE, filteredPipelines.length)} of{" "}
+              {filteredPipelines.length} pipelines
+            </span>
+            <div className="flex gap-1.5">
+              <button
+                onClick={() => setPipelinePage(Math.max(0, pipelinePage - 1))}
+                disabled={pipelinePage === 0}
+                className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs text-white/70 transition-colors hover:border-white/20 hover:bg-white/[0.05] hover:text-white disabled:opacity-30 disabled:hover:border-white/[0.08] disabled:hover:bg-white/[0.03]"
+              >
+                Prev
+              </button>
+              <button
+                onClick={() => setPipelinePage(Math.min(pipelineTotalPages - 1, pipelinePage + 1))}
+                disabled={pipelinePage >= pipelineTotalPages - 1}
+                className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs text-white/70 transition-colors hover:border-white/20 hover:bg-white/[0.05] hover:text-white disabled:opacity-30 disabled:hover:border-white/[0.08] disabled:hover:bg-white/[0.03]"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );

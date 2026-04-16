@@ -24,7 +24,7 @@ export default function ModelCard({ model }: { model: Model }) {
       className="group relative flex flex-col overflow-hidden rounded-xl border border-white/[0.08] bg-dark-surface transition-colors duration-200 hover:border-white/[0.14] hover:bg-dark-card"
     >
       {/* Cover */}
-      <div className="relative aspect-[16/10] w-full overflow-hidden">
+      <div className="relative aspect-[16/10] max-h-48 w-full overflow-hidden sm:max-h-none">
         {model.coverImage ? (
           <img
             src={model.coverImage}

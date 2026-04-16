@@ -68,8 +68,8 @@ function WelcomeCard({
 }) {
   if (isConnected && user) {
     const firstName = user.name.split(" ")[0];
-    // TODO(onboarding): wire to real user state once hasApiKey + hasFirstRequest + hasSigner signals exist.
-    const completedNonOptional = 1; // Create account (hardcoded for now)
+    // TODO(onboarding): wire to real user state once hasFirstRequest + hasSigner signals exist.
+    const completedNonOptional = 2; // Create account + default API key (both auto-done on signup)
     const totalNonOptional = 3;
     const remaining = totalNonOptional - completedNonOptional;
     const progressPct = (completedNonOptional / totalNonOptional) * 100;
@@ -91,9 +91,9 @@ function WelcomeCard({
           aria-hidden="true"
         />
 
-        <div className="relative p-6">
+        <div className="relative p-5 sm:p-6">
           {/* Heading row: progress ring + greeting + subtitle */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <div className="relative h-11 w-11 shrink-0">
               <svg
                 viewBox="0 0 44 44"
@@ -126,10 +126,10 @@ function WelcomeCard({
               </span>
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-2xl font-semibold tracking-tight text-white">
+              <h1 className="text-xl font-semibold tracking-tight text-white sm:text-2xl">
                 Welcome back, {firstName}.
               </h1>
-              <p className="mt-1 text-sm text-white/55">
+              <p className="mt-1 text-sm text-white/70">
                 {remaining > 0
                   ? `You're ${remaining} ${remaining === 1 ? "step" : "steps"} away from your first inference.`
                   : "You're set up. Time to build."}
@@ -138,48 +138,47 @@ function WelcomeCard({
           </div>
 
           {/* Checklist — each row is a clickable todo, no ghost buttons */}
-          <ul className="mt-6 space-y-1">
+          <ul className="mt-4 space-y-1 sm:mt-6">
             {/* Step 1 — complete (non-interactive, matches two-line rhythm) */}
             <li className="-mx-3 flex items-center gap-3 rounded-lg px-3 py-2.5 opacity-60">
               <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-green/20">
                 <Check className="h-3 w-3 text-green-bright" />
               </span>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-white/50 line-through">
+                <p className="text-sm font-medium text-white/60 line-through">
                   Create account
                 </p>
-                <p className="mt-0.5 text-xs text-white/40">
+                <p className="mt-0.5 text-xs text-white/55">
                   Welcome to Livepeer Studio.
                 </p>
               </div>
-              <span className="shrink-0 text-[10px] font-medium uppercase tracking-wider text-white/30">
+              <span className="hidden shrink-0 text-[10px] font-medium uppercase tracking-wider text-white/55 sm:inline">
                 Done
               </span>
             </li>
 
-            {/* Step 2 — API key */}
-            <li>
-              <Link
-                href="/studio/settings?tab=api-keys"
-                className="group -mx-3 flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-white/[0.04]"
-              >
-                <span className="h-5 w-5 shrink-0 rounded-full border border-white/20 transition-colors group-hover:border-green-bright/40" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-white">
-                    Generate an API key
-                  </p>
-                  <p className="mt-0.5 text-xs text-white/50">
-                    10,000 free requests per month — no payment required.
-                  </p>
-                </div>
-                <ArrowRight className="h-4 w-4 shrink-0 text-white/30 transition-colors group-hover:text-green-bright" />
-              </Link>
+            {/* Step 2 — API key (auto-completed on signup) */}
+            <li className="-mx-3 flex items-center gap-3 rounded-lg px-3 py-2.5 opacity-60">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-green/20">
+                <Check className="h-3 w-3 text-green-bright" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-white/60 line-through">
+                  API key ready
+                </p>
+                <p className="mt-0.5 text-xs text-white/55">
+                  Your default key is active. 10,000 free requests per month.
+                </p>
+              </div>
+              <span className="hidden shrink-0 text-[10px] font-medium uppercase tracking-wider text-white/55 sm:inline">
+                Done
+              </span>
             </li>
 
             {/* Step 3 — first inference */}
             <li>
               <Link
-                href="/studio/quickstart"
+                href="/studio/explore"
                 className="group -mx-3 flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-white/[0.04]"
               >
                 <span className="h-5 w-5 shrink-0 rounded-full border border-white/20 transition-colors group-hover:border-green-bright/40" />
@@ -187,32 +186,55 @@ function WelcomeCard({
                   <p className="text-sm font-medium text-white">
                     Make your first inference
                   </p>
-                  <p className="mt-0.5 text-xs text-white/50">
-                    curl, SDK, or playground — takes about 60 seconds.
+                  <p className="mt-0.5 text-xs text-white/65">
+                    Pick a capability and run it — takes about 60 seconds.
                   </p>
                 </div>
                 <ArrowRight className="h-4 w-4 shrink-0 text-white/30 transition-colors group-hover:text-green-bright" />
               </Link>
             </li>
 
-            {/* Step 4 — optional signer, visually separated */}
-            <li className="!mt-3 border-t border-white/[0.06] pt-3">
+            {/* Optional items, visually separated */}
+            <li className="!mt-2 border-t border-white/[0.06] pt-2 sm:!mt-3 sm:pt-3">
               <Link
-                href="/studio/settings?tab=payment"
+                href="/studio/settings?tab=tokens"
                 className="group -mx-3 flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-white/[0.04]"
               >
                 <span className="h-5 w-5 shrink-0 rounded-full border border-dashed border-white/20 transition-colors group-hover:border-green-bright/40" />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-medium text-white">
-                      Connect a signer
+                      Create scoped API keys
                     </p>
-                    <span className="inline-flex rounded-full bg-white/[0.06] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-white/50">
+                    <span className="inline-flex rounded-full bg-white/[0.06] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-white/65">
                       Optional
                     </span>
                   </div>
-                  <p className="mt-0.5 text-xs text-white/50">
-                    Paymthouse, Livepeer Cloud, or an ETH wallet — for production beyond the free tier.
+                  <p className="mt-0.5 text-xs text-white/65">
+                    Generate additional keys for specific projects or environments.
+                  </p>
+                </div>
+                <ArrowRight className="h-4 w-4 shrink-0 text-white/30 transition-colors group-hover:text-green-bright" />
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                href="/studio/settings?tab=billing"
+                className="group -mx-3 flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-white/[0.04]"
+              >
+                <span className="h-5 w-5 shrink-0 rounded-full border border-dashed border-white/20 transition-colors group-hover:border-green-bright/40" />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium text-white">
+                      Connect a payment provider
+                    </p>
+                    <span className="inline-flex rounded-full bg-white/[0.06] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-white/65">
+                      Optional
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-xs text-white/65">
+                    Add a payment provider for production use beyond the free tier.
                   </p>
                 </div>
                 <ArrowRight className="h-4 w-4 shrink-0 text-white/30 transition-colors group-hover:text-green-bright" />
@@ -264,18 +286,18 @@ function FeaturedCapabilities() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-white/70">
+        <h2 className="text-base font-semibold text-white">
           Featured capabilities
         </h2>
         <Link
           href="/studio/explore"
-          className="text-xs text-green-bright hover:underline"
+          className="text-xs text-white/60 transition-colors hover:text-white"
         >
           View all →
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
         {featured.map((model) => (
           <ModelCard key={model.id} model={model} />
         ))}
@@ -303,7 +325,7 @@ function StarredCapabilities() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-white/70">Your starred capabilities</h2>
+        <h2 className="text-base font-semibold text-white">Your starred capabilities</h2>
         <div className="flex items-center gap-3">
           <span className="font-mono text-[11px] text-white/40">
             {starredIds.length} starred
@@ -311,14 +333,14 @@ function StarredCapabilities() {
           {hasMore && (
             <Link
               href="/studio/explore?starred=1"
-              className="text-xs text-green-bright hover:underline"
+              className="text-xs text-white/60 transition-colors hover:text-white"
             >
               View all →
             </Link>
           )}
         </div>
       </div>
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
         {starred.map((model) => (
           <ModelCard key={model.id} model={model} />
         ))}
@@ -346,20 +368,21 @@ function SuggestedCapabilitiesList() {
     .slice(0, 5);
 
   return (
-    <section className="flex flex-col rounded-2xl border border-white/[0.08] bg-dark-surface">
-      <header className="flex items-center justify-between px-5 pt-5 pb-3">
-        <h2 className="text-[15px] font-medium text-white">
+    <section>
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-base font-semibold text-white">
           Suggested capabilities
         </h2>
         <Link
           href="/studio/explore"
-          className="text-[13px] text-white/55 transition-colors hover:text-white"
+          className="text-xs text-white/60 transition-colors hover:text-white"
         >
-          View all
+          View all →
         </Link>
-      </header>
+      </div>
 
-      <ul className="flex flex-col px-2 pb-2">
+      <div className="flex flex-col rounded-2xl border border-white/[0.08] bg-dark-surface">
+      <ul className="flex flex-col px-2 py-2">
         {suggested.map((model) => {
           const Icon = getModelIcon(model.category);
           return (
@@ -417,6 +440,7 @@ function SuggestedCapabilitiesList() {
           <ArrowRight className="h-3.5 w-3.5" strokeWidth={2} />
         </Link>
       </footer>
+      </div>
     </section>
   );
 }
@@ -440,25 +464,30 @@ function BrowseByCategory() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-white/70">
+        <h2 className="text-base font-semibold text-white">
           Browse by category
         </h2>
         <Link
           href="/studio/explore"
-          className="text-xs text-green-bright hover:underline"
+          className="text-xs text-white/60 transition-colors hover:text-white"
         >
-          All capabilities →
+          View all →
         </Link>
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        {HOME_CATEGORIES.map(({ label, subtitle }) => {
+        {HOME_CATEGORIES.map(({ label, subtitle }, i) => {
           const Icon = getModelIcon(label);
+          const isLastOdd =
+            i === HOME_CATEGORIES.length - 1 &&
+            HOME_CATEGORIES.length % 2 === 1;
           return (
             <Link
               key={label}
               href={`/studio/explore?category=${encodeURIComponent(label)}`}
-              className="group flex flex-col rounded-xl bg-dark-surface/60 p-4 transition-colors hover:bg-dark-card"
+              className={`group flex flex-col rounded-xl bg-dark-surface/60 p-4 transition-colors hover:bg-dark-card ${
+                isLastOdd ? "col-span-2 sm:col-span-1" : ""
+              }`}
             >
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-bright/10">
                 <Icon className="h-4 w-4 text-green-bright" />
@@ -466,7 +495,7 @@ function BrowseByCategory() {
               <p className="mt-3 text-sm font-medium text-white transition-colors group-hover:text-green-bright">
                 {label}
               </p>
-              <p className="mt-0.5 text-[11px] text-white/40">{subtitle}</p>
+              <p className="mt-0.5 text-xs text-white/60">{subtitle}</p>
             </Link>
           );
         })}
@@ -479,13 +508,6 @@ function BrowseByCategory() {
 
 function GettingStartedStrip() {
   const cards = [
-    {
-      icon: BookOpen,
-      title: "Quickstart",
-      description: "Build your first AI video app in 5 minutes.",
-      href: "/studio/quickstart",
-      external: false,
-    },
     {
       icon: FileText,
       title: "Documentation",
@@ -511,7 +533,7 @@ function GettingStartedStrip() {
 
   return (
     <div>
-      <h2 className="mb-4 text-sm font-semibold text-white/70">Get started</h2>
+      <h2 className="mb-4 text-base font-semibold text-white">Get started</h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map(({ icon: Icon, title, description, href, external }) => {
           const Wrapper = external ? "a" : Link;
@@ -554,12 +576,12 @@ function RecentRequests() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-white/70">Recent requests</h2>
+        <h2 className="text-base font-semibold text-white">Recent requests</h2>
         <Link
           href="/studio/settings?tab=usage"
-          className="text-xs text-white/50 hover:text-white"
+          className="text-xs text-white/60 transition-colors hover:text-white"
         >
-          View all usage →
+          View all →
         </Link>
       </div>
       <div className="overflow-hidden rounded-xl border border-white/[0.06] bg-dark-surface">
@@ -569,14 +591,14 @@ function RecentRequests() {
             <Link
               key={row.id}
               href={`/studio/settings?tab=usage&request=${row.id}`}
-              className="group flex items-center justify-between gap-3 border-b border-white/[0.06] px-4 py-3 transition-colors last:border-0 hover:bg-white/[0.02]"
+              className="group flex flex-col gap-2 border-b border-white/[0.06] px-4 py-3 transition-colors last:border-0 hover:bg-white/[0.02] sm:flex-row sm:items-center sm:justify-between sm:gap-3"
             >
               <span className="truncate font-mono text-sm text-white">
                 {row.model}
               </span>
-              <div className="flex shrink-0 items-center gap-4">
+              <div className="flex shrink-0 items-center gap-3 sm:gap-4">
                 <span
-                  className={`w-[68px] rounded-full px-2 py-0.5 text-center text-xs ${
+                  className={`shrink-0 rounded-full px-2 py-0.5 text-center text-xs sm:w-[68px] ${
                     isSuccess
                       ? "bg-green/15 text-green-bright"
                       : "bg-white/[0.06] text-white/50"
@@ -584,17 +606,17 @@ function RecentRequests() {
                 >
                   {row.status}
                 </span>
-                <span className="w-12 text-right font-mono text-xs tabular-nums text-white/70">
+                <span className="shrink-0 font-mono text-xs tabular-nums text-white/70 sm:w-12 sm:text-right">
                   {formatLatency(row.latencyMs)}
                 </span>
-                <span className="hidden w-32 truncate text-[11px] text-white/40 sm:inline">
+                <span className="hidden w-32 truncate text-[11px] text-white/55 sm:inline">
                   via {row.signerLabel}
                 </span>
-                <span className="w-16 text-right text-xs tabular-nums text-white/40">
+                <span className="ml-auto text-xs tabular-nums text-white/55 sm:ml-0 sm:w-16 sm:text-right">
                   {formatRelativeTime(row.timestamp)}
                 </span>
                 <ChevronRight
-                  className="h-4 w-4 shrink-0 text-white/30 opacity-0 transition-opacity group-hover:opacity-100"
+                  className="hidden h-4 w-4 shrink-0 text-white/30 opacity-0 transition-opacity group-hover:opacity-100 sm:block"
                   aria-hidden
                 />
               </div>
@@ -623,26 +645,26 @@ function UsageOverview() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-white/70">
+        <h2 className="text-base font-semibold text-white">
           Your usage this period
         </h2>
         <Link
           href="/studio/settings?tab=usage"
-          className="text-xs text-white/50 hover:text-white"
+          className="text-xs text-white/60 transition-colors hover:text-white"
         >
-          View all usage →
+          View all →
         </Link>
       </div>
 
       <div className="grid grid-cols-1 gap-5 rounded-2xl border border-white/[0.08] bg-dark-surface p-6 lg:grid-cols-5">
         {/* Free-tier gauge (left, 3 cols) */}
         <div className="lg:col-span-3 lg:border-r lg:border-white/[0.06] lg:pr-6">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-white/40">
+          <p className="text-[11px] font-medium uppercase tracking-wider text-white/60">
             Free tier
           </p>
           <p className="mt-2 font-mono text-3xl font-semibold text-white">
             {ACCOUNT_USAGE_SUMMARY.freeTierUsed.toLocaleString()}
-            <span className="ml-1 text-base font-normal text-white/40">
+            <span className="ml-1 text-base font-normal text-white/55">
               / {ACCOUNT_USAGE_SUMMARY.freeTierLimit.toLocaleString()} requests
             </span>
           </p>
@@ -652,38 +674,38 @@ function UsageOverview() {
               style={{ width: `${freePct}%` }}
             />
           </div>
-          <p className="mt-2 text-[11px] text-white/40">
+          <p className="mt-2 text-[11px] text-white/60">
             {freePct}% used · resets in {ACCOUNT_USAGE_SUMMARY.freeTierResetIn}
           </p>
 
-          <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-white/50">
+          <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-white/70">
             <span className="inline-flex items-center gap-1.5">
-              <Activity className="h-3 w-3 text-white/40" aria-hidden="true" />
-              <span className="font-mono text-white/60">
+              <Activity className="h-3 w-3 text-white/50" aria-hidden="true" />
+              <span className="font-mono text-white">
                 {ACCOUNT_USAGE_SUMMARY.requests.toLocaleString()}
               </span>
               requests
             </span>
-            <span className="text-white/20">·</span>
+            <span className="text-white/30" aria-hidden="true">·</span>
             <span className="inline-flex items-center gap-1.5">
-              <DollarSign className="h-3 w-3 text-white/40" aria-hidden="true" />
-              <span className="font-mono text-white/60">
+              <DollarSign className="h-3 w-3 text-white/50" aria-hidden="true" />
+              <span className="font-mono text-white">
                 {ACCOUNT_USAGE_SUMMARY.spendDisplay}
               </span>
               spent
             </span>
-            <span className="text-white/20">·</span>
+            <span className="text-white/30" aria-hidden="true">·</span>
             <span className="inline-flex items-center gap-1.5">
-              <Gauge className="h-3 w-3 text-white/40" aria-hidden="true" />
-              <span className="font-mono text-white/60">{activeSigners}</span>
-              signers
+              <Gauge className="h-3 w-3 text-white/50" aria-hidden="true" />
+              <span className="font-mono text-white">{activeSigners}</span>
+              providers
             </span>
           </div>
         </div>
 
         {/* Signer routing (right, 2 cols) */}
         <div className="lg:col-span-2">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-white/40">
+          <p className="text-[11px] font-medium uppercase tracking-wider text-white/60">
             Request routing
           </p>
           <div className="mt-3 space-y-2">
@@ -738,7 +760,7 @@ export default function HomePage() {
 
   return (
     <main id="main-content" className="flex flex-1 flex-col bg-dark">
-      <div className="mx-auto max-w-6xl flex-1 px-6 py-10 space-y-12">
+      <div className="mx-auto max-w-6xl flex-1 px-5 pt-6 pb-12 space-y-8 lg:px-6 lg:pt-10 lg:pb-16 lg:space-y-12">
         {isConnected ? (
           <>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,380px)]">

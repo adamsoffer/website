@@ -80,9 +80,9 @@ function TopPipelinesGrid() {
       <div className="flex items-center gap-3 border-b border-white/[0.06] px-5 py-2">
         <span className="w-5" />
         <span className="w-7" />
-        <span className="min-w-0 flex-1 text-[11px] font-medium uppercase tracking-wider text-white/30">Pipeline</span>
-        <span className="w-12 shrink-0 text-right text-[11px] font-medium uppercase tracking-wider text-white/30">Share</span>
-        <span className="w-16 shrink-0 text-right text-[11px] font-medium uppercase tracking-wider text-white/30">Requests</span>
+        <span className="min-w-0 flex-1 text-[11px] font-medium uppercase tracking-wider text-white/50">Pipeline</span>
+        <span className="hidden w-12 shrink-0 text-right text-[11px] font-medium uppercase tracking-wider text-white/50 sm:block">Share</span>
+        <span className="w-16 shrink-0 text-right text-[11px] font-medium uppercase tracking-wider text-white/50">Requests</span>
       </div>
 
       <div className="divide-y divide-white/[0.04]">
@@ -108,10 +108,10 @@ function TopPipelinesGrid() {
               <p className="min-w-0 flex-1 truncate text-sm text-white/80 group-hover:text-white transition-colors">
                 {model.name}
               </p>
-              <span className="w-12 shrink-0 text-right font-mono text-[11px] text-white/30">
+              <span className="hidden w-12 shrink-0 text-right font-mono text-[11px] text-white/50 sm:block">
                 {pct}%
               </span>
-              <span className="w-16 shrink-0 text-right font-mono text-xs text-white/50">
+              <span className="w-16 shrink-0 text-right font-mono text-xs text-white/70">
                 {formatRuns(model.runs7d)}
               </span>
             </Link>
@@ -119,15 +119,15 @@ function TopPipelinesGrid() {
         })}
         {othersRuns > 0 && (
           <div className="flex items-center gap-3 px-5 py-3">
-            <span className="w-5 text-right font-mono text-[11px] text-white/25">+</span>
+            <span className="w-5 text-right font-mono text-[11px] text-white/40">+</span>
             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white/[0.04]">
-              <span className="text-xs text-white/30">...</span>
+              <span className="text-xs text-white/40">...</span>
             </div>
-            <p className="min-w-0 flex-1 text-sm text-white/50">Others</p>
-            <span className="w-12 shrink-0 text-right font-mono text-[11px] text-white/20">
+            <p className="min-w-0 flex-1 text-sm text-white/60">Others</p>
+            <span className="hidden w-12 shrink-0 text-right font-mono text-[11px] text-white/40 sm:block">
               {((othersRuns / totalRuns) * 100).toFixed(1)}%
             </span>
-            <span className="w-16 shrink-0 text-right font-mono text-xs text-white/40">
+            <span className="w-16 shrink-0 text-right font-mono text-xs text-white/60">
               {formatRuns(othersRuns)}
             </span>
           </div>
@@ -155,19 +155,28 @@ export default function OverviewTab() {
   }, [chartData]);
 
   return (
-    <div className="flex flex-1 flex-col gap-6 p-5">
+    <div className="flex flex-1 flex-col gap-6 p-5 lg:p-6">
       {/* Header */}
       <div>
         <h2 className="text-lg font-semibold text-white">Network Stats</h2>
-        <p className="mt-1 text-sm text-white/50">
+        <p className="mt-1 text-sm text-white/60">
           Network-wide request volumes, top APIs, and growth metrics for the Livepeer AI inference network.
         </p>
       </div>
 
-      {/* KPI cards */}
+      {/* KPI cards — last card spans 2 cols on mobile so the 2+2+1 orphan becomes a deliberate full-width summary */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        {OVERVIEW_KPI.map((stat) => (
-          <StatCard key={stat.label} stat={stat} />
+        {OVERVIEW_KPI.map((stat, i) => (
+          <div
+            key={stat.label}
+            className={
+              i === OVERVIEW_KPI.length - 1
+                ? "col-span-2 sm:col-span-1"
+                : undefined
+            }
+          >
+            <StatCard stat={stat} />
+          </div>
         ))}
       </div>
 

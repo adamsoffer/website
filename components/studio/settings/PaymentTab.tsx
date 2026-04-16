@@ -110,7 +110,7 @@ export default function PaymentTab() {
         {/* Free tier */}
         <SectionRow
           title="Free tier"
-          description="A community-owned signer providing free, rate-limited access. Enabled by default for every API token."
+          description="A community payment provider offering free, rate-limited access. Enabled by default for every API token."
         >
           <div className="rounded-lg border border-white/[0.08] bg-dark-surface p-4">
             <div className="flex items-baseline justify-between text-xs">
@@ -137,7 +137,7 @@ export default function PaymentTab() {
 
         {/* Remote signers */}
         <SectionRow
-          title="Remote signers"
+          title="Payment providers"
           description="Connect a payment provider to add capacity beyond the Free tier. Your API token routes to it automatically."
         >
           <RoutingStrip summary={ROUTING_SUMMARY} />
@@ -150,7 +150,7 @@ export default function PaymentTab() {
             return (
               <div
                 key={signer.id}
-                className={`group flex items-center gap-4 border-b border-white/[0.06] px-4 py-3.5 first:rounded-t-lg ${
+                className={`group flex flex-col gap-3 border-b border-white/[0.06] px-4 py-3.5 first:rounded-t-lg sm:flex-row sm:items-center sm:gap-4 ${
                   isComingSoon
                     ? "opacity-50"
                     : "transition-colors hover:bg-white/[0.02]"
@@ -164,18 +164,28 @@ export default function PaymentTab() {
                     <p className="text-sm font-medium text-white">
                       {signer.name}
                     </p>
+                    {isComingSoon && (
+                      <span className="inline-flex shrink-0 items-center rounded-full bg-white/[0.06] px-2 py-0.5 text-[10px] font-medium text-white/60 sm:hidden">
+                        Coming soon
+                      </span>
+                    )}
                   </div>
-                  <p className="mt-0.5 line-clamp-1 text-[13px] text-white/55">
+                  <p className="mt-0.5 text-[13px] text-white/65 sm:line-clamp-1">
                     {signer.description}
                   </p>
                   {isConnected && signer.monthlyUsage && (
-                    <p className="mt-1 text-[12px] text-white/45">
-                      <span className="font-mono text-white/70">
+                    <p className="mt-1 text-[12px] text-white/60">
+                      <span className="font-mono text-white/80">
                         {formatRequests(signer.monthlyUsage.requests)}
                       </span>{" "}
                       requests this month
-                      <span className="mx-1.5 text-white/20">·</span>
-                      <span className="font-mono text-white/70">
+                      <span
+                        className="mx-1.5 text-white/30"
+                        aria-hidden="true"
+                      >
+                        ·
+                      </span>
+                      <span className="font-mono text-white/80">
                         {signer.monthlyUsage.spentDisplay}
                       </span>{" "}
                       spent
@@ -183,13 +193,13 @@ export default function PaymentTab() {
                   )}
                 </div>
 
-                {/* Right rail: meta chips · status pill · action */}
-                <div className="flex shrink-0 items-center gap-2.5">
+                {/* Right rail: meta chips · status pill · action. Wraps under name on mobile. */}
+                <div className="flex flex-wrap items-center gap-2 sm:shrink-0 sm:flex-nowrap sm:gap-2.5">
                   <div className="flex flex-wrap items-center gap-1">
                     {signer.currencies.map((c) => (
                       <span
                         key={c}
-                        className="rounded-md bg-white/[0.04] px-2 py-0.5 font-mono text-[11px] font-medium text-white/60"
+                        className="rounded-md bg-white/[0.04] px-2 py-0.5 font-mono text-[11px] font-medium text-white/70"
                       >
                         {c}
                       </span>
@@ -201,24 +211,24 @@ export default function PaymentTab() {
                     </span>
                   )}
                   {isComingSoon && (
-                    <span className="inline-flex items-center rounded-full bg-white/[0.06] px-2 py-0.5 text-[10px] font-medium text-white/40">
+                    <span className="hidden items-center rounded-full bg-white/[0.06] px-2 py-0.5 text-[10px] font-medium text-white/60 sm:inline-flex">
                       Coming soon
                     </span>
                   )}
                   {isConnected ? (
-                    <div className="flex items-center gap-1">
+                    <div className="ml-auto flex items-center gap-1 sm:ml-0">
                       <a
                         href="https://docs.livepeer.org"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-white/60 transition-colors hover:bg-white/[0.06] hover:text-white"
+                        className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-xs text-white/70 transition-colors hover:bg-white/[0.06] hover:text-white"
                       >
                         Manage
                         <ExternalLink className="h-3 w-3" />
                       </a>
                       <button
                         onClick={() => toggleSigner(signer.id)}
-                        className="rounded-md px-2 py-1 text-xs text-white/40 transition-colors hover:bg-white/[0.06] hover:text-white/70"
+                        className="rounded-md px-2 py-1.5 text-xs text-white/55 transition-colors hover:bg-white/[0.06] hover:text-white"
                       >
                         Disconnect
                       </button>
@@ -227,9 +237,9 @@ export default function PaymentTab() {
                     <button
                       onClick={() => toggleSigner(signer.id)}
                       disabled={isComingSoon}
-                      className={`rounded-md border px-3 py-1 text-xs font-medium transition-colors ${
+                      className={`ml-auto rounded-md border px-3 py-1.5 text-xs font-medium transition-colors sm:ml-0 ${
                         isComingSoon
-                          ? "cursor-not-allowed border-white/[0.06] text-white/20"
+                          ? "cursor-not-allowed border-white/[0.06] text-white/30"
                           : "border-white/[0.12] text-white/80 hover:bg-white/[0.06] hover:text-white"
                       }`}
                     >

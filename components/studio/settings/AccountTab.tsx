@@ -138,7 +138,7 @@ export default function AccountTab() {
   };
 
   return (
-    <div className="px-6">
+    <div className="px-5 lg:px-6">
       <div className="divide-y divide-white/[0.06]">
         {/* Email — always editable */}
         <SectionRow
@@ -146,19 +146,19 @@ export default function AccountTab() {
           description="Set or update the email address where you will receive notifications about your account."
         >
           <FieldLabel htmlFor="email">Email address</FieldLabel>
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row">
             <input
               id="email"
               type="email"
               value={emailDraft}
               onChange={(e) => setEmailDraft(e.target.value)}
-              className="flex-1 rounded-md border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-white transition-colors focus:border-white/20 focus:bg-white/[0.05] focus:outline-none"
+              className="w-full rounded-md border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-sm text-white transition-colors focus:border-white/20 focus:bg-white/[0.05] focus:outline-none sm:flex-1 sm:py-2"
             />
             <button
               type="button"
               onClick={handleEmailSave}
               disabled={!emailDraft || emailDraft === user.email}
-              className="shrink-0 rounded-md border border-white/[0.12] px-3.5 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+              className="w-full rounded-md border border-white/[0.12] px-4 py-2.5 text-sm font-medium text-white/80 transition-colors hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto sm:shrink-0 sm:py-2"
             >
               {savedFlash === "email" ? "Saved" : "Update"}
             </button>
@@ -207,19 +207,19 @@ export default function AccountTab() {
               description="The name shown on your profile and in the studio header."
             >
               <FieldLabel htmlFor="name">Name</FieldLabel>
-              <div className="flex gap-2">
+              <div className="flex flex-col gap-2 sm:flex-row">
                 <input
                   id="name"
                   type="text"
                   value={nameDraft}
                   onChange={(e) => setNameDraft(e.target.value)}
-                  className="flex-1 rounded-md border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-white transition-colors focus:border-white/20 focus:bg-white/[0.05] focus:outline-none"
+                  className="w-full rounded-md border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-sm text-white transition-colors focus:border-white/20 focus:bg-white/[0.05] focus:outline-none sm:flex-1 sm:py-2"
                 />
                 <button
                   type="button"
                   onClick={handleNameSave}
                   disabled={!nameDraft || nameDraft === user.name}
-                  className="shrink-0 rounded-md border border-white/[0.12] px-3.5 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                  className="w-full rounded-md border border-white/[0.12] px-4 py-2.5 text-sm font-medium text-white/80 transition-colors hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto sm:shrink-0 sm:py-2"
                 >
                   {savedFlash === "name" ? "Saved" : "Update"}
                 </button>
@@ -329,7 +329,7 @@ export default function AccountTab() {
             <div>
               <p className="text-sm font-medium text-white">Delete account</p>
               <p className="mt-0.5 text-xs text-white/50">
-                Permanently delete your account, API tokens, and all signer
+                Permanently delete your account, API tokens, and all payment provider
                 connections. This cannot be undone.
               </p>
             </div>
@@ -371,7 +371,7 @@ export default function AccountTab() {
             </p>
             <ul className="mt-2 space-y-1.5 text-sm text-white/40">
               <li>Your API tokens will be revoked immediately</li>
-              <li>All connected payment signers will be disconnected</li>
+              <li>All connected payment providers will be disconnected</li>
               <li>Your usage history will be permanently deleted</li>
               <li>This action is irreversible</li>
             </ul>

@@ -252,7 +252,7 @@ export default function UsageTab() {
 
   const signerSelectOptions = useMemo<{ key: SignerFilter; label: string }[]>(
     () => [
-      { key: "all", label: "All signers" },
+      { key: "all", label: "All providers" },
       ...SIGNER_KEYS.map((k) => ({ key: k, label: SIGNER_LABELS[k] })),
     ],
     [],
@@ -278,39 +278,41 @@ export default function UsageTab() {
         ))}
       </div>
 
-      {/* Filters */}
-      <div className="mt-6 flex flex-wrap items-center gap-3">
-        <PeriodToggle
-          value={period}
-          onChange={setPeriod}
-          options={PERIOD_OPTIONS}
-        />
-        <FilterSelect
-          label="Signer"
-          value={signerFilter}
-          options={signerSelectOptions}
-          onChange={setSignerFilter}
-        />
-        <FilterSelect
-          label="Token"
-          value={tokenFilter}
-          options={tokenSelectOptions}
-          onChange={setTokenFilter}
-        />
-      </div>
-
       {/* Usage breakdown chart */}
-      <div className="mt-4 rounded-xl border border-white/[0.06] bg-dark-surface p-5">
-        <div className="mb-1">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-white/40">
-            Requests
-          </p>
-          <p className="mt-1 font-mono text-3xl font-bold text-white">
-            {totalRequests.toLocaleString()}
-          </p>
-          <p className="mt-1 text-sm text-white/50">
-            Daily request volume across signers for the selected period.
-          </p>
+      <div className="mt-6 rounded-xl border border-white/[0.06] bg-dark-surface p-5">
+        <div className="mb-1 flex items-start justify-between">
+          <div>
+            <p className="text-[11px] font-medium uppercase tracking-wider text-white/60">
+              Requests
+            </p>
+            <p className="mt-1 font-mono text-3xl font-bold text-white">
+              {totalRequests.toLocaleString()}
+            </p>
+            <p className="mt-1 text-sm text-white/55">
+              Daily request volume across providers for the selected period.
+            </p>
+          </div>
+          <PeriodToggle
+            value={period}
+            onChange={setPeriod}
+            options={PERIOD_OPTIONS}
+          />
+        </div>
+
+        {/* Provider + Token filters */}
+        <div className="mt-4 flex flex-wrap items-center gap-3 border-b border-white/[0.06] pb-4">
+          <FilterSelect
+            label="Provider"
+            value={signerFilter}
+            options={signerSelectOptions}
+            onChange={setSignerFilter}
+          />
+          <FilterSelect
+            label="Token"
+            value={tokenFilter}
+            options={tokenSelectOptions}
+            onChange={setTokenFilter}
+          />
         </div>
 
         <div className="mt-4">
@@ -379,15 +381,15 @@ export default function UsageTab() {
       {/* Usage per signer */}
       <div className="mt-6 rounded-xl border border-white/[0.06] bg-dark-surface">
         <div className="border-b border-white/[0.06] px-5 py-3">
-          <h3 className="text-sm font-medium text-white">Usage per signer</h3>
+          <h2 className="text-sm font-medium text-white">Usage per provider</h2>
           <p className="text-[11px] text-white/40">
             Cost breakdown by payment routing source.
           </p>
         </div>
 
-        <div className="flex items-center gap-3 border-b border-white/[0.06] px-5 py-2">
+        <div className="hidden md:flex items-center gap-3 border-b border-white/[0.06] px-5 py-2">
           <span className="min-w-0 flex-1 text-[11px] font-medium uppercase tracking-wider text-white/30">
-            Signer
+            Provider
           </span>
           <span className="w-24 shrink-0 text-right text-[11px] font-medium uppercase tracking-wider text-white/30">
             Requests
@@ -402,28 +404,51 @@ export default function UsageTab() {
 
         <div className="divide-y divide-white/[0.04]">
           {filteredSignerRows.map((row) => (
-            <div key={row.signer} className="flex items-center gap-3 px-5 py-3">
-              <span
-                className="h-2 w-2 shrink-0 rounded-full"
-                style={{ backgroundColor: SIGNER_COLORS[row.signer] }}
-              />
-              <p className="min-w-0 flex-1 truncate text-sm text-white/80">
-                {row.label}
-              </p>
-              <span className="w-24 shrink-0 text-right font-mono text-xs text-white/70">
-                {row.requests.toLocaleString()}
-              </span>
-              <span className="w-16 shrink-0 text-right font-mono text-xs text-white/50">
-                {row.percent}%
-              </span>
-              <span className="w-24 shrink-0 text-right font-mono text-xs text-white/70">
-                {row.spendDisplay}
-              </span>
+            <div key={row.signer}>
+              {/* Desktop row */}
+              <div className="hidden md:flex items-center gap-3 px-5 py-3">
+                <span
+                  className="h-2 w-2 shrink-0 rounded-full"
+                  style={{ backgroundColor: SIGNER_COLORS[row.signer] }}
+                />
+                <p className="min-w-0 flex-1 truncate text-sm text-white/80">
+                  {row.label}
+                </p>
+                <span className="w-24 shrink-0 text-right font-mono text-xs text-white/70">
+                  {row.requests.toLocaleString()}
+                </span>
+                <span className="w-16 shrink-0 text-right font-mono text-xs text-white/50">
+                  {row.percent}%
+                </span>
+                <span className="w-24 shrink-0 text-right font-mono text-xs text-white/70">
+                  {row.spendDisplay}
+                </span>
+              </div>
+              {/* Mobile card */}
+              <div className="flex flex-col gap-1.5 px-4 py-3 md:hidden">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="h-2 w-2 shrink-0 rounded-full"
+                    style={{ backgroundColor: SIGNER_COLORS[row.signer] }}
+                  />
+                  <p className="min-w-0 flex-1 truncate text-sm text-white/80">
+                    {row.label}
+                  </p>
+                  <span className="shrink-0 font-mono text-xs text-white/70">
+                    {row.spendDisplay}
+                  </span>
+                </div>
+                <div className="flex items-center gap-4 pl-4 font-mono text-[11px] text-white/40">
+                  <span>{row.requests.toLocaleString()} req</span>
+                  <span className="text-white/20">·</span>
+                  <span>{row.percent}%</span>
+                </div>
+              </div>
             </div>
           ))}
           {filteredSignerRows.length === 0 && (
             <div className="px-5 py-8 text-center text-xs text-white/40">
-              No signer activity for the current filter.
+              No provider activity for the current filter.
             </div>
           )}
         </div>
@@ -432,13 +457,13 @@ export default function UsageTab() {
       {/* Usage per token */}
       <div className="mt-6 rounded-xl border border-white/[0.06] bg-dark-surface">
         <div className="border-b border-white/[0.06] px-5 py-3">
-          <h3 className="text-sm font-medium text-white">Usage per token</h3>
+          <h2 className="text-sm font-medium text-white">Usage per token</h2>
           <p className="text-[11px] text-white/40">
             Activity grouped by API token.
           </p>
         </div>
 
-        <div className="flex items-center gap-3 border-b border-white/[0.06] px-5 py-2">
+        <div className="hidden md:flex items-center gap-3 border-b border-white/[0.06] px-5 py-2">
           <span className="min-w-0 flex-1 text-[11px] font-medium uppercase tracking-wider text-white/30">
             Token
           </span>
@@ -455,22 +480,38 @@ export default function UsageTab() {
 
         <div className="divide-y divide-white/[0.04]">
           {filteredTokenRows.map((row) => (
-            <div
-              key={row.tokenId}
-              className="flex items-center gap-3 px-5 py-3"
-            >
-              <p className="min-w-0 flex-1 truncate text-sm text-white/80">
-                {row.tokenName}
-              </p>
-              <span className="w-24 shrink-0 text-right font-mono text-xs text-white/70">
-                {row.requests.toLocaleString()}
-              </span>
-              <span className="w-28 shrink-0 text-right font-mono text-xs text-white/50">
-                {row.lastUsed}
-              </span>
-              <span className="w-24 shrink-0 text-right font-mono text-xs text-white/70">
-                {row.spendDisplay}
-              </span>
+            <div key={row.tokenId}>
+              {/* Desktop row */}
+              <div className="hidden md:flex items-center gap-3 px-5 py-3">
+                <p className="min-w-0 flex-1 truncate text-sm text-white/80">
+                  {row.tokenName}
+                </p>
+                <span className="w-24 shrink-0 text-right font-mono text-xs text-white/70">
+                  {row.requests.toLocaleString()}
+                </span>
+                <span className="w-28 shrink-0 text-right font-mono text-xs text-white/50">
+                  {row.lastUsed}
+                </span>
+                <span className="w-24 shrink-0 text-right font-mono text-xs text-white/70">
+                  {row.spendDisplay}
+                </span>
+              </div>
+              {/* Mobile card */}
+              <div className="flex flex-col gap-1.5 px-4 py-3 md:hidden">
+                <div className="flex items-center gap-2">
+                  <p className="min-w-0 flex-1 truncate text-sm text-white/80">
+                    {row.tokenName}
+                  </p>
+                  <span className="shrink-0 font-mono text-xs text-white/70">
+                    {row.spendDisplay}
+                  </span>
+                </div>
+                <div className="flex items-center gap-4 font-mono text-[11px] text-white/40">
+                  <span>{row.requests.toLocaleString()} req</span>
+                  <span className="text-white/20">·</span>
+                  <span>last {row.lastUsed}</span>
+                </div>
+              </div>
             </div>
           ))}
           {filteredTokenRows.length === 0 && (
@@ -488,15 +529,21 @@ export default function UsageTab() {
       >
         <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3">
           <div>
-            <h3 className="text-sm font-medium text-white">Recent requests</h3>
-            <p className="text-[11px] text-white/40">
-              Latest API requests across all signers and tokens.
+            <h2 className="text-sm font-medium text-white">Recent requests</h2>
+            <p className="text-[11px] text-white/55">
+              Latest API requests across all providers and tokens.
             </p>
           </div>
-          <span className="font-mono text-[11px] text-white/40">
-            Showing {Math.min(filteredActivity.length, 10)} of{" "}
-            {filteredActivity.length}
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-green-bright/10 px-2.5 py-1 text-[11px] font-medium text-green-bright">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-bright" />
+              LIVE
+            </span>
+            <span className="font-mono text-[11px] text-white/50">
+              Showing {Math.min(filteredActivity.length, 10)} of{" "}
+              {filteredActivity.length}
+            </span>
+          </div>
         </div>
 
         {filteredActivity.length === 0 ? (
@@ -514,8 +561,8 @@ export default function UsageTab() {
           </div>
         ) : (
           <div className="scrollbar-dark max-h-[440px] overflow-y-auto">
-            {/* Sticky header */}
-            <div className="sticky top-0 z-10 flex items-center gap-3 border-b border-white/[0.06] bg-dark-surface px-5 py-2">
+            {/* Sticky header — desktop only */}
+            <div className="hidden md:flex sticky top-0 z-10 items-center gap-3 border-b border-white/[0.06] bg-dark-surface px-5 py-2">
               <span className="w-20 shrink-0 text-[11px] font-medium uppercase tracking-wider text-white/30">
                 Time
               </span>
@@ -529,7 +576,7 @@ export default function UsageTab() {
                 Latency
               </span>
               <span className="hidden w-32 shrink-0 text-[11px] font-medium uppercase tracking-wider text-white/30 lg:inline">
-                Signer
+                Provider
               </span>
               <span className="hidden w-24 shrink-0 text-[11px] font-medium uppercase tracking-wider text-white/30 lg:inline">
                 Token
@@ -547,46 +594,72 @@ export default function UsageTab() {
                   <div
                     key={row.id}
                     data-request-id={row.id}
-                    className={`flex items-center gap-3 px-5 py-2.5 transition-colors ${
+                    className={`transition-colors ${
                       isHighlighted
                         ? "bg-green/[0.08]"
                         : "hover:bg-white/[0.02]"
                     }`}
                   >
-                    <span className="w-20 shrink-0 font-mono text-[11px] text-white/40">
-                      {formatActivityTime(row.timestamp)}
-                    </span>
-                    <span className="min-w-0 flex-1 truncate font-mono text-xs text-white/80">
-                      {row.model}
-                    </span>
-                    <span className="w-20 shrink-0">
-                      <span
-                        className={`inline-flex rounded-full px-2 py-0.5 text-[11px] ${
-                          isSuccess
-                            ? "bg-green/15 text-green-bright"
-                            : "bg-white/[0.06] text-white/50"
-                        }`}
-                      >
-                        {row.status}
+                    {/* Desktop row */}
+                    <div className="hidden md:flex items-center gap-3 px-5 py-2.5">
+                      <span className="w-20 shrink-0 font-mono text-[11px] text-white/40">
+                        {formatActivityTime(row.timestamp)}
                       </span>
-                    </span>
-                    <span className="w-20 shrink-0 text-right font-mono text-[11px] text-white/60">
-                      {formatActivityLatency(row.latencyMs)}
-                    </span>
-                    <span className="hidden w-32 shrink-0 items-center gap-1.5 text-[11px] text-white/70 lg:inline-flex">
-                      <span
-                        className="h-1.5 w-1.5 shrink-0 rounded-full"
-                        style={{ backgroundColor: SIGNER_COLORS[row.signer] }}
-                        aria-hidden="true"
-                      />
-                      <span className="truncate">{row.signerLabel}</span>
-                    </span>
-                    <span className="hidden w-24 shrink-0 truncate text-[11px] text-white/50 lg:inline">
-                      {row.tokenName}
-                    </span>
-                    <span className="w-24 shrink-0 text-right font-mono text-[11px] text-white/70">
-                      {row.costDisplay}
-                    </span>
+                      <span className="min-w-0 flex-1 truncate font-mono text-xs text-white/80">
+                        {row.model}
+                      </span>
+                      <span className="w-20 shrink-0">
+                        <span
+                          className={`inline-flex rounded-full px-2 py-0.5 text-[11px] ${
+                            isSuccess
+                              ? "bg-green/15 text-green-bright"
+                              : "bg-white/[0.06] text-white/50"
+                          }`}
+                        >
+                          {row.status}
+                        </span>
+                      </span>
+                      <span className="w-20 shrink-0 text-right font-mono text-[11px] text-white/60">
+                        {formatActivityLatency(row.latencyMs)}
+                      </span>
+                      <span className="hidden w-32 shrink-0 items-center gap-1.5 text-[11px] text-white/70 lg:inline-flex">
+                        <span
+                          className="h-1.5 w-1.5 shrink-0 rounded-full"
+                          style={{ backgroundColor: SIGNER_COLORS[row.signer] }}
+                          aria-hidden="true"
+                        />
+                        <span className="truncate">{row.signerLabel}</span>
+                      </span>
+                      <span className="hidden w-24 shrink-0 truncate text-[11px] text-white/50 lg:inline">
+                        {row.tokenName}
+                      </span>
+                      <span className="w-24 shrink-0 text-right font-mono text-[11px] text-white/70">
+                        {row.costDisplay}
+                      </span>
+                    </div>
+                    {/* Mobile card */}
+                    <div className="flex flex-col gap-1 px-4 py-2.5 md:hidden">
+                      <div className="flex items-start justify-between gap-3">
+                        <span className="min-w-0 flex-1 truncate font-mono text-xs text-white/80">
+                          {row.model}
+                        </span>
+                        <span
+                          className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] ${
+                            isSuccess
+                              ? "bg-green/15 text-green-bright"
+                              : "bg-white/[0.06] text-white/50"
+                          }`}
+                        >
+                          {row.status}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 font-mono text-[11px] text-white/40">
+                        <span>{formatActivityTime(row.timestamp)}</span>
+                        <span className="text-white/20">·</span>
+                        <span>{formatActivityLatency(row.latencyMs)}</span>
+                        <span className="ml-auto text-white/70">{row.costDisplay}</span>
+                      </div>
+                    </div>
                   </div>
                 );
               })}

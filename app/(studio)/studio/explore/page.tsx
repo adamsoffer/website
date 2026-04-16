@@ -15,10 +15,12 @@ import {
   Check,
   Star,
   Search,
+  SlidersHorizontal,
 } from "lucide-react";
 import { MODELS } from "@/lib/studio/mock-data";
 import Button from "@/components/ui/Button";
 import SearchInput from "@/components/ui/SearchInput";
+import Drawer from "@/components/ui/Drawer";
 import { getModelIcon, formatRuns, formatPrice } from "@/lib/studio/utils";
 import { useStarredModels } from "@/lib/studio/useStarredModels";
 import StudioFooter from "@/components/studio/StudioFooter";
@@ -326,6 +328,7 @@ function ExplorePageInner() {
   const [sort, setSort] = useState("popularity");
   const [sortDir, setSortDir] = useState<"desc" | "asc">("desc");
   const [showSortMenu, setShowSortMenu] = useState(false);
+  const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const [availabilityFilter, setAvailabilityFilter] = useState<AvailabilityFilter>("all");
   const [favoritesOnly, setFavoritesOnly] = useState(initialFavorites);
   const [priceMin, setPriceMin] = useState(0);
@@ -541,48 +544,81 @@ function ExplorePageInner() {
 
         {/* Content + Footer */}
         <div className="flex flex-1 flex-col">
-          {/* Page header */}
-          <div className="border-b border-white/[0.06] px-6 pt-10 pb-5">
-            <h1 className="text-2xl font-medium tracking-tight text-white">
-              Explore
-            </h1>
-            <p className="mt-1.5 text-sm text-white/50">
-              Browse AI capabilities running on the network.
-            </p>
-          </div>
-
-          {/* Toolbar */}
-          <div className="sticky top-12 z-30 flex flex-wrap items-center gap-3 border-b border-white/10 bg-dark-surface/95 backdrop-blur-xl px-5 py-2">
+          {/* Toolbar — the page header is intentionally omitted; the active nav tab
+              + breadcrumb already establish "Explore" context on both breakpoints */}
+          <div className="sticky top-16 lg:top-12 z-30 flex flex-col gap-2.5 border-b border-white/10 bg-dark-surface/95 backdrop-blur-xl px-4 py-2.5 lg:flex-row lg:items-center lg:gap-3 lg:px-5 lg:py-3">
+            {/* Search — full-width on mobile, capped on desktop */}
             <SearchInput
               value={search}
               onChange={setSearch}
               placeholder="Search capabilities..."
               ariaLabel="Search capabilities"
-              className="min-w-[180px] w-full max-w-xs"
+              size="md"
+              className="w-full lg:max-w-xs lg:flex-1"
             />
-            {activeFilters.length > 0 && (
-              <div className="flex items-center gap-1.5 flex-wrap">
-                {activeFilters.map((f) => (
-                  <button
-                    key={f.label}
-                    onClick={f.onClear}
-                    className="inline-flex items-center gap-1 rounded-full bg-white/[0.06] px-2 py-0.5 text-xs text-white/50 hover:bg-white/[0.1]"
-                  >
-                    {f.label}
-                    <X className="h-2.5 w-2.5" />
-                  </button>
-                ))}
+
+            {/* Controls — second row on mobile, inline right on desktop */}
+            <div className="flex items-center gap-2 lg:ml-auto">
+              {/* Filters button — mobile only (desktop has sidebar) */}
+              <button
+                type="button"
+                onClick={() => setFilterDrawerOpen(true)}
+                className="flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 text-xs text-white/70 transition-colors hover:border-white/20 hover:bg-white/[0.05] hover:text-white lg:hidden"
+              >
+                <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
+                Filters
+                {activeFilters.length > 0 && (
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-green-bright/15 px-1 font-mono text-[11px] font-medium text-green-bright">
+                    {activeFilters.length}
+                  </span>
+                )}
+              </button>
+
+              <div className="flex shrink-0 rounded-lg border border-white/[0.08] bg-white/[0.03]">
+                <button
+                  onClick={() => setView("grid")}
+                  aria-label="Grid view"
+                  aria-pressed={view === "grid"}
+                  className={`flex h-10 w-10 items-center justify-center rounded-l-lg transition-colors focus:outline-none ${
+                    view === "grid"
+                      ? "bg-white/[0.08] text-white"
+                      : "text-white/60 hover:text-white"
+                  }`}
+                >
+                  <LayoutGrid className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  onClick={() => setView("list")}
+                  aria-label="List view"
+                  aria-pressed={view === "list"}
+                  className={`flex h-10 w-10 items-center justify-center rounded-r-lg transition-colors focus:outline-none ${
+                    view === "list"
+                      ? "bg-white/[0.08] text-white"
+                      : "text-white/60 hover:text-white"
+                  }`}
+                >
+                  <List className="h-4 w-4" />
+                </button>
               </div>
-            )}
-            <div className="flex items-center gap-1.5 ml-auto">
-              <div className="relative">
+
+              <div className="relative flex-1">
                 <button
                   onClick={() => setShowSortMenu(!showSortMenu)}
-                  className="flex items-center gap-2 rounded-lg bg-white/[0.04] px-3 py-1.5 text-xs transition-colors hover:bg-white/[0.06] focus:outline-none"
+                  aria-haspopup="listbox"
+                  aria-expanded={showSortMenu}
+                  className="flex h-10 w-full items-center justify-between gap-2 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 text-xs transition-colors hover:border-white/20 hover:bg-white/[0.05] focus:outline-none"
                 >
-                  <span className="text-white/40">Sort:</span>
-                  <span className="text-white/60">{SORT_OPTIONS.find((o) => o.value === sort)?.label}</span>
-                  <ChevronDown className="h-3 w-3 text-white/30" />
+                  <span className="flex items-center gap-2 truncate">
+                    <span className="text-white/60">Sort:</span>
+                    <span className="font-medium text-white">
+                      {SORT_OPTIONS.find((o) => o.value === sort)?.label}
+                    </span>
+                  </span>
+                  <ChevronDown
+                    className={`h-4 w-4 shrink-0 text-white/50 transition-transform duration-150 ${
+                      showSortMenu ? "rotate-180" : ""
+                    }`}
+                  />
                 </button>
                 {showSortMenu && (
                   <>
@@ -590,23 +626,28 @@ function ExplorePageInner() {
                       className="fixed inset-0 z-40"
                       onClick={() => setShowSortMenu(false)}
                     />
-                    <div className="absolute right-0 top-full z-50 mt-1.5 w-44 rounded-lg border border-white/[0.08] bg-dark-card p-1 shadow-xl">
+                    <div
+                      role="listbox"
+                      className="absolute left-0 right-0 top-full z-50 mt-1.5 origin-top rounded-xl border border-white/10 bg-dark-card/95 p-1.5 shadow-2xl shadow-black/40 backdrop-blur-xl"
+                    >
                       {SORT_OPTIONS.map((opt) => (
                         <button
                           key={opt.value}
+                          role="option"
+                          aria-selected={sort === opt.value}
                           onClick={() => {
                             setSort(opt.value);
                             setShowSortMenu(false);
                           }}
-                          className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs transition-colors ${
+                          className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm transition-colors ${
                             sort === opt.value
                               ? "bg-white/[0.08] text-white"
-                              : "text-white/50 hover:bg-white/[0.04] hover:text-white/70"
+                              : "text-white/80 hover:bg-white/[0.06] hover:text-white"
                           }`}
                         >
                           {opt.label}
                           {sort === opt.value && (
-                            <Check className="h-3.5 w-3.5 text-green-bright" />
+                            <Check className="h-4 w-4 text-green-bright" />
                           )}
                         </button>
                       ))}
@@ -614,44 +655,40 @@ function ExplorePageInner() {
                   </>
                 )}
               </div>
+
               <button
                 onClick={() => setSortDir(sortDir === "desc" ? "asc" : "desc")}
-                aria-label={sortDir === "desc" ? "Sort descending" : "Sort ascending"}
-                className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.04] transition-colors hover:bg-white/[0.06] focus:outline-none"
+                aria-label={
+                  sortDir === "desc"
+                    ? "Sort direction: descending, tap to ascend"
+                    : "Sort direction: ascending, tap to descend"
+                }
+                aria-pressed={sortDir === "desc"}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] transition-colors hover:border-white/20 hover:bg-white/[0.05] focus:outline-none"
               >
                 {sortDir === "desc" ? (
-                  <ArrowDown className="h-3.5 w-3.5 text-white/50" />
+                  <ArrowDown className="h-4 w-4 text-white/70" />
                 ) : (
-                  <ArrowUp className="h-3.5 w-3.5 text-white/50" />
+                  <ArrowUp className="h-4 w-4 text-white/70" />
                 )}
               </button>
             </div>
-            <div className="flex rounded-lg bg-white/[0.04]">
-              <button
-                onClick={() => setView("grid")}
-                aria-label="Grid view"
-                aria-pressed={view === "grid"}
-                className={`flex h-8 w-8 items-center justify-center rounded-l-lg transition-colors focus:outline-none ${
-                  view === "grid"
-                    ? "bg-white/[0.08] text-white"
-                    : "text-white/50 hover:text-white/60"
-                }`}
-              >
-                <LayoutGrid className="h-3.5 w-3.5" />
-              </button>
-              <button
-                onClick={() => setView("list")}
-                aria-label="List view"
-                aria-pressed={view === "list"}
-                className={`flex h-8 w-8 items-center justify-center rounded-r-lg transition-colors focus:outline-none ${
-                  view === "list"
-                    ? "bg-white/[0.08] text-white"
-                    : "text-white/50 hover:text-white/60"
-                }`}
-              >
-                <List className="h-3.5 w-3.5" />
-              </button>
-            </div>
+
+            {/* Active filter pills (optional third row) */}
+            {activeFilters.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5">
+                {activeFilters.map((f) => (
+                  <button
+                    key={f.label}
+                    onClick={f.onClear}
+                    className="inline-flex items-center gap-1 rounded-full bg-white/[0.06] px-2.5 py-1 text-xs text-white/60 transition-colors hover:bg-white/[0.1] hover:text-white"
+                  >
+                    {f.label}
+                    <X className="h-3 w-3" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Grid / List */}
@@ -668,7 +705,7 @@ function ExplorePageInner() {
                 }}
               />
             ) : view === "grid" ? (
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                 {filtered.map((model) => (
                   <ModelCard key={model.id} model={model} />
                 ))}
@@ -683,12 +720,12 @@ function ExplorePageInner() {
           </div>
           {filtered.length > 0 && (
             <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 px-6 py-3 font-mono text-xs">
-              <span className="text-white/50">
+              <span className="text-white/65">
                 Showing {filtered.length}{" "}
                 {filtered.length === 1 ? "capability" : "capabilities"}
               </span>
-              <span className="text-white/20">·</span>
-              <span className="text-white/40">Missing something?</span>
+              <span className="text-white/30" aria-hidden="true">·</span>
+              <span className="text-white/55">Missing something?</span>
               <a
                 href="https://docs.livepeer.org"
                 target="_blank"
@@ -702,6 +739,163 @@ function ExplorePageInner() {
           <StudioFooter />
         </div>
       </div>
+
+      {/* Mobile filter drawer */}
+      <Drawer
+        open={filterDrawerOpen}
+        onClose={() => setFilterDrawerOpen(false)}
+        title="Filters"
+        ariaLabel="Filters"
+      >
+        <div className="space-y-4 px-5 py-4">
+          {/* Capability type */}
+          <div>
+            <p className="mb-1.5 px-3 text-xs font-medium uppercase tracking-wider text-white/60">
+              Capability Type
+            </p>
+            <div className="space-y-0.5">
+              <button
+                onClick={() => { setCategory(null); setFilterDrawerOpen(false); }}
+                className={`flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-[15px] transition-colors ${
+                  !category
+                    ? "bg-white/[0.08] font-medium text-white"
+                    : "text-white/70 hover:bg-white/[0.06] hover:text-white"
+                }`}
+              >
+                All
+              </button>
+
+              <div className="my-1.5 h-px bg-white/[0.06]" />
+
+              {VIDEO_CATEGORIES.map(({ label: cat, icon: CatIcon }) => (
+                <button
+                  key={cat}
+                  onClick={() => { setCategory(category === cat ? null : cat); setFilterDrawerOpen(false); }}
+                  className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-[15px] transition-colors ${
+                    category === cat
+                      ? "bg-white/[0.08] font-medium text-white"
+                      : "text-white/70 hover:bg-white/[0.06] hover:text-white"
+                  }`}
+                >
+                  <CatIcon className="h-4 w-4 text-white/40" aria-hidden="true" />
+                  {cat}
+                </button>
+              ))}
+
+              <div className="my-1.5 h-px bg-white/[0.06]" />
+
+              {OTHER_CATEGORIES.map(({ label: cat, icon: CatIcon }) => (
+                <button
+                  key={cat}
+                  onClick={() => { setCategory(category === cat ? null : cat); setFilterDrawerOpen(false); }}
+                  className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-[15px] transition-colors ${
+                    category === cat
+                      ? "bg-white/[0.08] font-medium text-white"
+                      : "text-white/70 hover:bg-white/[0.06] hover:text-white"
+                  }`}
+                >
+                  <CatIcon className="h-4 w-4 text-white/40" aria-hidden="true" />
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="h-px bg-white/[0.06]" />
+
+          {/* Availability */}
+          <div>
+            <p className="mb-1.5 px-3 text-xs font-medium uppercase tracking-wider text-white/60">
+              Availability
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setAvailabilityFilter(availabilityFilter === "warm" ? "all" : "warm")}
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                  availabilityFilter === "warm"
+                    ? "bg-warm-subtle font-medium text-warm"
+                    : "text-white/70 hover:bg-white/[0.06]"
+                }`}
+              >
+                <Flame className="h-3.5 w-3.5" />
+                Warm
+              </button>
+              <button
+                onClick={() => setAvailabilityFilter(availabilityFilter === "cold" ? "all" : "cold")}
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                  availabilityFilter === "cold"
+                    ? "bg-blue/10 font-medium text-blue-bright"
+                    : "text-white/70 hover:bg-white/[0.06]"
+                }`}
+              >
+                <Snowflake className="h-3.5 w-3.5" />
+                Cold
+              </button>
+            </div>
+          </div>
+
+          <div className="h-px bg-white/[0.06]" />
+
+          {/* Starred */}
+          <div>
+            <p className="mb-1.5 px-3 text-xs font-medium uppercase tracking-wider text-white/60">
+              Starred
+            </p>
+            <button
+              onClick={() => setFavoritesOnly(!favoritesOnly)}
+              disabled={starredIds.length === 0}
+              className={`flex w-full items-center gap-1.5 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                favoritesOnly
+                  ? "bg-warm-subtle font-medium text-warm"
+                  : "text-white/70 hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-40"
+              }`}
+            >
+              <Star className={`h-3.5 w-3.5 ${favoritesOnly ? "fill-warm" : ""}`} />
+              Starred only
+              {starredIds.length > 0 && (
+                <span className={`ml-auto font-mono text-[11px] ${favoritesOnly ? "text-warm/70" : "text-white/40"}`}>
+                  {starredIds.length}
+                </span>
+              )}
+            </button>
+          </div>
+
+          <div className="h-px bg-white/[0.06]" />
+
+          {/* Price range */}
+          <PriceRangeFilter
+            min={priceMin}
+            max={priceMax}
+            onChange={(min, max) => { setPriceMin(min); setPriceMax(max); }}
+            models={MODELS}
+          />
+        </div>
+
+        {/* Sticky footer — always visible, no layout shift */}
+        <div className="sticky bottom-0 flex items-center justify-between gap-3 border-t border-white/[0.06] bg-dark px-5 py-3">
+          <button
+            type="button"
+            onClick={() => {
+              setCategory(null);
+              setAvailabilityFilter("all");
+              setFavoritesOnly(false);
+              setPriceMin(0);
+              setPriceMax(100);
+            }}
+            disabled={activeFilters.length === 0}
+            className="text-sm text-white/60 underline decoration-white/30 underline-offset-2 transition-colors hover:text-white disabled:no-underline disabled:text-white/30 disabled:cursor-default"
+          >
+            Clear all
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilterDrawerOpen(false)}
+            className="rounded-lg bg-green px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-light active:bg-green-dark"
+          >
+            Show {filtered.length} {filtered.length === 1 ? "result" : "results"}
+          </button>
+        </div>
+      </Drawer>
     </main>
   );
 }

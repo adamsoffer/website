@@ -44,7 +44,12 @@ const ALL_RESULTS: SearchResult[] = [
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export default function StudioSearch() {
+interface StudioSearchProps {
+  /** Full-width trigger with visible placeholder text, no kbd hint. For mobile. */
+  mobile?: boolean;
+}
+
+export default function StudioSearch({ mobile = false }: StudioSearchProps = {}) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -136,20 +141,38 @@ export default function StudioSearch() {
       <button
         type="button"
         onClick={openDialog}
-        className="flex items-center gap-2.5 rounded-lg border border-white/[0.12] bg-white/[0.03] px-3.5 py-1.5 text-sm text-white/40 transition-colors hover:border-white/20 hover:bg-white/[0.05] select-none min-w-[200px]"
+        aria-label="Search"
+        className={
+          mobile
+            ? "flex h-11 w-full items-center gap-2.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-4 text-sm text-white/40 transition-colors hover:border-white/20 hover:bg-white/[0.05] select-none"
+            : "flex items-center gap-2.5 rounded-lg border border-white/[0.12] bg-white/[0.03] px-3.5 py-1.5 text-sm text-white/40 transition-colors hover:border-white/20 hover:bg-white/[0.05] select-none min-w-[200px]"
+        }
       >
         <Search className="h-4 w-4 shrink-0" aria-hidden="true" />
-        <span className="hidden sm:inline flex-1">Search...</span>
-        <kbd className="ml-auto rounded border border-white/10 bg-white/[0.04] px-1.5 py-0.5 font-mono text-[10px] text-white/40">
-          ⌘K
-        </kbd>
+        <span
+          className={
+            mobile
+              ? "min-w-0 flex-1 truncate text-left"
+              : "hidden sm:inline flex-1"
+          }
+        >
+          {mobile ? "Search…" : "Search..."}
+        </span>
+        {!mobile && (
+          <kbd className="ml-auto rounded border border-white/10 bg-white/[0.04] px-1.5 py-0.5 font-mono text-[10px] text-white/40">
+            ⌘K
+          </kbd>
+        )}
       </button>
 
       {/* Command palette dialog */}
       <Dialog open={open} onClose={closeDialog}>
         {/* Input */}
-        <div className="flex items-center gap-4 px-6 py-5">
-          <Search className="h-5 w-5 shrink-0 text-white/30" aria-hidden="true" />
+        <div className="flex items-center gap-3 px-5 py-4 sm:gap-4 sm:px-6 sm:py-5">
+          <Search
+            className="h-5 w-5 shrink-0 text-white/50"
+            aria-hidden="true"
+          />
           <input
             ref={inputRef}
             type="text"
@@ -158,11 +181,16 @@ export default function StudioSearch() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="flex-1 bg-transparent text-base text-white placeholder:text-white/30 outline-none"
+            className="flex-1 bg-transparent text-base text-white placeholder:text-white/40 outline-none"
           />
-          <kbd className="shrink-0 rounded-md border border-white/10 bg-white/[0.06] px-2 py-1 font-mono text-[11px] text-white/40">
+          <button
+            type="button"
+            onClick={closeDialog}
+            aria-label="Close search"
+            className="shrink-0 rounded-md border border-white/10 bg-white/[0.06] px-2.5 py-1 font-mono text-[11px] text-white/60 transition-colors hover:border-white/20 hover:bg-white/[0.1] hover:text-white"
+          >
             ESC
-          </kbd>
+          </button>
         </div>
 
         <div className="h-px bg-white/[0.06]" />
@@ -190,7 +218,7 @@ export default function StudioSearch() {
           ) : (
             results.map((result, i) => (
               <button
-                key={result.href}
+                key={`${result.href}-${result.title}`}
                 type="button"
                 data-row
                 onClick={() => navigate(result.href)}

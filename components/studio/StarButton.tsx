@@ -52,7 +52,7 @@ export default function StarButton({
       onClick={handleClick}
       aria-pressed={starred}
       aria-label={starred ? "Unstar capability" : "Star capability"}
-      className={`flex h-6 w-6 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm transition-opacity duration-200 hover:bg-black/60 focus:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
+      className={`relative flex h-6 w-6 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm transition-opacity duration-200 hover:bg-black/60 focus:outline-none focus-visible:ring-1 focus-visible:ring-white/40 before:absolute before:-inset-2.5 before:content-[''] ${
         starred
           ? "opacity-100"
           : "opacity-0 group-hover:opacity-100 focus-visible:opacity-100"

@@ -5,6 +5,7 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { User, Key, Wallet, Activity } from "lucide-react";
 import { useAuth } from "@/components/studio/AuthContext";
 import StudioFooter from "@/components/studio/StudioFooter";
+import StudioSubNav from "@/components/studio/StudioSubNav";
 import AccountTab from "@/components/studio/settings/AccountTab";
 import ApiKeysTab from "@/components/studio/settings/ApiKeysTab";
 import PaymentTab from "@/components/studio/settings/PaymentTab";
@@ -65,23 +66,14 @@ function SettingsContent() {
 
   return (
     <main id="main-content" className="flex flex-1 flex-col">
-      {/* Mobile tab bar */}
-      <div className="flex border-b border-white/10 bg-dark-surface px-4 lg:hidden">
-        {TABS.map(({ key, label, icon: Icon }) => (
-          <button
-            key={key}
-            onClick={() => setTab(key)}
-            className={`flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-xs transition-colors ${
-              tab === key
-                ? "border-white/40 text-white"
-                : "border-transparent text-white/50 hover:text-white/70"
-            }`}
-          >
-            <Icon className="h-3 w-3" />
-            {label}
-          </button>
-        ))}
-      </div>
+      {/* Mobile sub-nav */}
+      <StudioSubNav
+        ariaLabel="Settings"
+        tabs={TABS}
+        activeKey={tab}
+        onChange={(key) => setTab(key as SettingsTab)}
+      />
+
 
       <div className="flex flex-1 min-h-[calc(100vh-3rem-2.75rem)]">
         {/* Sidebar */}
@@ -116,15 +108,6 @@ function SettingsContent() {
               tab === "usage" ? "max-w-5xl" : "max-w-3xl"
             }`}
           >
-            {/* Page header — shows on every tab */}
-            <div className="border-b border-white/[0.06] px-6 pt-10 pb-5">
-              <h1 className="text-2xl font-medium tracking-tight text-white">
-                Settings
-              </h1>
-              <p className="mt-1.5 text-sm text-white/50">
-                Manage your account, billing, and developer settings.
-              </p>
-            </div>
 
             {tab === "account" && <AccountTab />}
             {tab === "tokens" && <ApiKeysTab />}

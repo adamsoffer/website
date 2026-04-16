@@ -56,31 +56,31 @@ export default function ApiKeysTab() {
         <div className="mt-4 flex items-start gap-3 rounded-lg border border-white/[0.08] bg-dark-surface px-4 py-3">
           <Info className="mt-0.5 h-4 w-4 shrink-0 text-white/40" />
           <p className="text-xs text-white/60">
-            The Free tier runs on a community-owned signer with rate limits.{" "}
+            The Free tier runs on a community payment provider with rate limits.{" "}
             <Link
               href="/studio/settings?tab=billing"
               className="text-green-bright hover:underline"
             >
-              Connect your own signer
+              Connect a provider
             </Link>{" "}
             in Billing for higher limits.
           </p>
         </div>
 
         {/* Create form */}
-        <div className="mt-4 flex gap-2">
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
           <input
             type="text"
             value={newKeyName}
             onChange={(e) => setNewKeyName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleCreate()}
             placeholder="Enter token name"
-            className="flex-1 rounded-md border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-white/40 transition-colors focus:border-white/20 focus:bg-white/[0.05] focus:outline-none"
+            className="w-full rounded-md border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-white/50 transition-colors focus:border-white/20 focus:bg-white/[0.05] focus:outline-none sm:flex-1 sm:py-2"
           />
           <button
             onClick={handleCreate}
             disabled={!newKeyName.trim()}
-            className="shrink-0 rounded-md border border-white/[0.12] px-3.5 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+            className="w-full rounded-md border border-white/[0.12] px-4 py-2.5 text-sm font-medium text-white/80 transition-colors hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto sm:shrink-0 sm:py-2"
           >
             Create token
           </button>

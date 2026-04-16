@@ -115,11 +115,11 @@ export default function GpusTab() {
   }, []);
 
   return (
-    <div className="flex flex-1 flex-col gap-6 p-5">
+    <div className="flex flex-1 flex-col gap-6 p-5 lg:p-6">
       {/* Header */}
       <div>
         <h2 className="text-lg font-semibold text-white">GPUs</h2>
-        <p className="mt-1 text-sm text-white/50">
+        <p className="mt-1 text-sm text-white/60">
           GPU hardware backing the network — node growth, type distribution, and hardware specifications.
         </p>
       </div>

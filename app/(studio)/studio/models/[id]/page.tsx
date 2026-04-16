@@ -18,6 +18,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import StudioFooter from "@/components/studio/StudioFooter";
+import StudioSubNav from "@/components/studio/StudioSubNav";
 import StarButton from "@/components/studio/StarButton";
 import { getModelById } from "@/lib/studio/mock-data";
 import { getModelIcon, formatRuns, formatPrice } from "@/lib/studio/utils";
@@ -127,15 +128,18 @@ function PlaygroundTab({ model }: { model: Model }) {
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
       {/* Left: Input */}
       <div>
-        <div className="mb-4 flex items-center gap-0 border-b border-white/[0.06]">
+        <div
+          className="mb-4 flex items-center gap-0 overflow-x-auto border-b border-white/[0.06]"
+          style={{ scrollbarWidth: "none" }}
+        >
           {INPUT_MODES.map((mode) => (
             <button
               key={mode.key}
               onClick={() => setInputMode(mode.key)}
-              className={`border-b-2 px-3 py-1.5 text-xs font-medium transition-colors focus:outline-none ${
+              className={`shrink-0 border-b-2 px-3 py-2 text-xs font-medium transition-colors focus:outline-none ${
                 inputMode === mode.key
                   ? "border-green-bright text-white"
-                  : "border-transparent text-white/50 hover:text-white/60"
+                  : "border-transparent text-white/65 hover:text-white"
               }`}
             >
               {mode.label}
@@ -246,7 +250,7 @@ function ApiTab({ model }: { model: Model }) {
           Pass a Studio API token in the{" "}
           <code className="font-mono text-white/70">Authorization</code> header.
           Tokens are scoped, revocable, and route payment through your connected
-          signers.
+          providers.
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <Link
@@ -283,7 +287,7 @@ function ApiTab({ model }: { model: Model }) {
         <h4 className="text-sm font-medium text-white">Pricing</h4>
         <p className="mt-1 text-xs text-white/50">
           Pay-per-inference on the network. Orchestrators are paid directly from
-          your connected signers — no minimums, no egress fees.
+          your connected providers — no minimums, no egress fees.
         </p>
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <div>
@@ -293,17 +297,20 @@ function ApiTab({ model }: { model: Model }) {
             {hasTokenPricing ? (
               <div className="mt-1 font-mono text-2xl font-semibold text-white">
                 ${model.pricing.inputPrice}
-                <span className="ml-1 text-sm font-normal text-white/50">
+                <span className="ml-1 text-sm font-normal text-white/65">
                   in
                 </span>
-                <span className="mx-1.5 text-sm font-normal text-white/30">
+                <span
+                  className="mx-1.5 text-sm font-normal text-white/30"
+                  aria-hidden="true"
+                >
                   /
                 </span>
                 ${model.pricing.outputPrice}
-                <span className="ml-1 text-sm font-normal text-white/50">
+                <span className="ml-1 text-sm font-normal text-white/65">
                   out
                 </span>
-                <span className="ml-1 text-xs font-normal text-white/40">
+                <span className="ml-1 text-xs font-normal text-white/55">
                   per {model.pricing.unit.toLowerCase()}
                 </span>
               </div>
@@ -334,12 +341,12 @@ function ApiTab({ model }: { model: Model }) {
           )}
         </div>
         <p className="mt-5 border-t border-white/[0.06] pt-4 text-[11px] text-white/40">
-          Throughput scales with your connected signers.{" "}
+          Throughput scales with your connected providers.{" "}
           <Link
             href="/studio/settings?tab=billing"
             className="text-white/60 underline-offset-2 hover:text-white/80 hover:underline"
           >
-            Add a payment signer →
+            Add a payment provider →
           </Link>
         </p>
       </div>
@@ -560,22 +567,22 @@ export default function ModelDetailPage() {
       <div className="flex-1">
         <div className="mx-auto max-w-5xl px-5 py-8">
           {/* Hero */}
-          <div className="flex items-start justify-between">
-            <div className="flex items-start gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/[0.06]">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex items-start gap-4 min-w-0">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white/[0.06]">
                 <Icon className="h-6 w-6 text-white/50" />
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-white/50">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <span className="text-sm text-white/65">
                     {model.provider}
                   </span>
-                  <span className="text-white/30">/</span>
-                  <h1 className="text-xl font-semibold text-white">
+                  <span className="text-white/30" aria-hidden="true">/</span>
+                  <h1 className="text-xl font-semibold text-white break-words">
                     {model.name}
                   </h1>
                   {model.precision && (
-                    <span className="text-xs text-white/40">
+                    <span className="text-xs text-white/55">
                       {model.precision}
                     </span>
                   )}
@@ -587,7 +594,7 @@ export default function ModelDetailPage() {
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-2">
+            <div className="flex shrink-0 items-center gap-2">
               <StarButton modelId={model.id} variant="inline" />
               <button
                 onClick={handleCopyId}
@@ -603,67 +610,112 @@ export default function ModelDetailPage() {
             </div>
           </div>
 
-          {/* Badges row */}
-          <div className="mt-4 flex flex-wrap items-center gap-3 text-xs">
+          {/* Status pill + badges — status is prominent, metadata grid below on mobile */}
+          <div className="mt-4 flex items-center gap-3 text-xs">
             {model.status === "hot" ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-green-bright/10 px-2 py-0.5 font-medium text-green-bright">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-green-bright/10 px-2.5 py-1 font-medium text-green-bright">
                 <span className="h-1.5 w-1.5 rounded-full bg-green-bright" />
                 Ready
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 rounded-full bg-white/[0.06] px-2 py-0.5 text-white/40">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.06] px-2.5 py-1 text-white/60">
                 <Snowflake className="h-2.5 w-2.5" />
                 Cold
               </span>
             )}
-            <span className="flex items-center gap-1 text-white/50">
-              <Flame className="h-3 w-3" />
+          </div>
+
+          {/* Metadata grid — 2 columns on mobile, inline flex on desktop */}
+          <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-white/65 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
+            <span className="flex items-center gap-1.5">
+              <Flame className="h-3 w-3 text-white/40" aria-hidden="true" />
               {formatRuns(model.runs7d)} runs
             </span>
-            <span className="flex items-center gap-1 text-white/50">
-              <Clock className="h-3 w-3" />
-              {model.latency}ms
+            <span className="flex items-center gap-1.5">
+              <Clock className="h-3 w-3 text-white/40" aria-hidden="true" />
+              {model.latency}ms latency
             </span>
-            <span className="flex items-center gap-1 text-white/50">
-              <Server className="h-3 w-3" />
+            <span className="flex items-center gap-1.5">
+              <Server className="h-3 w-3 text-white/40" aria-hidden="true" />
               {model.orchestrators} orchestrators
             </span>
-            <span className="font-mono text-white/50">
+            <span className="font-mono text-white/70">
               {formatPrice(model)}
             </span>
             {model.networkPrice && (
-              <span className="font-mono text-white/40">
+              <span className="col-span-2 font-mono text-white/50 sm:col-span-1">
                 Network: ${model.networkPrice.amount} /{model.networkPrice.unit}
               </span>
             )}
           </div>
 
-          {/* Tabs */}
-          <div className="mt-8 flex gap-0 border-b border-white/[0.06]" role="tablist">
-            {TABS.map((tab) => (
-              <button
-                key={tab.key}
-                role="tab"
-                aria-selected={activeTab === tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`flex items-center gap-1.5 border-b-2 px-4 py-2.5 text-sm font-medium transition-colors focus:outline-none ${
-                  activeTab === tab.key
-                    ? "border-green-bright text-white"
-                    : "border-transparent text-white/50 hover:text-white/60"
-                }`}
-              >
-                <tab.icon
-                  className={`h-3.5 w-3.5 ${
-                    activeTab === tab.key ? "text-green-bright" : ""
+          {/* Tabs — desktop horizontal strip */}
+          <div
+            className="mt-8 hidden gap-0 overflow-x-auto border-b border-white/[0.06] lg:flex"
+            role="tablist"
+            aria-label="Model section"
+            style={{ scrollbarWidth: "none" }}
+            onKeyDown={(e) => {
+              const i = TABS.findIndex((t) => t.key === activeTab);
+              if (e.key === "ArrowRight") {
+                e.preventDefault();
+                setActiveTab(TABS[(i + 1) % TABS.length].key);
+              } else if (e.key === "ArrowLeft") {
+                e.preventDefault();
+                setActiveTab(TABS[(i - 1 + TABS.length) % TABS.length].key);
+              } else if (e.key === "Home") {
+                e.preventDefault();
+                setActiveTab(TABS[0].key);
+              } else if (e.key === "End") {
+                e.preventDefault();
+                setActiveTab(TABS[TABS.length - 1].key);
+              }
+            }}
+          >
+            {TABS.map((tab) => {
+              const selected = activeTab === tab.key;
+              return (
+                <button
+                  key={tab.key}
+                  id={`tab-${tab.key}`}
+                  role="tab"
+                  aria-selected={selected}
+                  aria-controls={`tabpanel-${tab.key}`}
+                  tabIndex={selected ? 0 : -1}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`flex h-11 shrink-0 items-center gap-1.5 border-b-2 px-4 text-sm font-medium transition-colors focus:outline-none ${
+                    selected
+                      ? "border-green-bright text-white"
+                      : "border-transparent text-white/60 hover:text-white"
                   }`}
-                />
-                {tab.label}
-              </button>
-            ))}
+                >
+                  <tab.icon
+                    className={`h-3.5 w-3.5 ${
+                      selected ? "text-green-bright" : ""
+                    }`}
+                  />
+                  {tab.label}
+                </button>
+              );
+            })}
           </div>
 
+          {/* Tabs — mobile scroll strip */}
+          <StudioSubNav
+            hideAt="md"
+            ariaLabel="Model section"
+            tabs={TABS}
+            activeKey={activeTab}
+            onChange={(key) => setActiveTab(key as Tab)}
+          />
+
           {/* Tab content */}
-          <div className="mt-6 pb-12" role="tabpanel" id={`tabpanel-${activeTab}`}>
+          <div
+            className="mt-6 pb-12"
+            role="tabpanel"
+            id={`tabpanel-${activeTab}`}
+            aria-labelledby={`tab-${activeTab}`}
+          >
             {activeTab === "playground" && <PlaygroundTab model={model} />}
             {activeTab === "api" && <ApiTab model={model} />}
             {activeTab === "readme" && <ReadmeTab model={model} />}
