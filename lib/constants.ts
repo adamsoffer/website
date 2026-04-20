@@ -51,10 +51,10 @@ export const NAV_ITEMS: NavItem[] = [
   },
 ];
 
-export const STUDIO_NAV_ITEMS = [
-  { label: "Home", href: "/studio", icon: "House" as const },
-  { label: "Explore", href: "/studio/explore", icon: "LayoutGrid" as const },
-  { label: "Stats", href: "/studio/stats", icon: "BarChart3" as const },
+export const PORTAL_NAV_ITEMS = [
+  { label: "Home", href: "/portal", icon: "House" as const },
+  { label: "Explore", href: "/portal/explore", icon: "LayoutGrid" as const },
+  { label: "Stats", href: "/portal/stats", icon: "BarChart3" as const },
 ] as const;
 
 export const EXTERNAL_LINKS = {
