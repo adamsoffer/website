@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Sparkles, Snowflake } from "lucide-react";
+import { Sparkles, Snowflake, Zap } from "lucide-react";
 import {
   getModelIcon,
   formatRuns,
@@ -54,22 +54,33 @@ export default function ModelCard({ model }: { model: Model }) {
           </span>
         )}
 
-        {/* Warm/Cold pill — bottom-left. Matches Explore StatusBadge: warm = orange pulse, cold = blue snowflake */}
-        <span
-          className={`absolute bottom-2 left-2 inline-flex items-center gap-1.5 rounded-full bg-black/50 px-2 py-1 text-[11px] font-medium backdrop-blur-sm ${
-            isWarm ? "text-warm" : "text-blue-bright"
-          }`}
-        >
-          {isWarm ? (
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-warm opacity-75" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-warm" />
+        {/* Status pills — bottom-left. Warm/Cold + optional Realtime (moat signal). */}
+        <div className="absolute bottom-2 left-2 flex items-center gap-1.5">
+          <span
+            className={`inline-flex items-center gap-1.5 rounded-full bg-black/50 px-2 py-1 text-[11px] font-medium backdrop-blur-sm ${
+              isWarm ? "text-warm" : "text-blue-bright"
+            }`}
+          >
+            {isWarm ? (
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-warm opacity-75" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-warm" />
+              </span>
+            ) : (
+              <Snowflake className="h-2.5 w-2.5" />
+            )}
+            {isWarm ? "Warm" : "Cold"}
+          </span>
+          {model.realtime && (
+            <span
+              className="inline-flex items-center gap-1.5 rounded-full bg-black/50 px-2 py-1 text-[11px] font-medium text-green-bright backdrop-blur-sm"
+              title="Supports streaming (WebRTC) inference"
+            >
+              <Zap className="h-2.5 w-2.5" fill="currentColor" />
+              Realtime
             </span>
-          ) : (
-            <Snowflake className="h-2.5 w-2.5" />
           )}
-          {isWarm ? "Warm" : "Cold"}
-        </span>
+        </div>
 
         {/* Star — top-right, hover-reveal */}
         <StarButton modelId={model.id} className="absolute top-2 right-2" />

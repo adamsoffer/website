@@ -235,7 +235,7 @@ export default function PlaygroundForm({
         <button
           type="submit"
           disabled={isRunning}
-          className="flex h-11 items-center gap-2 rounded-lg bg-green px-4 text-sm font-medium text-white transition-all hover:bg-green-light disabled:opacity-50 focus:outline-none sm:h-9"
+          className="flex h-11 min-w-[120px] items-center justify-center gap-2 rounded-lg bg-green px-4 text-sm font-medium text-white transition-all hover:bg-green-light disabled:opacity-50 focus:outline-none sm:h-9"
         >
           {isRunning ? (
             <>

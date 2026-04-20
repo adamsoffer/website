@@ -14,6 +14,7 @@ import {
   Star,
   Search,
   SlidersHorizontal,
+  Zap,
 } from "lucide-react";
 import { MODELS } from "@/lib/portal/mock-data";
 import Button from "@/components/ui/Button";
@@ -54,7 +55,7 @@ const OTHER_CATEGORIES: { label: ModelCategory; icon: ReturnType<typeof getModel
 ];
 
 const SORT_OPTIONS = [
-  { value: "popularity", label: "Popularity" },
+  { value: "recommended", label: "Recommended" },
   { value: "latency", label: "Latency" },
   { value: "uptime", label: "Uptime" },
   { value: "price", label: "Price" },
@@ -324,11 +325,12 @@ function ExplorePageInner() {
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"grid" | "list">("grid");
   const [category, setCategory] = useState<ModelCategory | null>(initialCategory);
-  const [sort, setSort] = useState("popularity");
+  const [sort, setSort] = useState("recommended");
   const [sortDir, setSortDir] = useState<"desc" | "asc">("desc");
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const [availabilityFilter, setAvailabilityFilter] = useState<AvailabilityFilter>("all");
   const [favoritesOnly, setFavoritesOnly] = useState(initialFavorites);
+  const [realtimeOnly, setRealtimeOnly] = useState(searchParams.get("realtime") === "1");
   const [priceMin, setPriceMin] = useState(0);
   const [priceMax, setPriceMax] = useState(100);
   const dataMaxPrice = useMemo(
@@ -341,6 +343,7 @@ function ExplorePageInner() {
       if (availabilityFilter === "warm" && m.status !== "hot") return false;
       if (availabilityFilter === "cold" && m.status !== "cold") return false;
       if (favoritesOnly && !isStarred(m.id)) return false;
+      if (realtimeOnly && !m.realtime) return false;
       const matchesSearch =
         !search ||
         m.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -366,13 +369,19 @@ function ExplorePageInner() {
           const bTs = b.releasedAt ? new Date(b.releasedAt).getTime() : 0;
           return (bTs - aTs) * dir;
         }
-        default:
+        default: {
+          // Recommended: tier by (realtime, warm), then by runs7d. Showcases the moat
+          // while still bubbling usable-now models above cold ones within each tier.
+          const tier = (m: Model) => (m.realtime ? 0 : 2) + (m.status === "hot" ? 0 : 1);
+          const tierDiff = tier(a) - tier(b);
+          if (tierDiff !== 0) return tierDiff * dir;
           return (b.runs7d - a.runs7d) * dir;
+        }
       }
     });
 
     return result;
-  }, [search, category, sort, sortDir, availabilityFilter, favoritesOnly, isStarred, priceMin, priceMax, dataMaxPrice]);
+  }, [search, category, sort, sortDir, availabilityFilter, favoritesOnly, realtimeOnly, isStarred, priceMin, priceMax, dataMaxPrice]);
 
   const activeFilters = [
     ...(category
@@ -383,6 +392,9 @@ function ExplorePageInner() {
       : []),
     ...(favoritesOnly
       ? [{ label: "Starred", onClear: () => setFavoritesOnly(false) }]
+      : []),
+    ...(realtimeOnly
+      ? [{ label: "Realtime", onClear: () => setRealtimeOnly(false) }]
       : []),
   ];
 
@@ -396,7 +408,7 @@ function ExplorePageInner() {
           <div>
             {/* Capability type */}
             <p className="mb-1.5 px-3 text-xs font-medium uppercase tracking-wider text-white/50">
-              Capability Type
+              Tasks
             </p>
             <div className="space-y-1">
               <button
@@ -481,6 +493,29 @@ function ExplorePageInner() {
 
           <div className="h-px bg-white/[0.08]" />
 
+          {/* Realtime — capability filter, Livepeer moat */}
+          <div>
+            <p className="mb-1.5 px-3 text-xs font-medium uppercase tracking-wider text-white/50">
+              Realtime
+            </p>
+            <button
+              onClick={() => setRealtimeOnly(!realtimeOnly)}
+              className={`flex w-full items-center gap-1.5 rounded-lg px-3 py-2 text-[13px] transition-colors ${
+                realtimeOnly
+                  ? "bg-green-bright/10 font-medium text-green-bright"
+                  : "text-white/50 hover:bg-white/[0.04] hover:text-white/70"
+              }`}
+            >
+              <Zap
+                className="h-3 w-3"
+                fill={realtimeOnly ? "currentColor" : "none"}
+              />
+              Realtime only
+            </button>
+          </div>
+
+          <div className="h-px bg-white/[0.08]" />
+
           {/* Starred */}
           <div>
             <p className="mb-1.5 px-3 text-xs font-medium uppercase tracking-wider text-white/50">
@@ -528,6 +563,7 @@ function ExplorePageInner() {
                   setCategory(null);
                   setAvailabilityFilter("all");
                   setFavoritesOnly(false);
+                  setRealtimeOnly(false);
                   setPriceMin(0);
                   setPriceMax(100);
                 }}
@@ -544,7 +580,7 @@ function ExplorePageInner() {
         <div className="flex min-w-0 flex-1 flex-col bg-dark">
           {/* Toolbar — the page header is intentionally omitted; the active nav tab
               + breadcrumb already establish "Explore" context on both breakpoints */}
-          <div className="sticky top-16 lg:top-12 z-30 flex flex-col gap-2.5 border-b border-white/10 bg-dark-surface/95 backdrop-blur-xl px-4 py-2.5 lg:flex-row lg:items-center lg:gap-3 lg:px-5 lg:py-3">
+          <div className="sticky top-16 lg:top-12 z-30 flex flex-col gap-2.5 border-b border-white/10 bg-dark-surface/95 backdrop-blur-xl px-4 py-2 lg:flex-row lg:items-center lg:gap-3 lg:px-5 lg:py-2">
             {/* Search — full-width on mobile, capped on desktop */}
             <SearchInput
               value={search}
@@ -554,6 +590,22 @@ function ExplorePageInner() {
               size="md"
               className="w-full lg:max-w-xs lg:flex-1"
             />
+
+            {/* Active filter pills — inline next to Search on desktop; stacks below on mobile */}
+            {activeFilters.length > 0 && (
+              <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                {activeFilters.map((f) => (
+                  <button
+                    key={f.label}
+                    onClick={f.onClear}
+                    className="inline-flex items-center gap-1 rounded-full bg-white/[0.06] px-2.5 py-1 text-xs text-white/60 transition-colors hover:bg-white/[0.1] hover:text-white"
+                  >
+                    {f.label}
+                    <X className="h-3 w-3" />
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Controls — data controls (filter, sort, dir) then display (view). All uniform h-9 mobile / h-8 desktop. */}
             <div className="flex flex-wrap items-center gap-2 lg:flex-nowrap lg:ml-auto">
@@ -632,21 +684,6 @@ function ExplorePageInner() {
               </div>
             </div>
 
-            {/* Active filter pills (optional third row) */}
-            {activeFilters.length > 0 && (
-              <div className="flex flex-wrap items-center gap-1.5">
-                {activeFilters.map((f) => (
-                  <button
-                    key={f.label}
-                    onClick={f.onClear}
-                    className="inline-flex items-center gap-1 rounded-full bg-white/[0.06] px-2.5 py-1 text-xs text-white/60 transition-colors hover:bg-white/[0.1] hover:text-white"
-                  >
-                    {f.label}
-                    <X className="h-3 w-3" />
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
 
           {/* Grid / List */}
@@ -658,6 +695,7 @@ function ExplorePageInner() {
                   setCategory(null);
                   setAvailabilityFilter("all");
                   setFavoritesOnly(false);
+                  setRealtimeOnly(false);
                   setPriceMin(0);
                   setPriceMax(100);
                 }}
@@ -709,7 +747,7 @@ function ExplorePageInner() {
           {/* Capability type */}
           <div>
             <p className="mb-1.5 px-3 text-xs font-medium uppercase tracking-wider text-white/60">
-              Capability Type
+              Tasks
             </p>
             <div className="space-y-0.5">
               <button
@@ -794,6 +832,29 @@ function ExplorePageInner() {
 
           <div className="h-px bg-white/[0.06]" />
 
+          {/* Realtime — capability filter */}
+          <div>
+            <p className="mb-1.5 px-3 text-xs font-medium uppercase tracking-wider text-white/60">
+              Realtime
+            </p>
+            <button
+              onClick={() => setRealtimeOnly(!realtimeOnly)}
+              className={`flex w-full items-center gap-1.5 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                realtimeOnly
+                  ? "bg-green-bright/10 font-medium text-green-bright"
+                  : "text-white/70 hover:bg-white/[0.06]"
+              }`}
+            >
+              <Zap
+                className="h-3.5 w-3.5"
+                fill={realtimeOnly ? "currentColor" : "none"}
+              />
+              Realtime only
+            </button>
+          </div>
+
+          <div className="h-px bg-white/[0.06]" />
+
           {/* Starred */}
           <div>
             <p className="mb-1.5 px-3 text-xs font-medium uppercase tracking-wider text-white/60">
@@ -837,6 +898,7 @@ function ExplorePageInner() {
               setCategory(null);
               setAvailabilityFilter("all");
               setFavoritesOnly(false);
+              setRealtimeOnly(false);
               setPriceMin(0);
               setPriceMax(100);
             }}

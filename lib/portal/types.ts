@@ -83,6 +83,8 @@ export interface Model {
   runs7d: number;
   uptime: number;
   featured?: boolean;
+  /** Supports streaming (WebRTC) inference in addition to request/response. The differentiator on the network — flagged as a capability pill and filterable on Explore. */
+  realtime?: boolean;
   /** ISO-8601 date the model was published on the network. Drives the "NEW" badge and Recently-added sort. */
   releasedAt?: string;
   tags?: string[];

@@ -15,6 +15,7 @@ import {
   Clock,
   Server,
   RotateCcw,
+  Zap,
 } from "lucide-react";
 import PortalFooter from "@/components/portal/PortalFooter";
 import PortalSubNav from "@/components/portal/PortalSubNav";
@@ -567,7 +568,18 @@ export default function ModelDetailPage() {
                 Cold
               </span>
             )}
-            {/* Capability badge — clickable, filters Explore by this category (matches Replicate/HuggingFace/GitHub tag convention) */}
+            {/* Realtime — moat capability marker, clickable to filter Explore */}
+            {model.realtime && (
+              <Link
+                href="/portal/explore?realtime=1"
+                title="Supports streaming (WebRTC) inference"
+                className="inline-flex items-center gap-1.5 rounded-full bg-green-bright/10 px-2.5 py-1 font-medium text-green-bright transition-colors hover:bg-green-bright/15"
+              >
+                <Zap className="h-2.5 w-2.5" fill="currentColor" />
+                Realtime
+              </Link>
+            )}
+            {/* Task badge — clickable, filters Explore by this category */}
             <Link
               href={`/portal/explore?category=${encodeURIComponent(model.category)}`}
               className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.06] px-2.5 py-1 text-white/80 transition-colors hover:bg-white/[0.1] hover:text-white"

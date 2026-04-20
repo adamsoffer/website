@@ -27,6 +27,7 @@ export const MODELS: Model[] = [
     name: "Daydream Video API",
     provider: "Daydream",
     category: "Video Generation",
+    realtime: true,
     coverImage: "/images/portal/daydream.png",
     description:
       "Full-stack real-time AI video API with world generation, style transfer, and depth estimation. Built on Livepeer's open network of orchestrators.",
@@ -106,6 +107,7 @@ Full-stack real-time AI video API powered by the Livepeer network.
     name: "Livepeer Transcoding",
     provider: "Livepeer Studio",
     category: "Live Transcoding",
+    realtime: true,
     description:
       "Adaptive bitrate transcoding routed across independent orchestrators on the Livepeer network.",
     status: "hot",
@@ -438,6 +440,7 @@ Transform images using text prompts with SDXL. Upload an image and describe how 
     name: "LivePortrait",
     provider: "Livepeer",
     category: "Video Editing",
+    realtime: true,
     description:
       "Real-time live video transformation pipeline. Apply AI effects, style transfer, and compositing to live video streams with sub-frame latency.",
     status: "hot",
@@ -680,6 +683,7 @@ This implementation has O(log n) time complexity and O(1) space complexity.`,
     name: "Whisper v3 Large",
     provider: "OpenAI",
     category: "Speech",
+    realtime: true,
     description:
       "Production-grade speech-to-text transcription with support for 99 languages and automatic language detection.",
     status: "hot",
@@ -801,6 +805,7 @@ mp3, mp4, mpeg, mpga, m4a, wav, webm
     name: "Depth Anything v2",
     provider: "Depth Anything",
     category: "Video Understanding",
+    realtime: true,
     description:
       "State-of-the-art monocular depth estimation for real-time 3D understanding of video streams.",
     status: "hot",
@@ -862,6 +867,7 @@ mp3, mp4, mpeg, mpga, m4a, wav, webm
     name: "YOLOv8",
     provider: "Ultralytics",
     category: "Video Understanding",
+    realtime: true,
     coverImage: "https://picsum.photos/seed/yolo-cover/800/500",
     description:
       "Real-time object detection, segmentation, and tracking for live video analysis.",
@@ -938,6 +944,7 @@ mp3, mp4, mpeg, mpga, m4a, wav, webm
     name: "Segment Anything 2",
     provider: "Meta",
     category: "Video Understanding",
+    realtime: true,
     description:
       "Promptable image and video segmentation. Click a point or draw a box to segment any object in an image.",
     status: "hot",
