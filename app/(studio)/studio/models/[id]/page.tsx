@@ -25,6 +25,7 @@ import { getModelIcon, formatRuns, formatPrice } from "@/lib/studio/utils";
 import PlaygroundForm from "@/components/studio/playground/PlaygroundForm";
 import JsonInput from "@/components/studio/playground/JsonInput";
 import PlaygroundOutput from "@/components/studio/playground/PlaygroundOutput";
+import TranscodingOutput from "@/components/studio/playground/TranscodingOutput";
 import CodeSnippets from "@/components/studio/playground/CodeSnippets";
 import WebcamPlayground from "@/components/studio/playground/WebcamPlayground";
 import ModelAnalytics from "@/components/studio/stats/ModelAnalytics";
@@ -64,7 +65,9 @@ function PlaygroundTab({ model }: { model: Model }) {
         if (cfg.outputType === "text" && cfg.mockOutputText) {
           setResult(cfg.mockOutputText);
         } else if (
-          (cfg.outputType === "image" || cfg.outputType === "video") &&
+          (cfg.outputType === "image" ||
+            cfg.outputType === "video" ||
+            cfg.outputType === "audio") &&
           cfg.mockOutputUrl
         ) {
           setResult(cfg.mockOutputUrl);
@@ -128,23 +131,36 @@ function PlaygroundTab({ model }: { model: Model }) {
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
       {/* Left: Input */}
       <div>
-        <div
-          className="mb-4 flex items-center gap-0 overflow-x-auto border-b border-white/[0.06]"
-          style={{ scrollbarWidth: "none" }}
-        >
-          {INPUT_MODES.map((mode) => (
-            <button
-              key={mode.key}
-              onClick={() => setInputMode(mode.key)}
-              className={`shrink-0 border-b-2 px-3 py-2 text-xs font-medium transition-colors focus:outline-none ${
-                inputMode === mode.key
-                  ? "border-green-bright text-white"
-                  : "border-transparent text-white/65 hover:text-white"
-              }`}
-            >
-              {mode.label}
-            </button>
-          ))}
+        {/* Label stacks above the format picker on mobile where 5 segments + label
+            would overflow; inline side-by-side from sm+ where there's room. */}
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+          <span className="text-[11px] font-medium uppercase tracking-wider text-white/40">
+            Request
+          </span>
+          <div
+            role="tablist"
+            aria-label="Request format"
+            className="scrollbar-none flex shrink-0 items-center overflow-x-auto rounded-lg border border-white/[0.06] bg-white/[0.02] p-0.5"
+          >
+            {INPUT_MODES.map((mode) => {
+              const selected = inputMode === mode.key;
+              return (
+                <button
+                  key={mode.key}
+                  role="tab"
+                  aria-selected={selected}
+                  onClick={() => setInputMode(mode.key)}
+                  className={`flex h-9 shrink-0 items-center rounded-md px-2.5 text-xs font-medium transition-colors focus:outline-none sm:h-7 ${
+                    selected
+                      ? "bg-white/[0.08] text-white shadow-sm"
+                      : "text-white/50 hover:text-white/80"
+                  }`}
+                >
+                  {mode.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {inputMode === "form" && (
@@ -202,14 +218,25 @@ function PlaygroundTab({ model }: { model: Model }) {
       {/* Right: Output */}
       <div>
         <h3 className="mb-4 text-sm font-medium text-white/50">Output</h3>
-        <PlaygroundOutput
-          outputType={model.playgroundConfig.outputType}
-          result={result}
-          isRunning={isRunning}
-          inferenceTime={inferenceTime}
-          category={model.category}
-          modelName={model.name}
-        />
+        {model.playgroundConfig.playgroundVariant === "transcoding" ? (
+          <TranscodingOutput
+            result={result}
+            isRunning={isRunning}
+            inferenceTime={inferenceTime}
+            modelName={model.name}
+            posterUrl={model.playgroundConfig.mockOutputUrl}
+          />
+        ) : (
+          <PlaygroundOutput
+            outputType={model.playgroundConfig.outputType}
+            result={result}
+            isRunning={isRunning}
+            inferenceTime={inferenceTime}
+            category={model.category}
+            modelName={model.name}
+            mockOutputJson={model.playgroundConfig.mockOutputJson}
+          />
+        )}
       </div>
     </div>
   );
@@ -224,10 +251,6 @@ function ApiTab({ model }: { model: Model }) {
       ? `${baseUrl}/chat/completions`
       : `${baseUrl}/${model.id}`;
 
-  const hasTokenPricing =
-    model.pricing.inputPrice !== undefined &&
-    model.pricing.outputPrice !== undefined;
-
   return (
     <div className="space-y-6">
       {/* Endpoint */}
@@ -236,41 +259,12 @@ function ApiTab({ model }: { model: Model }) {
           Endpoint
         </p>
         <div className="flex items-center gap-2 rounded-xl border border-white/[0.06] bg-dark-surface p-4">
-          <span className="rounded bg-green/15 px-1.5 py-0.5 text-[10px] font-bold text-green-bright">
+          <span className="shrink-0 rounded bg-green/15 px-1.5 py-0.5 text-[10px] font-bold text-green-bright">
             POST
           </span>
-          <code className="font-mono text-sm text-white/80">{endpoint}</code>
-        </div>
-      </div>
-
-      {/* Authentication */}
-      <div className="rounded-xl border border-white/[0.06] bg-dark-surface p-5">
-        <h4 className="text-sm font-medium text-white">Authentication</h4>
-        <p className="mt-1 text-xs text-white/50">
-          Pass a Studio API token in the{" "}
-          <code className="font-mono text-white/70">Authorization</code> header.
-          Tokens are scoped, revocable, and route payment through your connected
-          providers.
-        </p>
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <Link
-            href="/studio/settings?tab=tokens"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-green-bright/10 px-3 py-2 text-xs font-medium text-green-bright transition-colors hover:bg-green-bright/20 focus:outline-none"
-          >
-            Create API token
-          </Link>
-          {model.providerUrl && (
-            <a
-              href={model.providerUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-white/50 transition-colors hover:text-white/70"
-            >
-              Running through {model.provider}? Use a {model.provider} key
-              instead
-              <ExternalLink className="h-3 w-3" />
-            </a>
-          )}
+          <code className="min-w-0 flex-1 break-all font-mono text-xs text-white/80 sm:text-sm">
+            {endpoint}
+          </code>
         </div>
       </div>
 
@@ -282,73 +276,17 @@ function ApiTab({ model }: { model: Model }) {
         <CodeSnippets model={model} />
       </div>
 
-      {/* Pricing */}
-      <div className="rounded-xl border border-white/[0.06] bg-dark-surface p-5">
-        <h4 className="text-sm font-medium text-white">Pricing</h4>
-        <p className="mt-1 text-xs text-white/50">
-          Pay-per-inference on the network. Orchestrators are paid directly from
-          your connected providers — no minimums, no egress fees.
-        </p>
-        <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <div>
-            <p className="text-[11px] font-medium uppercase tracking-wider text-white/50">
-              {hasTokenPricing ? "Token pricing" : "List price"}
-            </p>
-            {hasTokenPricing ? (
-              <div className="mt-1 font-mono text-2xl font-semibold text-white">
-                ${model.pricing.inputPrice}
-                <span className="ml-1 text-sm font-normal text-white/65">
-                  in
-                </span>
-                <span
-                  className="mx-1.5 text-sm font-normal text-white/30"
-                  aria-hidden="true"
-                >
-                  /
-                </span>
-                ${model.pricing.outputPrice}
-                <span className="ml-1 text-sm font-normal text-white/65">
-                  out
-                </span>
-                <span className="ml-1 text-xs font-normal text-white/55">
-                  per {model.pricing.unit.toLowerCase()}
-                </span>
-              </div>
-            ) : (
-              <div className="mt-1 font-mono text-2xl font-semibold text-white">
-                ${model.pricing.amount}
-                <span className="ml-1 text-xs font-normal text-white/40">
-                  per {model.pricing.unit.toLowerCase()}
-                </span>
-              </div>
-            )}
-          </div>
-          {model.networkPrice && (
-            <div>
-              <p className="text-[11px] font-medium uppercase tracking-wider text-white/50">
-                Network price
-              </p>
-              <div className="mt-1 font-mono text-2xl font-semibold text-white">
-                ${model.networkPrice.amount}
-                <span className="ml-1 text-xs font-normal text-white/40">
-                  per {model.networkPrice.unit.toLowerCase()}
-                </span>
-              </div>
-              <p className="mt-1 text-[11px] text-white/40">
-                Paid to orchestrators on the network.
-              </p>
-            </div>
-          )}
-        </div>
-        <p className="mt-5 border-t border-white/[0.06] pt-4 text-[11px] text-white/40">
-          Throughput scales with your connected providers.{" "}
-          <Link
-            href="/studio/settings?tab=billing"
-            className="text-white/60 underline-offset-2 hover:text-white/80 hover:underline"
-          >
-            Add a payment provider →
-          </Link>
-        </p>
+      {/* Pricing footer — compact, since the hero already shows the list price */}
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/[0.06] bg-dark-surface px-4 py-3 text-xs text-white/55">
+        <span>
+          Pay-per-inference. Throughput scales with your connected providers.
+        </span>
+        <Link
+          href="/studio/settings?tab=billing"
+          className="text-white/70 underline-offset-2 hover:text-white hover:underline"
+        >
+          Add a payment provider →
+        </Link>
       </div>
     </div>
   );
@@ -483,24 +421,28 @@ function ReadmeTab({ model }: { model: Model }) {
       const match = line.match(/^- \*\*(.+?)\*\*\s*[—–-]\s*(.+)$/);
       if (match) {
         elements.push(
-          <div key={i} className="ml-4 text-sm text-white/50">
-            <span className="font-medium text-white/70">{match[1]}</span>
-            <span className="text-white/30"> — </span>
-            {match[2]}
+          <div key={i} className="flex items-start gap-2 pl-4 text-sm text-white/50">
+            <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-white/40" aria-hidden="true" />
+            <span>
+              <span className="font-medium text-white/70">{match[1]}</span>
+              <span className="text-white/30"> — </span>
+              {match[2]}
+            </span>
           </div>,
         );
       } else {
         elements.push(
-          <div key={i} className="ml-4 text-sm text-white/50">
-            {line.slice(2).replace(/\*\*/g, "")}
+          <div key={i} className="flex items-start gap-2 pl-4 text-sm text-white/50">
+            <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-white/40" aria-hidden="true" />
+            <span>{line.slice(2).replace(/\*\*/g, "")}</span>
           </div>,
         );
       }
     } else if (line.startsWith("- ")) {
       elements.push(
-        <div key={i} className="ml-4 text-sm text-white/50">
-          <span className="text-white/20 mr-2">-</span>
-          {line.slice(2)}
+        <div key={i} className="flex items-start gap-2 pl-4 text-sm text-white/50">
+          <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-white/40" aria-hidden="true" />
+          <span>{line.slice(2)}</span>
         </div>,
       );
     } else if (line.trim() === "") {
@@ -567,16 +509,14 @@ export default function ModelDetailPage() {
       <div className="flex-1">
         <div className="mx-auto max-w-5xl px-5 py-8">
           {/* Hero */}
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div className="flex items-start gap-4 min-w-0">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white/[0.06]">
-                <Icon className="h-6 w-6 text-white/50" />
-              </div>
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                  <span className="text-sm text-white/65">
-                    {model.provider}
-                  </span>
+          <div className="flex items-start gap-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white/[0.06]">
+              <Icon className="h-6 w-6 text-white/70" strokeWidth={2} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                  <span className="text-sm text-white/65">{model.provider}</span>
                   <span className="text-white/30" aria-hidden="true">/</span>
                   <h1 className="text-xl font-semibold text-white break-words">
                     {model.name}
@@ -587,71 +527,75 @@ export default function ModelDetailPage() {
                     </span>
                   )}
                 </div>
-                <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-white/60">
-                  {model.description}
-                </p>
+                {/* Actions — top right, icon-only on mobile to avoid cramping */}
+                <div className="flex shrink-0 items-center gap-2">
+                  <StarButton modelId={model.id} variant="inline" />
+                  <button
+                    onClick={handleCopyId}
+                    aria-label="Copy capability ID"
+                    className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] px-2.5 py-1.5 text-xs text-white/40 transition-colors hover:bg-white/[0.04] focus:outline-none sm:px-3"
+                  >
+                    {copied ? (
+                      <Check className="h-3.5 w-3.5 text-green-bright" />
+                    ) : (
+                      <Copy className="h-3.5 w-3.5" />
+                    )}
+                    <span className="hidden sm:inline">Copy ID</span>
+                  </button>
+                </div>
               </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex shrink-0 items-center gap-2">
-              <StarButton modelId={model.id} variant="inline" />
-              <button
-                onClick={handleCopyId}
-                className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] px-3 py-1.5 text-xs text-white/40 transition-colors hover:bg-white/[0.04] focus:outline-none"
-              >
-                {copied ? (
-                  <Check className="h-3.5 w-3.5 text-green-bright" />
-                ) : (
-                  <Copy className="h-3.5 w-3.5" />
-                )}
-                Copy ID
-              </button>
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/60">
+                {model.description}
+              </p>
             </div>
           </div>
 
-          {/* Status pill + badges — status is prominent, metadata grid below on mobile */}
-          <div className="mt-4 flex items-center gap-3 text-xs">
+          {/* Status + metadata — one wrapping row, status first. Slightly more gap-y so the
+              colored pill row and the plain-text metadata row read as two distinct groupings. */}
+          <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2.5 text-xs text-white/65">
+            {/* Warm / Cold — matches Explore StatusBadge palette (orange / blue) for consistency across surfaces */}
             {model.status === "hot" ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-green-bright/10 px-2.5 py-1 font-medium text-green-bright">
-                <span className="h-1.5 w-1.5 rounded-full bg-green-bright" />
-                Ready
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-warm-subtle px-2.5 py-1 font-medium text-warm">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-warm opacity-75" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-warm" />
+                </span>
+                Warm
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.06] px-2.5 py-1 text-white/60">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-blue/10 px-2.5 py-1 font-medium text-blue-bright">
                 <Snowflake className="h-2.5 w-2.5" />
                 Cold
               </span>
             )}
-          </div>
-
-          {/* Metadata grid — 2 columns on mobile, inline flex on desktop */}
-          <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-white/65 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
+            {/* Capability badge — clickable, filters Explore by this category (matches Replicate/HuggingFace/GitHub tag convention) */}
+            <Link
+              href={`/studio/explore?category=${encodeURIComponent(model.category)}`}
+              className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.06] px-2.5 py-1 text-white/80 transition-colors hover:bg-white/[0.1] hover:text-white"
+            >
+              <Icon className="h-2.5 w-2.5 text-white/50" aria-hidden="true" />
+              {model.category}
+            </Link>
             <span className="flex items-center gap-1.5">
-              <Flame className="h-3 w-3 text-white/40" aria-hidden="true" />
+              <Flame className="h-3 w-3 text-white/25" aria-hidden="true" />
               {formatRuns(model.runs7d)} runs
             </span>
             <span className="flex items-center gap-1.5">
-              <Clock className="h-3 w-3 text-white/40" aria-hidden="true" />
+              <Clock className="h-3 w-3 text-white/25" aria-hidden="true" />
               {model.latency}ms latency
             </span>
             <span className="flex items-center gap-1.5">
-              <Server className="h-3 w-3 text-white/40" aria-hidden="true" />
-              {model.orchestrators} orchestrators
+              <Server className="h-3 w-3 text-white/25" aria-hidden="true" />
+              {model.orchestrators} GPUs
             </span>
             <span className="font-mono text-white/70">
               {formatPrice(model)}
             </span>
-            {model.networkPrice && (
-              <span className="col-span-2 font-mono text-white/50 sm:col-span-1">
-                Network: ${model.networkPrice.amount} /{model.networkPrice.unit}
-              </span>
-            )}
           </div>
 
           {/* Tabs — desktop horizontal strip */}
           <div
-            className="mt-8 hidden gap-0 overflow-x-auto border-b border-white/[0.06] lg:flex"
+            className="mt-8 hidden gap-1 overflow-x-auto border-b border-white/[0.08] md:flex"
             role="tablist"
             aria-label="Model section"
             style={{ scrollbarWidth: "none" }}
@@ -683,15 +627,15 @@ export default function ModelDetailPage() {
                   aria-controls={`tabpanel-${tab.key}`}
                   tabIndex={selected ? 0 : -1}
                   onClick={() => setActiveTab(tab.key)}
-                  className={`flex h-11 shrink-0 items-center gap-1.5 border-b-2 px-4 text-sm font-medium transition-colors focus:outline-none ${
+                  className={`-mb-px flex h-11 shrink-0 items-center gap-2 border-b-2 px-4 text-sm transition-colors focus:outline-none ${
                     selected
-                      ? "border-green-bright text-white"
-                      : "border-transparent text-white/60 hover:text-white"
+                      ? "border-green-bright font-semibold text-white"
+                      : "border-transparent font-medium text-white/55 hover:text-white/90"
                   }`}
                 >
                   <tab.icon
-                    className={`h-3.5 w-3.5 ${
-                      selected ? "text-green-bright" : ""
+                    className={`h-4 w-4 ${
+                      selected ? "text-green-bright" : "text-white/40"
                     }`}
                   />
                   {tab.label}
@@ -707,6 +651,7 @@ export default function ModelDetailPage() {
             tabs={TABS}
             activeKey={activeTab}
             onChange={(key) => setActiveTab(key as Tab)}
+            className="mt-6"
           />
 
           {/* Tab content */}

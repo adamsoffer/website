@@ -9,10 +9,8 @@ import {
   Flame,
   Snowflake,
   X,
-  ChevronDown,
   ArrowDown,
   ArrowUp,
-  Check,
   Star,
   Search,
   SlidersHorizontal,
@@ -21,6 +19,7 @@ import { MODELS } from "@/lib/studio/mock-data";
 import Button from "@/components/ui/Button";
 import SearchInput from "@/components/ui/SearchInput";
 import Drawer from "@/components/ui/Drawer";
+import Select from "@/components/ui/Select";
 import { getModelIcon, formatRuns, formatPrice } from "@/lib/studio/utils";
 import { useStarredModels } from "@/lib/studio/useStarredModels";
 import StudioFooter from "@/components/studio/StudioFooter";
@@ -327,7 +326,6 @@ function ExplorePageInner() {
   const [category, setCategory] = useState<ModelCategory | null>(initialCategory);
   const [sort, setSort] = useState("popularity");
   const [sortDir, setSortDir] = useState<"desc" | "asc">("desc");
-  const [showSortMenu, setShowSortMenu] = useState(false);
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const [availabilityFilter, setAvailabilityFilter] = useState<AvailabilityFilter>("all");
   const [favoritesOnly, setFavoritesOnly] = useState(initialFavorites);
@@ -543,7 +541,7 @@ function ExplorePageInner() {
         </div>
 
         {/* Content + Footer */}
-        <div className="flex flex-1 flex-col">
+        <div className="flex min-w-0 flex-1 flex-col">
           {/* Toolbar — the page header is intentionally omitted; the active nav tab
               + breadcrumb already establish "Explore" context on both breakpoints */}
           <div className="sticky top-16 lg:top-12 z-30 flex flex-col gap-2.5 border-b border-white/10 bg-dark-surface/95 backdrop-blur-xl px-4 py-2.5 lg:flex-row lg:items-center lg:gap-3 lg:px-5 lg:py-3">
@@ -557,16 +555,17 @@ function ExplorePageInner() {
               className="w-full lg:max-w-xs lg:flex-1"
             />
 
-            {/* Controls — second row on mobile, inline right on desktop */}
-            <div className="flex items-center gap-2 lg:ml-auto">
+            {/* Controls — data controls (filter, sort, dir) then display (view). All uniform h-9 mobile / h-8 desktop. */}
+            <div className="flex flex-wrap items-center gap-2 lg:flex-nowrap lg:ml-auto">
               {/* Filters button — mobile only (desktop has sidebar) */}
               <button
                 type="button"
                 onClick={() => setFilterDrawerOpen(true)}
-                className="flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 text-xs text-white/70 transition-colors hover:border-white/20 hover:bg-white/[0.05] hover:text-white lg:hidden"
+                aria-label="Filters"
+                className="flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 text-xs text-white/70 transition-colors hover:border-white/20 hover:bg-white/[0.05] hover:text-white sm:px-3 lg:hidden"
               >
                 <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
-                Filters
+                <span className="hidden sm:inline">Filters</span>
                 {activeFilters.length > 0 && (
                   <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-green-bright/15 px-1 font-mono text-[11px] font-medium text-green-bright">
                     {activeFilters.length}
@@ -574,12 +573,43 @@ function ExplorePageInner() {
                 )}
               </button>
 
+              {/* Sort + direction paired so they wrap together when tight */}
+              <div className="flex min-w-0 flex-1 basis-40 items-center gap-2 lg:flex-initial lg:basis-auto">
+                <Select
+                  size="sm"
+                  ariaLabel="Sort"
+                  value={sort}
+                  options={SORT_OPTIONS}
+                  onChange={setSort}
+                  className="min-w-0 flex-1"
+                  triggerClassName="lg:h-8"
+                />
+
+                <button
+                  onClick={() => setSortDir(sortDir === "desc" ? "asc" : "desc")}
+                  aria-label={
+                    sortDir === "desc"
+                      ? "Sort direction: descending, tap to ascend"
+                      : "Sort direction: ascending, tap to descend"
+                  }
+                  aria-pressed={sortDir === "desc"}
+                  className="flex h-9 w-9 lg:h-8 lg:w-8 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] transition-colors hover:border-white/20 hover:bg-white/[0.05] focus:outline-none"
+                >
+                  {sortDir === "desc" ? (
+                    <ArrowDown className="h-4 w-4 text-white/70" />
+                  ) : (
+                    <ArrowUp className="h-4 w-4 text-white/70" />
+                  )}
+                </button>
+              </div>
+
+              {/* View toggle — display preference, anchored last */}
               <div className="flex shrink-0 rounded-lg border border-white/[0.08] bg-white/[0.03]">
                 <button
                   onClick={() => setView("grid")}
                   aria-label="Grid view"
                   aria-pressed={view === "grid"}
-                  className={`flex h-10 w-10 items-center justify-center rounded-l-lg transition-colors focus:outline-none ${
+                  className={`flex h-9 w-9 lg:h-8 lg:w-8 items-center justify-center rounded-l-lg transition-colors focus:outline-none ${
                     view === "grid"
                       ? "bg-white/[0.08] text-white"
                       : "text-white/60 hover:text-white"
@@ -591,7 +621,7 @@ function ExplorePageInner() {
                   onClick={() => setView("list")}
                   aria-label="List view"
                   aria-pressed={view === "list"}
-                  className={`flex h-10 w-10 items-center justify-center rounded-r-lg transition-colors focus:outline-none ${
+                  className={`flex h-9 w-9 lg:h-8 lg:w-8 items-center justify-center rounded-r-lg transition-colors focus:outline-none ${
                     view === "list"
                       ? "bg-white/[0.08] text-white"
                       : "text-white/60 hover:text-white"
@@ -600,78 +630,6 @@ function ExplorePageInner() {
                   <List className="h-4 w-4" />
                 </button>
               </div>
-
-              <div className="relative flex-1">
-                <button
-                  onClick={() => setShowSortMenu(!showSortMenu)}
-                  aria-haspopup="listbox"
-                  aria-expanded={showSortMenu}
-                  className="flex h-10 w-full items-center justify-between gap-2 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 text-xs transition-colors hover:border-white/20 hover:bg-white/[0.05] focus:outline-none"
-                >
-                  <span className="flex items-center gap-2 truncate">
-                    <span className="text-white/60">Sort:</span>
-                    <span className="font-medium text-white">
-                      {SORT_OPTIONS.find((o) => o.value === sort)?.label}
-                    </span>
-                  </span>
-                  <ChevronDown
-                    className={`h-4 w-4 shrink-0 text-white/50 transition-transform duration-150 ${
-                      showSortMenu ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-                {showSortMenu && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-40"
-                      onClick={() => setShowSortMenu(false)}
-                    />
-                    <div
-                      role="listbox"
-                      className="absolute left-0 right-0 top-full z-50 mt-1.5 origin-top rounded-xl border border-white/10 bg-dark-card/95 p-1.5 shadow-2xl shadow-black/40 backdrop-blur-xl"
-                    >
-                      {SORT_OPTIONS.map((opt) => (
-                        <button
-                          key={opt.value}
-                          role="option"
-                          aria-selected={sort === opt.value}
-                          onClick={() => {
-                            setSort(opt.value);
-                            setShowSortMenu(false);
-                          }}
-                          className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm transition-colors ${
-                            sort === opt.value
-                              ? "bg-white/[0.08] text-white"
-                              : "text-white/80 hover:bg-white/[0.06] hover:text-white"
-                          }`}
-                        >
-                          {opt.label}
-                          {sort === opt.value && (
-                            <Check className="h-4 w-4 text-green-bright" />
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-
-              <button
-                onClick={() => setSortDir(sortDir === "desc" ? "asc" : "desc")}
-                aria-label={
-                  sortDir === "desc"
-                    ? "Sort direction: descending, tap to ascend"
-                    : "Sort direction: ascending, tap to descend"
-                }
-                aria-pressed={sortDir === "desc"}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] transition-colors hover:border-white/20 hover:bg-white/[0.05] focus:outline-none"
-              >
-                {sortDir === "desc" ? (
-                  <ArrowDown className="h-4 w-4 text-white/70" />
-                ) : (
-                  <ArrowUp className="h-4 w-4 text-white/70" />
-                )}
-              </button>
             </div>
 
             {/* Active filter pills (optional third row) */}

@@ -20,7 +20,7 @@ export default function PeriodToggle<T extends string>({
         <button
           key={key}
           onClick={() => onChange(key)}
-          className={`px-3 py-1 text-xs transition-colors ${
+          className={`flex h-9 items-center px-3 text-xs transition-colors sm:h-7 ${
             value === key
               ? "bg-white/[0.08] font-medium text-white"
               : "text-white/50 hover:text-white/60"

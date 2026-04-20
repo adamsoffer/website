@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
-import { RotateCcw, ChevronDown, Check } from "lucide-react";
+import { useState, useCallback } from "react";
+import { RotateCcw } from "lucide-react";
+import Select from "@/components/ui/Select";
 import type { PlaygroundConfig, PlaygroundField } from "@/lib/studio/types";
 
 interface PlaygroundFormProps {
@@ -21,91 +22,6 @@ function TypeBadge({ type }: { type: string }) {
 function RequiredBadge() {
   return (
     <span className="ml-1 text-[10px] font-medium text-red-400">*</span>
-  );
-}
-
-function ThemedSelect({
-  id,
-  value,
-  options,
-  onChange,
-  required,
-}: {
-  id: string;
-  value: string;
-  options: string[];
-  onChange: (val: string) => void;
-  required?: boolean;
-}) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const handleClick = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("mousedown", handleClick);
-    document.addEventListener("keydown", handleKey);
-    return () => {
-      document.removeEventListener("mousedown", handleClick);
-      document.removeEventListener("keydown", handleKey);
-    };
-  }, [open]);
-
-  return (
-    <div ref={ref} className="relative">
-      <button
-        id={id}
-        type="button"
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        data-required={required || undefined}
-        onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-left text-sm text-white transition-colors hover:border-white/15 focus:border-white/20 focus:outline-none"
-      >
-        <span className={value ? "text-white" : "text-white/40"}>
-          {value || "Select…"}
-        </span>
-        <ChevronDown
-          className={`h-4 w-4 text-white/40 transition-transform ${open ? "rotate-180" : ""}`}
-        />
-      </button>
-      {open && (
-        <ul
-          role="listbox"
-          className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-white/[0.08] bg-dark-card p-1 shadow-xl backdrop-blur-sm"
-        >
-          {options.map((opt) => {
-            const selected = opt === value;
-            return (
-              <li
-                key={opt}
-                role="option"
-                aria-selected={selected}
-                onClick={() => {
-                  onChange(opt);
-                  setOpen(false);
-                }}
-                className={`flex cursor-pointer items-center justify-between rounded-md px-2.5 py-2 text-sm transition-colors ${
-                  selected
-                    ? "bg-white/[0.06] text-white"
-                    : "text-white/70 hover:bg-white/[0.04] hover:text-white"
-                }`}
-              >
-                <span>{opt}</span>
-                {selected && <Check className="h-3.5 w-3.5 text-green-bright" />}
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </div>
   );
 }
 
@@ -191,10 +107,10 @@ function FieldRenderer({
 
     case "select":
       return (
-        <ThemedSelect
+        <Select
           id={`field-${field.name}`}
           value={(value as string) ?? (field.defaultValue as string) ?? ""}
-          options={field.options ?? []}
+          options={(field.options ?? []).map((o) => ({ value: o, label: o }))}
           onChange={(val) => onChange(val)}
           required={field.required}
         />
@@ -281,7 +197,7 @@ export default function PlaygroundForm({
         {config.fields.map((field) => (
           <div key={field.name}>
             <div className="mb-1.5 flex items-center">
-              <label htmlFor={`field-${field.name}`} className="text-sm font-medium text-white/70">
+              <label htmlFor={`field-${field.name}`} className="text-xs font-medium text-white/50">
                 {field.label}
               </label>
               {field.required && <RequiredBadge />}
@@ -311,7 +227,7 @@ export default function PlaygroundForm({
         <button
           type="button"
           onClick={handleReset}
-          className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] px-3 py-2 text-xs text-white/40 transition-colors hover:bg-white/[0.04] hover:text-white/60 focus:outline-none"
+          className="flex h-11 items-center gap-1.5 rounded-lg border border-white/[0.08] px-3 text-xs text-white/40 transition-colors hover:bg-white/[0.04] hover:text-white/60 focus:outline-none sm:h-9"
         >
           <RotateCcw className="h-3 w-3" />
           Reset to defaults
@@ -319,7 +235,7 @@ export default function PlaygroundForm({
         <button
           type="submit"
           disabled={isRunning}
-          className="flex items-center gap-2 rounded-lg bg-green px-4 py-2 text-sm font-medium text-white transition-all hover:bg-green-light disabled:opacity-50 focus:outline-none"
+          className="flex h-11 items-center gap-2 rounded-lg bg-green px-4 text-sm font-medium text-white transition-all hover:bg-green-light disabled:opacity-50 focus:outline-none sm:h-9"
         >
           {isRunning ? (
             <>
@@ -330,7 +246,7 @@ export default function PlaygroundForm({
             "Run"
           )}
         </button>
-        <span className="ml-auto text-[10px] text-white/40">ctrl+enter</span>
+        <span className="ml-auto hidden text-[10px] text-white/40 sm:inline">ctrl+enter</span>
       </div>
     </form>
   );

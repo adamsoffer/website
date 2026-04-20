@@ -18,6 +18,7 @@ import {
   StackedChartTooltip,
 } from "@/components/studio/statistics/ChartTooltip";
 import { generateModelStats, type StatsPeriod } from "@/lib/studio/model-stats";
+import { computeAxisTicks } from "@/lib/studio/utils";
 import type { Model, NetworkStat } from "@/lib/studio/types";
 
 const PERIOD_OPTIONS: { key: StatsPeriod; label: string }[] = [
@@ -41,6 +42,14 @@ function formatRequestCount(v: number): string {
 export default function ModelAnalytics({ model }: { model: Model }) {
   const [period, setPeriod] = useState<StatsPeriod>("7d");
   const stats = useMemo(() => generateModelStats(model, period), [model, period]);
+  const requestsTicks = useMemo(
+    () => computeAxisTicks(stats.requests, "label", 6),
+    [stats.requests],
+  );
+  const latencyTicks = useMemo(
+    () => computeAxisTicks(stats.latency, "label", 6),
+    [stats.latency],
+  );
 
   const kpiCards: NetworkStat[] = [
     {
@@ -69,16 +78,13 @@ export default function ModelAnalytics({ model }: { model: Model }) {
     },
   ];
 
-  const tickInterval =
-    period === "24h" ? 3 : period === "7d" ? 0 : 4;
-
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-medium text-white">Analytics</h3>
-          <p className="mt-1 text-xs text-white/50">
+          <h3 className="text-sm font-medium text-white/60">Analytics</h3>
+          <p className="mt-1 text-sm text-white/60">
             Performance, supply, and reliability for {model.name} on the network.
           </p>
         </div>
@@ -95,8 +101,8 @@ export default function ModelAnalytics({ model }: { model: Model }) {
       {/* Request volume */}
       <div className="rounded-xl border border-white/[0.06] bg-dark-surface p-5">
         <div>
-          <h4 className="text-sm font-medium text-white">Request volume</h4>
-          <p className="mt-1 text-xs text-white/50">
+          <h4 className="text-sm font-medium text-white/60">Request volume</h4>
+          <p className="mt-1 text-sm text-white/60">
             Inference requests routed to {model.name} over the selected period.
           </p>
         </div>
@@ -108,7 +114,9 @@ export default function ModelAnalytics({ model }: { model: Model }) {
                 tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 10 }}
                 tickLine={false}
                 axisLine={false}
-                interval={tickInterval}
+                ticks={requestsTicks}
+                interval={0}
+                padding={{ right: 8 }}
               />
               <YAxis
                 tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }}
@@ -135,8 +143,8 @@ export default function ModelAnalytics({ model }: { model: Model }) {
       <div className="rounded-xl border border-white/[0.06] bg-dark-surface p-5">
         <div className="flex items-start justify-between">
           <div>
-            <h4 className="text-sm font-medium text-white">Latency trend</h4>
-            <p className="mt-1 text-xs text-white/50">
+            <h4 className="text-sm font-medium text-white/60">Latency trend</h4>
+            <p className="mt-1 text-sm text-white/60">
               P50, P90, and P99 across the selected period.
             </p>
           </div>
@@ -160,7 +168,9 @@ export default function ModelAnalytics({ model }: { model: Model }) {
                 tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 10 }}
                 tickLine={false}
                 axisLine={false}
-                interval={tickInterval}
+                ticks={latencyTicks}
+                interval={0}
+                padding={{ right: 8 }}
               />
               <YAxis
                 tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }}
@@ -205,8 +215,8 @@ export default function ModelAnalytics({ model }: { model: Model }) {
       {/* Regional supply */}
       <div className="rounded-xl border border-white/[0.06] bg-dark-surface p-5">
         <div>
-          <h4 className="text-sm font-medium text-white">Regional supply</h4>
-          <p className="mt-1 text-xs text-white/50">
+          <h4 className="text-sm font-medium text-white/60">Regional supply</h4>
+          <p className="mt-1 text-sm text-white/60">
             Orchestrators serving {model.name}, ranked by traffic share.
           </p>
         </div>
@@ -238,8 +248,8 @@ export default function ModelAnalytics({ model }: { model: Model }) {
       <div className="rounded-xl border border-white/[0.06] bg-dark-surface p-5">
         <div className="flex items-center justify-between">
           <div>
-            <h4 className="text-sm font-medium text-white">Uptime (90 days)</h4>
-            <p className="mt-1 text-xs text-white/50">
+            <h4 className="text-sm font-medium text-white/60">Uptime (90 days)</h4>
+            <p className="mt-1 text-sm text-white/60">
               Daily reachability across all orchestrators.
             </p>
           </div>

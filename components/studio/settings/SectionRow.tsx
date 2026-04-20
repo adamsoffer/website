@@ -16,10 +16,10 @@ export function SectionRow({
   children: React.ReactNode;
 }) {
   return (
-    <section className="grid grid-cols-1 gap-y-4 py-8 md:grid-cols-3 md:gap-x-8">
+    <section className="grid grid-cols-1 gap-y-4 py-6 md:grid-cols-3 md:gap-x-8 md:py-8">
       <div className="md:col-span-1">
         <h2 className="text-base font-medium text-white">{title}</h2>
-        <p className="mt-1.5 text-sm leading-relaxed text-white/50">
+        <p className="mt-1.5 text-sm leading-relaxed text-white/60">
           {description}
         </p>
       </div>

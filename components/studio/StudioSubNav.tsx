@@ -16,17 +16,19 @@ interface StudioSubNavProps {
   ariaLabel?: string;
   /** Only render below this breakpoint. Defaults to lg (matches existing sidebar pattern). */
   hideAt?: "md" | "lg";
+  /** Extra classes merged onto the <nav> root (margins, padding, etc.). */
+  className?: string;
 }
 
 /**
- * Mobile-only horizontal-scroll sub-navigation strip.
+ * Compact mobile sub-navigation.
  *
- * Renders as a row of pill-style tab buttons that scroll horizontally when
- * content exceeds the viewport. A right-edge fade mask signals scrollability.
- * Desktop/tablet hides it above `hideAt:` — the sidebar takes over.
- *
- * Active tab uses a subtle pill highlight matching the Holographik card
- * treatment (bg-white/[0.06] border-white/[0.08]).
+ * Single-row tab strip with icon + label at every breakpoint. When the tab
+ * set outgrows the viewport the strip scrolls horizontally, and fade
+ * gradients on whichever edge(s) currently have hidden content signal the
+ * overflow. The active tab auto-scrolls into view so the user never lands on
+ * a hidden selection. Hidden above `hideAt:` — the desktop equivalent
+ * (inline tabs or sidebar) takes over.
  */
 export default function StudioSubNav({
   tabs,
@@ -34,111 +36,106 @@ export default function StudioSubNav({
   onChange,
   ariaLabel = "Section",
   hideAt = "lg",
+  className = "",
 }: StudioSubNavProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const hideClass = hideAt === "lg" ? "lg:hidden" : "md:hidden";
+  const activeTabRef = useRef<HTMLButtonElement>(null);
+  const stripRef = useRef<HTMLDivElement>(null);
+  // Edge fades only appear when the corresponding side has hidden content. Tracking
+  // both overflow + scroll position so we can drop a fade the moment the user reaches
+  // that end — leaving a fade up at the boundary would falsely imply more to scroll.
   const [showLeftFade, setShowLeftFade] = useState(false);
   const [showRightFade, setShowRightFade] = useState(false);
 
-  // Detect overflow to show edge fade affordances
+  // Scroll the active tab into view when it changes — covers both direct clicks
+  // and route-driven activeKey changes (e.g. when ?tab= is set via URL).
   useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-
-    const check = () => {
-      const canScroll = el.scrollWidth > el.clientWidth;
-      const atStart = el.scrollLeft <= 2;
-      const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 2;
-      setShowLeftFade(canScroll && !atStart);
-      setShowRightFade(canScroll && !atEnd);
-    };
-
-    check();
-    el.addEventListener("scroll", check, { passive: true });
-    const ro = new ResizeObserver(check);
-    ro.observe(el);
-
-    return () => {
-      el.removeEventListener("scroll", check);
-      ro.disconnect();
-    };
-  }, [tabs]);
-
-  // Scroll active tab into view on mount + key change
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const active = el.querySelector<HTMLElement>("[data-active]");
-    active?.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+    activeTabRef.current?.scrollIntoView({
+      inline: "center",
+      block: "nearest",
+      behavior: "smooth",
+    });
   }, [activeKey]);
 
-  const hideClass = hideAt === "lg" ? "lg:hidden" : "md:hidden";
+  // Track scroll position + overflow to decide which edge fades render.
+  useEffect(() => {
+    const strip = stripRef.current;
+    if (!strip) return;
+
+    const update = () => {
+      const hasOverflow = strip.scrollWidth > strip.clientWidth + 1;
+      // +1 tolerance for sub-pixel rounding at the ends
+      setShowLeftFade(hasOverflow && strip.scrollLeft > 1);
+      setShowRightFade(
+        hasOverflow &&
+          strip.scrollLeft < strip.scrollWidth - strip.clientWidth - 1,
+      );
+    };
+
+    update();
+    strip.addEventListener("scroll", update, { passive: true });
+    const resizeObserver = new ResizeObserver(update);
+    resizeObserver.observe(strip);
+    return () => {
+      strip.removeEventListener("scroll", update);
+      resizeObserver.disconnect();
+    };
+  }, [tabs]);
 
   return (
     <nav
       aria-label={ariaLabel}
-      className={`${hideClass} sticky top-16 z-30 border-b border-white/[0.08] bg-dark/95 backdrop-blur-md`}
+      role="tablist"
+      className={`${hideClass} relative border-b border-white/[0.08] ${className}`}
     >
-      <div className="relative">
-        <div
-          ref={scrollRef}
-          className="flex items-center gap-1 overflow-x-auto px-4 py-1.5"
-          style={{ scrollbarWidth: "none" }}
-        >
-          {tabs.map(({ key, label, icon: Icon }) => {
-            const active = key === activeKey;
-            return (
-              <button
-                key={key}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                aria-current={active ? "page" : undefined}
-                data-active={active ? "" : undefined}
-                onClick={() => onChange(key)}
-                className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-                  active
-                    ? "border border-white/[0.08] bg-white/[0.06] text-white"
-                    : "text-white/55 hover:text-white/80"
-                }`}
-              >
-                {Icon && (
-                  <Icon
-                    className={`h-4 w-4 ${
-                      active ? "text-green-bright" : "text-white/40"
-                    }`}
-                    aria-hidden="true"
-                  />
-                )}
-                {label}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Left-edge fade — signals content scrolled off to the left */}
-        {showLeftFade && (
-          <div
-            className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 z-10"
-            style={{
-              background:
-                "linear-gradient(to left, transparent, rgba(18,18,18,0.95))",
-            }}
-            aria-hidden="true"
-          />
-        )}
-
-        {/* Right-edge fade — signals more content to the right */}
-        {showRightFade && (
-          <div
-            className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 z-10"
-            style={{
-              background:
-                "linear-gradient(to right, transparent, rgba(18,18,18,0.95))",
-            }}
-            aria-hidden="true"
-          />
-        )}
+      <div
+        ref={stripRef}
+        className="scrollbar-none flex items-center gap-x-1 overflow-x-auto sm:gap-x-5"
+      >
+        {tabs.map(({ key, label, icon: Icon }) => {
+          const active = key === activeKey;
+          return (
+            <button
+              key={key}
+              ref={active ? activeTabRef : undefined}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              aria-current={active ? "page" : undefined}
+              onClick={() => onChange(key)}
+              className={`-mb-px flex h-11 shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-3 text-sm transition-colors sm:px-0 ${
+                active
+                  ? "border-green-bright font-semibold text-white"
+                  : "border-transparent font-medium text-white/55 hover:text-white/90"
+              }`}
+            >
+              {Icon && (
+                <Icon
+                  className={`h-4 w-4 ${
+                    active ? "text-green-bright" : "text-white/40"
+                  }`}
+                  aria-hidden="true"
+                />
+              )}
+              <span>{label}</span>
+            </button>
+          );
+        })}
       </div>
+
+      {/* Edge fade cues — only on the side(s) where content is currently hidden. */}
+      <div
+        aria-hidden="true"
+        className={`pointer-events-none absolute left-0 top-0 h-full w-8 bg-gradient-to-r from-dark to-transparent transition-opacity duration-150 sm:hidden ${
+          showLeftFade ? "opacity-100" : "opacity-0"
+        }`}
+      />
+      <div
+        aria-hidden="true"
+        className={`pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-dark to-transparent transition-opacity duration-150 sm:hidden ${
+          showRightFade ? "opacity-100" : "opacity-0"
+        }`}
+      />
     </nav>
   );
 }

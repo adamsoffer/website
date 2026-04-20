@@ -19,7 +19,7 @@ import {
   API_COLORS,
   MODELS,
 } from "@/lib/studio/mock-data";
-import { formatRuns, getModelIcon } from "@/lib/studio/utils";
+import { computeAxisTicks, formatRuns, getModelIcon } from "@/lib/studio/utils";
 import Link from "next/link";
 import type { NetworkStat } from "@/lib/studio/types";
 
@@ -30,7 +30,6 @@ const OVERVIEW_KPI: NetworkStat[] = [
   NETWORK_STATS[6], // Success Rate
   NETWORK_STATS[7], // Total GPUs
   NETWORK_STATS[2], // Median Latency
-  NETWORK_STATS[0], // Active Orchestrators
 ];
 
 // ─── Time period filter ───
@@ -72,7 +71,7 @@ function TopPipelinesGrid() {
   return (
     <div className="rounded-xl border border-white/[0.06] bg-dark-surface">
       <div className="border-b border-white/[0.06] px-5 py-3">
-        <h3 className="text-sm font-medium text-white">Top Pipelines</h3>
+        <h3 className="text-sm font-medium text-white/60">Top Pipelines</h3>
         <p className="text-[11px] text-white/40">By request volume (last 3 months)</p>
       </div>
 
@@ -80,9 +79,9 @@ function TopPipelinesGrid() {
       <div className="flex items-center gap-3 border-b border-white/[0.06] px-5 py-2">
         <span className="w-5" />
         <span className="w-7" />
-        <span className="min-w-0 flex-1 text-[11px] font-medium uppercase tracking-wider text-white/50">Pipeline</span>
-        <span className="hidden w-12 shrink-0 text-right text-[11px] font-medium uppercase tracking-wider text-white/50 sm:block">Share</span>
-        <span className="w-16 shrink-0 text-right text-[11px] font-medium uppercase tracking-wider text-white/50">Requests</span>
+        <span className="min-w-0 flex-1 text-[11px] font-medium uppercase tracking-wider text-white/30">Pipeline</span>
+        <span className="hidden w-12 shrink-0 text-right text-[11px] font-medium uppercase tracking-wider text-white/30 sm:block">Share</span>
+        <span className="w-16 shrink-0 text-right text-[11px] font-medium uppercase tracking-wider text-white/30">Requests</span>
       </div>
 
       <div className="divide-y divide-white/[0.04]">
@@ -142,6 +141,7 @@ function TopPipelinesGrid() {
 export default function OverviewTab() {
   const [period, setPeriod] = useState<Period>("3m");
   const chartData = useMemo(() => filterByPeriod(API_REQUEST_SERIES, period), [period]);
+  const xTicks = useMemo(() => computeAxisTicks(chartData, "date", 6), [chartData]);
 
   // Compute total requests from chart data
   const totalRequests = useMemo(() => {
@@ -156,46 +156,40 @@ export default function OverviewTab() {
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-5 lg:p-6">
-      {/* Header */}
-      <div>
+      {/* Header — hidden on mobile (dropdown nav already identifies the section) */}
+      <div className="hidden lg:block">
         <h2 className="text-lg font-semibold text-white">Network Stats</h2>
         <p className="mt-1 text-sm text-white/60">
           Network-wide request volumes, top APIs, and growth metrics for the Livepeer AI inference network.
         </p>
       </div>
+      <p className="text-sm text-white/60 lg:hidden">
+        Network-wide request volumes, top APIs, and growth metrics for the Livepeer AI inference network.
+      </p>
 
-      {/* KPI cards — last card spans 2 cols on mobile so the 2+2+1 orphan becomes a deliberate full-width summary */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        {OVERVIEW_KPI.map((stat, i) => (
-          <div
-            key={stat.label}
-            className={
-              i === OVERVIEW_KPI.length - 1
-                ? "col-span-2 sm:col-span-1"
-                : undefined
-            }
-          >
-            <StatCard stat={stat} />
-          </div>
+      {/* KPI cards — 4 metrics fit 2×2 on mobile, 2×2 at sm, 1×4 on desktop */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {OVERVIEW_KPI.map((stat) => (
+          <StatCard key={stat.label} stat={stat} />
         ))}
       </div>
 
       {/* Total Requests section */}
       <div className="rounded-xl border border-white/[0.06] bg-dark-surface p-5">
-        <div className="mb-1 flex items-start justify-between">
-          <div>
+        <div className="mb-1 flex items-start justify-between gap-3">
+          <div className="min-w-0">
             <p className="text-[11px] font-medium uppercase tracking-wider text-white/40">
               Total Requests
             </p>
-            <p className="mt-1 font-mono text-4xl font-bold text-white">
+            <p className="mt-1 font-mono text-3xl font-bold text-white">
               {(totalRequests / 1_000_000).toFixed(1)}M
-            </p>
-            <p className="mt-1 text-sm text-white/50">
-              Total inference requests across all APIs on the network.
             </p>
           </div>
           <PeriodToggle value={period} onChange={setPeriod} options={PERIOD_OPTIONS} />
         </div>
+        <p className="mt-1 text-sm text-white/60">
+          Total inference requests across all APIs on the network.
+        </p>
 
         <div className="mt-4">
           <ResponsiveContainer width="100%" height={280}>
@@ -206,7 +200,9 @@ export default function OverviewTab() {
                 tickLine={false}
                 axisLine={false}
                 tickFormatter={(v: string) => v.slice(5)}
-                interval={period === "7d" ? 0 : period === "30d" ? 4 : 12}
+                ticks={xTicks}
+                interval={0}
+                padding={{ left: 8, right: 8 }}
               />
               <YAxis hide />
               <Tooltip content={<StackedChartTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />

@@ -66,7 +66,7 @@ export default function RowMenu({ items, ariaLabel = "Actions" }: RowMenuProps) 
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((prev) => !prev)}
-        className="flex h-7 w-7 items-center justify-center rounded-md text-white/40 transition-colors hover:bg-white/[0.06] hover:text-white"
+        className="flex h-9 w-9 items-center justify-center rounded-md text-white/40 transition-colors hover:bg-white/[0.06] hover:text-white sm:h-7 sm:w-7"
       >
         <MoreHorizontal className="h-4 w-4" />
       </button>

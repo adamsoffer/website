@@ -294,7 +294,7 @@ export default function AccountTab() {
                     id="current-password"
                     type="password"
                     placeholder="••••••••"
-                    className="w-full rounded-md border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-white/30 transition-colors focus:border-white/20 focus:bg-white/[0.05] focus:outline-none"
+                    className="w-full rounded-md border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-white/30 transition-colors focus:border-white/20 focus:bg-white/[0.05] focus:outline-none sm:py-2"
                   />
                 </div>
                 <div>
@@ -303,7 +303,7 @@ export default function AccountTab() {
                     id="new-password"
                     type="password"
                     placeholder="••••••••"
-                    className="w-full rounded-md border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-white/30 transition-colors focus:border-white/20 focus:bg-white/[0.05] focus:outline-none"
+                    className="w-full rounded-md border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-white/30 transition-colors focus:border-white/20 focus:bg-white/[0.05] focus:outline-none sm:py-2"
                   />
                 </div>
                 <div className="flex justify-end pt-1">

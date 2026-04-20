@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { House, LayoutGrid, BarChart3, BookOpen, ExternalLink, Search, ChevronDown, Settings, Key, CreditCard, LineChart, LogOut, Menu } from "lucide-react";
+import { House, LayoutGrid, BarChart3, BookOpen, ExternalLink, Search, ChevronDown, Settings, Key, LogOut, Menu } from "lucide-react";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { LivepeerWordmark, LivepeerSymbol } from "@/components/icons/LivepeerLogo";
 import { STUDIO_NAV_ITEMS } from "@/lib/constants";
@@ -155,24 +155,23 @@ function AvatarMenu({ user, disconnect, compact = false, mobileMinimal = false }
               </div>
             </div>
 
-            {/* Account links */}
+            {/* Account links — Settings + API Tokens (high-frequency dev shortcut, Replicate pattern) */}
             <div className="py-1.5 px-1.5">
-              <Link href="/studio/settings" role="menuitem" onClick={() => setOpen(false)} className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-white/70 hover:bg-white/[0.06] hover:text-white transition-colors">
-                <Settings className="h-4 w-4 text-white/40" />
-                Settings
-              </Link>
-              <Link href="/studio/settings?tab=tokens" role="menuitem" onClick={() => setOpen(false)} className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-white/70 hover:bg-white/[0.06] hover:text-white transition-colors">
-                <Key className="h-4 w-4 text-white/40" />
-                API Keys
-              </Link>
-              <Link href="/studio/settings?tab=usage" role="menuitem" onClick={() => setOpen(false)} className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-white/70 hover:bg-white/[0.06] hover:text-white transition-colors">
-                <LineChart className="h-4 w-4 text-white/40" />
-                Usage
-              </Link>
-              <Link href="/studio/settings?tab=billing" role="menuitem" onClick={() => setOpen(false)} className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-white/70 hover:bg-white/[0.06] hover:text-white transition-colors">
-                <CreditCard className="h-4 w-4 text-white/40" />
-                Billing
-              </Link>
+              {[
+                { label: "Settings", href: "/studio/settings", icon: Settings },
+                { label: "API Tokens", href: "/studio/settings?tab=tokens", icon: Key },
+              ].map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-white/70 hover:bg-white/[0.06] hover:text-white transition-colors"
+                >
+                  <item.icon className="h-4 w-4 text-white/40" />
+                  {item.label}
+                </Link>
+              ))}
             </div>
 
             {/* Footer */}
@@ -568,9 +567,7 @@ export default function StudioHeader() {
             <ul className="space-y-0.5">
               {[
                 { label: "Settings", href: "/studio/settings", icon: Settings },
-                { label: "API Keys", href: "/studio/settings?tab=tokens", icon: Key },
-                { label: "Usage", href: "/studio/settings?tab=usage", icon: LineChart },
-                { label: "Billing", href: "/studio/settings?tab=billing", icon: CreditCard },
+                { label: "API Tokens", href: "/studio/settings?tab=tokens", icon: Key },
               ].map((item) => (
                 <li key={item.label}>
                   <Link

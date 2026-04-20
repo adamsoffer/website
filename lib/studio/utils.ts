@@ -80,6 +80,27 @@ export function getCategoryGradient(category: ModelCategory): string {
   return CATEGORY_GRADIENTS[category] ?? CATEGORY_GRADIENTS.Language;
 }
 
+export function computeAxisTicks<T, K extends keyof T>(
+  data: T[],
+  key: K,
+  targetCount: number = 6,
+): Array<T[K]> {
+  if (data.length === 0) return [];
+  if (data.length <= targetCount) return data.map((d) => d[key]);
+  const step = (data.length - 1) / (targetCount - 1);
+  const ticks: Array<T[K]> = [];
+  const seen = new Set<T[K]>();
+  for (let i = 0; i < targetCount; i++) {
+    const index = Math.round(i * step);
+    const value = data[index][key];
+    if (!seen.has(value)) {
+      seen.add(value);
+      ticks.push(value);
+    }
+  }
+  return ticks;
+}
+
 export function generateSparklineData(points: number = 7): number[] {
   const data = [];
   let value = 50 + Math.random() * 30;

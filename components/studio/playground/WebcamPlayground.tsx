@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Video, VideoOff, Play, Square, Zap } from "lucide-react";
 import type { Model } from "@/lib/studio/types";
+import Select from "@/components/ui/Select";
 import CodeSnippets from "./CodeSnippets";
 
 const STYLE_FILTERS: Record<string, string> = {
@@ -120,21 +121,36 @@ export default function WebcamPlayground({ model }: { model: Model }) {
 
   return (
     <div>
-      {/* Input mode tabs */}
-      <div className="mb-4 flex items-center gap-0 border-b border-white/[0.06]">
-        {INPUT_MODES.map((m) => (
-          <button
-            key={m.key}
-            onClick={() => setInputMode(m.key)}
-            className={`border-b-2 px-3 py-1.5 text-xs font-medium transition-colors focus:outline-none ${
-              inputMode === m.key
-                ? "border-green-bright text-white"
-                : "border-transparent text-white/50 hover:text-white/60"
-            }`}
-          >
-            {m.label}
-          </button>
-        ))}
+      {/* Input mode — segmented control, distinct from main tab bar. Label stacks above
+          the picker on mobile to avoid overflow; inline at sm+. */}
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+        <span className="text-[11px] font-medium uppercase tracking-wider text-white/40">
+          Request
+        </span>
+        <div
+          role="tablist"
+          aria-label="Request format"
+          className="scrollbar-none flex shrink-0 items-center overflow-x-auto rounded-lg border border-white/[0.06] bg-white/[0.02] p-0.5"
+        >
+          {INPUT_MODES.map((m) => {
+            const selected = inputMode === m.key;
+            return (
+              <button
+                key={m.key}
+                role="tab"
+                aria-selected={selected}
+                onClick={() => setInputMode(m.key)}
+                className={`flex h-9 shrink-0 items-center rounded-md px-2.5 text-xs font-medium transition-colors focus:outline-none sm:h-7 ${
+                  selected
+                    ? "bg-white/[0.08] text-white shadow-sm"
+                    : "text-white/50 hover:text-white/80"
+                }`}
+              >
+                {m.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -196,7 +212,7 @@ export default function WebcamPlayground({ model }: { model: Model }) {
                 <div>
                   <label
                     htmlFor="webcam-prompt"
-                    className="mb-1.5 block text-sm font-medium text-white/70"
+                    className="mb-1.5 block text-xs font-medium text-white/50"
                   >
                     {promptField.label}
                   </label>
@@ -215,22 +231,16 @@ export default function WebcamPlayground({ model }: { model: Model }) {
                 <div>
                   <label
                     htmlFor="webcam-style"
-                    className="mb-1.5 block text-sm font-medium text-white/70"
+                    className="mb-1.5 block text-xs font-medium text-white/50"
                   >
                     {styleField.label}
                   </label>
-                  <select
+                  <Select
                     id="webcam-style"
                     value={selectedStyle}
-                    onChange={(e) => setSelectedStyle(e.target.value)}
-                    className="w-full cursor-pointer appearance-none rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/20"
-                  >
-                    {styleField.options.map((opt) => (
-                      <option key={opt} value={opt}>
-                        {opt}
-                      </option>
-                    ))}
-                  </select>
+                    options={styleField.options.map((o) => ({ value: o, label: o }))}
+                    onChange={setSelectedStyle}
+                  />
                 </div>
               )}
 
@@ -238,7 +248,7 @@ export default function WebcamPlayground({ model }: { model: Model }) {
                 <div>
                   <label
                     htmlFor="webcam-strength"
-                    className="mb-1.5 block text-sm font-medium text-white/70"
+                    className="mb-1.5 block text-xs font-medium text-white/50"
                   >
                     {strengthField.label}
                   </label>
@@ -344,7 +354,7 @@ export default function WebcamPlayground({ model }: { model: Model }) {
                     Output preview appears here
                   </p>
                   <p className="text-[11px] text-white/30">
-                    {model.orchestrators} orchestrators ready
+                    {model.orchestrators} GPUs ready
                   </p>
                 </div>
               )}

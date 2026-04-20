@@ -17,6 +17,7 @@ import {
   PAYMENT_STATS,
   PAYMENT_TRANSACTIONS,
 } from "@/lib/studio/mock-data";
+import { computeAxisTicks } from "@/lib/studio/utils";
 
 // ─── Period options ───
 
@@ -41,7 +42,7 @@ function SummaryCard({
 }) {
   return (
     <div className="rounded-xl border border-white/[0.06] bg-dark-surface p-5">
-      <p className="text-[11px] text-white/40">{label}</p>
+      <p className="text-[11px] font-medium uppercase tracking-wider text-white/40">{label}</p>
       <p className="mt-1 font-mono text-2xl font-semibold text-white">
         ${usd.toLocaleString(undefined, { maximumFractionDigits: 0 })}
       </p>
@@ -68,6 +69,7 @@ export default function PaymentsTab() {
     const days = period === "30d" ? 30 : period === "3m" ? 90 : PAYMENT_HISTORY.length;
     return PAYMENT_HISTORY.slice(-days);
   }, [period]);
+  const xTicks = useMemo(() => computeAxisTicks(chartData, "date", 6), [chartData]);
 
   const filteredTxs = useMemo(() => {
     if (!search) return PAYMENT_TRANSACTIONS;
@@ -85,27 +87,33 @@ export default function PaymentsTab() {
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-5 lg:p-6">
-      {/* Header */}
-      <div>
+      {/* Header — hidden on mobile (dropdown nav already identifies the section) */}
+      <div className="hidden lg:block">
         <h2 className="text-lg font-semibold text-white">Payments</h2>
         <p className="mt-1 text-sm text-white/60">
           ETH fees flowing through the network for completed inference jobs, paid to orchestrators.
         </p>
       </div>
+      <p className="text-sm text-white/60 lg:hidden">
+        ETH fees flowing through the network for completed inference jobs, paid to orchestrators.
+      </p>
 
       {/* Revenue chart */}
       <div className="rounded-xl border border-white/[0.06] bg-dark-surface p-5">
-        <div className="mb-1 flex items-start justify-between">
-          <div>
+        <div className="mb-1 flex items-start justify-between gap-3">
+          <div className="min-w-0">
             <p className="text-[11px] font-medium uppercase tracking-wider text-white/40">
               Network Revenue
             </p>
-            <p className="mt-1 text-sm text-white/50">
-              Daily fees paid to orchestrators for inference work
+            <p className="mt-1 font-mono text-3xl font-bold text-white">
+              ${(chartData.reduce((s, r) => s + r.volumeUsd, 0) / 1000).toFixed(1)}k
             </p>
           </div>
           <PeriodToggle value={period} onChange={setPeriod} options={PERIOD_OPTIONS} />
         </div>
+        <p className="mt-1 text-sm text-white/60">
+          Daily fees paid to orchestrators for inference work.
+        </p>
 
         <div className="mt-4">
           <ResponsiveContainer width="100%" height={240}>
@@ -116,7 +124,9 @@ export default function PaymentsTab() {
                 tickLine={false}
                 axisLine={false}
                 tickFormatter={(v: string) => v.slice(5)}
-                interval={period === "30d" ? 4 : 12}
+                ticks={xTicks}
+                interval={0}
+                padding={{ right: 8 }}
               />
               <YAxis
                 tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }}
@@ -139,12 +149,12 @@ export default function PaymentsTab() {
       {/* Summary cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <SummaryCard
-          label="Last 24 Hours"
+          label="24 Hours"
           eth={PAYMENT_STATS.lastDay.eth}
           usd={PAYMENT_STATS.lastDay.usd}
         />
         <SummaryCard
-          label="Last 30 Days"
+          label="30 Days"
           eth={PAYMENT_STATS.lastMonth.eth}
           usd={PAYMENT_STATS.lastMonth.usd}
         />
@@ -159,20 +169,23 @@ export default function PaymentsTab() {
 
       {/* Recent payments table */}
       <div className="rounded-xl border border-white/[0.06] bg-dark-surface">
-        <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3">
-          <div className="relative">
+        <div className="border-b border-white/[0.06] px-4 py-3 sm:px-5">
+          <div className="flex items-start justify-between gap-3">
+            <h3 className="text-sm font-medium text-white/60">Recent Payments</h3>
+            <span className="shrink-0 text-[11px] text-white/40">
+              {filteredTxs.length} payments{search ? " found" : " loaded"}
+            </span>
+          </div>
+          <div className="relative mt-2.5">
             <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-white/30" />
             <input
               type="text"
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(0); }}
               placeholder="Search payments..."
-              className="rounded-lg border border-white/[0.08] bg-white/[0.03] py-1.5 pl-9 pr-3 text-xs text-white placeholder:text-white/30 focus:border-white/20 focus:outline-none w-56"
+              className="w-full rounded-lg border border-white/[0.08] bg-white/[0.03] py-1.5 pl-9 pr-3 text-xs text-white placeholder:text-white/30 focus:border-white/20 focus:outline-none"
             />
           </div>
-          <span className="text-[11px] text-white/40">
-            {filteredTxs.length} payments{search ? " found" : " loaded"}
-          </span>
         </div>
 
         <div className="md:overflow-x-auto">

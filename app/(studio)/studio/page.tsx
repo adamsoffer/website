@@ -194,31 +194,8 @@ function WelcomeCard({
               </Link>
             </li>
 
-            {/* Optional items, visually separated */}
+            {/* Optional item, visually separated */}
             <li className="!mt-2 border-t border-white/[0.06] pt-2 sm:!mt-3 sm:pt-3">
-              <Link
-                href="/studio/settings?tab=tokens"
-                className="group -mx-3 flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-white/[0.04]"
-              >
-                <span className="h-5 w-5 shrink-0 rounded-full border border-dashed border-white/20 transition-colors group-hover:border-green-bright/40" />
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium text-white">
-                      Create scoped API keys
-                    </p>
-                    <span className="inline-flex rounded-full bg-white/[0.06] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-white/65">
-                      Optional
-                    </span>
-                  </div>
-                  <p className="mt-0.5 text-xs text-white/65">
-                    Generate additional keys for specific projects or environments.
-                  </p>
-                </div>
-                <ArrowRight className="h-4 w-4 shrink-0 text-white/30 transition-colors group-hover:text-green-bright" />
-              </Link>
-            </li>
-
-            <li>
               <Link
                 href="/studio/settings?tab=billing"
                 className="group -mx-3 flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-white/[0.04]"
@@ -234,7 +211,7 @@ function WelcomeCard({
                     </span>
                   </div>
                   <p className="mt-0.5 text-xs text-white/65">
-                    Add a payment provider for production use beyond the free tier.
+                    Go beyond 10,000 requests. Connect a wallet or card to keep running at production volume.
                   </p>
                 </div>
                 <ArrowRight className="h-4 w-4 shrink-0 text-white/30 transition-colors group-hover:text-green-bright" />
@@ -659,7 +636,7 @@ function UsageOverview() {
       <div className="grid grid-cols-1 gap-5 rounded-2xl border border-white/[0.08] bg-dark-surface p-6 lg:grid-cols-5">
         {/* Free-tier gauge (left, 3 cols) */}
         <div className="lg:col-span-3 lg:border-r lg:border-white/[0.06] lg:pr-6">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-white/60">
+          <p className="text-[11px] font-medium uppercase tracking-wider text-white/40">
             Free tier
           </p>
           <p className="mt-2 font-mono text-3xl font-semibold text-white">
@@ -705,7 +682,7 @@ function UsageOverview() {
 
         {/* Signer routing (right, 2 cols) */}
         <div className="lg:col-span-2">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-white/60">
+          <p className="text-[11px] font-medium uppercase tracking-wider text-white/40">
             Request routing
           </p>
           <div className="mt-3 space-y-2">

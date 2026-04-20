@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef, useLayoutEffect } from "react";
+import { useState, useMemo, useRef, useLayoutEffect, useEffect } from "react";
 import {
   AreaChart,
   Area,
@@ -13,6 +13,7 @@ import { TrendingUp } from "lucide-react";
 import StatCard from "./StatCard";
 import { StackedChartTooltip, SimpleChartTooltip } from "./ChartTooltip";
 import { GPU_NODES, GPU_GROWTH } from "@/lib/studio/mock-data";
+import { computeAxisTicks } from "@/lib/studio/utils";
 import type { NetworkStat } from "@/lib/studio/types";
 
 // ─── Constants ───
@@ -59,6 +60,26 @@ export default function GpusTab() {
   const segmentRefs = useRef<(HTMLDivElement | null)[]>([]);
   const tooltipRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [tooltipShifts, setTooltipShifts] = useState<number[]>([]);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  // Close popover when tapping outside the bar (mobile tap-to-reveal)
+  useEffect(() => {
+    if (openIndex === null) return;
+    const handleClick = (e: MouseEvent) => {
+      if (!barRef.current?.contains(e.target as Node)) {
+        setOpenIndex(null);
+      }
+    };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpenIndex(null);
+    };
+    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("keydown", handleKey);
+    };
+  }, [openIndex]);
 
   const totalGpus = useMemo(() => GPU_NODES.reduce((s, n) => s + n.count, 0), []);
   const totalVram = useMemo(() => {
@@ -68,6 +89,7 @@ export default function GpusTab() {
       return s + (isNaN(gb) ? 0 : gb * n.count);
     }, 0);
   }, []);
+  const gpuGrowthTicks = useMemo(() => computeAxisTicks(GPU_GROWTH, "date", 6), []);
   const latestGrowth = GPU_GROWTH[GPU_GROWTH.length - 1];
   const earliestGrowth = GPU_GROWTH[0];
   const growthPct = (
@@ -116,13 +138,16 @@ export default function GpusTab() {
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-5 lg:p-6">
-      {/* Header */}
-      <div>
+      {/* Header — hidden on mobile (dropdown nav already identifies the section) */}
+      <div className="hidden lg:block">
         <h2 className="text-lg font-semibold text-white">GPUs</h2>
         <p className="mt-1 text-sm text-white/60">
           GPU hardware backing the network — node growth, type distribution, and hardware specifications.
         </p>
       </div>
+      <p className="text-sm text-white/60 lg:hidden">
+        GPU hardware backing the network — node growth, type distribution, and hardware specifications.
+      </p>
 
       {/* KPI cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -133,47 +158,49 @@ export default function GpusTab() {
 
       {/* Growth chart */}
       <div className="rounded-xl border border-white/[0.06] bg-dark-surface p-5">
-        <div className="mb-1 flex items-start justify-between">
-          <div>
-            <h3 className="text-sm font-medium text-white/80">GPU Growth</h3>
-            <p className="text-[11px] text-white/40">
-              Total GPU count across all nodes over the last 90 days
+        <div className="mb-1 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-white/40">
+              GPU Growth
             </p>
-          </div>
-          <div className="text-right">
-            <p className="font-mono text-3xl font-bold text-white">
+            <p className="mt-1 font-mono text-3xl font-bold text-white">
               {latestGrowth.total.toLocaleString()}
             </p>
-            <div className="flex items-center justify-end gap-1 text-xs text-green-bright">
+            <div className="mt-1 flex items-center gap-1 text-xs text-green-bright">
               <TrendingUp className="h-3 w-3" />
               {growthPct}% growth
             </div>
           </div>
-        </div>
 
-        {/* Toggle */}
-        <div className="mt-3 mb-4 flex rounded-lg bg-white/[0.04] w-fit">
-          <button
-            onClick={() => setChartMode("total")}
-            className={`px-3 py-1 text-xs rounded-l-lg transition-colors ${
-              chartMode === "total"
-                ? "bg-white/[0.08] font-medium text-white"
-                : "text-white/50 hover:text-white/60"
-            }`}
-          >
-            Total GPUs
-          </button>
-          <button
-            onClick={() => setChartMode("byType")}
-            className={`px-3 py-1 text-xs rounded-r-lg transition-colors ${
-              chartMode === "byType"
-                ? "bg-white/[0.08] font-medium text-white"
-                : "text-white/50 hover:text-white/60"
-            }`}
-          >
-            By Type
-          </button>
+          {/* Mode toggle — mirrors the PeriodToggle slot on other cards */}
+          <div className="flex shrink-0 rounded-lg bg-white/[0.04] p-0.5">
+            <button
+              onClick={() => setChartMode("total")}
+              className={`rounded-md px-2.5 py-1 text-xs transition-colors ${
+                chartMode === "total"
+                  ? "bg-white/[0.08] font-medium text-white"
+                  : "text-white/50 hover:text-white/70"
+              }`}
+            >
+              Total
+            </button>
+            <button
+              onClick={() => setChartMode("byType")}
+              className={`rounded-md px-2.5 py-1 text-xs transition-colors ${
+                chartMode === "byType"
+                  ? "bg-white/[0.08] font-medium text-white"
+                  : "text-white/50 hover:text-white/70"
+              }`}
+            >
+              By Type
+            </button>
+          </div>
         </div>
+        <p className="mt-1 text-sm text-white/60">
+          Total GPU count across all nodes over the last 90 days.
+        </p>
+
+        <div className="mt-4" />
 
         <ResponsiveContainer width="100%" height={260}>
           <AreaChart data={GPU_GROWTH}>
@@ -196,7 +223,9 @@ export default function GpusTab() {
               tickLine={false}
               axisLine={false}
               tickFormatter={(v: string) => v.slice(5)}
-              interval={12}
+              ticks={gpuGrowthTicks}
+              interval={0}
+              padding={{ left: 8, right: 8 }}
             />
             <YAxis hide />
             {chartMode === "total" ? (
@@ -230,30 +259,26 @@ export default function GpusTab() {
           </AreaChart>
         </ResponsiveContainer>
 
-        {/* Footer slot — fixed-height container to prevent layout shift
-            when toggling between Total and By Type. Taller on narrow widths
-            where the legend wraps to 2 rows. */}
-        <div className="mt-3 min-h-[2.75rem] sm:min-h-5">
-          {chartMode === "byType" && (
-            <div className="flex flex-wrap gap-3">
-              {GPU_TYPE_KEYS.map((key, i) => (
-                <div key={key} className="flex items-center gap-1.5">
-                  <span
-                    className="h-2 w-2 rounded-full"
-                    style={{ backgroundColor: GPU_COLORS[i] }}
-                  />
-                  <span className="text-[11px] text-white/50">{key}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        {/* Legend — only renders when By Type is active (no reserved slot) */}
+        {chartMode === "byType" && (
+          <div className="mt-3 flex flex-wrap gap-3">
+            {GPU_TYPE_KEYS.map((key, i) => (
+              <div key={key} className="flex items-center gap-1.5">
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{ backgroundColor: GPU_COLORS[i] }}
+                />
+                <span className="text-[11px] text-white/50">{key}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* GPU Inventory — mix bar + table in one card */}
       <div className="overflow-x-clip rounded-xl border border-white/[0.06] bg-dark-surface">
         <div className="border-b border-white/[0.06] px-5 py-3">
-          <h3 className="text-sm font-medium text-white/80">GPU Inventory</h3>
+          <h3 className="text-sm font-medium text-white/60">GPU Inventory</h3>
           <p className="text-[11px] text-white/40">
             Current GPU types on the network with hardware specifications
           </p>
@@ -267,17 +292,29 @@ export default function GpusTab() {
               const isFirst = i === 0;
               const isLast = i === GPU_NODES.length - 1;
               const shift = tooltipShifts[i] ?? 0;
+              const isOpen = openIndex === i;
               return (
                 <div
                   key={node.name}
                   ref={(el) => {
                     segmentRefs.current[i] = el;
                   }}
-                  className="group relative flex items-center justify-center transition-opacity hover:opacity-100"
+                  role="button"
+                  tabIndex={0}
+                  aria-expanded={isOpen}
+                  aria-label={`${node.name}: ${node.count} GPUs, ${pct.toFixed(1)}%`}
+                  onClick={() => setOpenIndex(isOpen ? null : i)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setOpenIndex(isOpen ? null : i);
+                    }
+                  }}
+                  className={`group relative flex cursor-pointer items-center justify-center transition-opacity hover:opacity-100 ${isOpen ? "opacity-100" : ""}`}
                   style={{
                     width: `${pct}%`,
                     backgroundColor: GPU_COLORS[i % GPU_COLORS.length],
-                    opacity: 0.75,
+                    opacity: isOpen ? 1 : 0.75,
                     borderRadius: isFirst && isLast ? "0.5rem" : isFirst ? "0.5rem 0 0 0.5rem" : isLast ? "0 0.5rem 0.5rem 0" : undefined,
                   }}
                 >
@@ -286,13 +323,14 @@ export default function GpusTab() {
                       {gpuShortName(node.name)}
                     </span>
                   )}
-                  {/* Hover tooltip — centered on segment, shifted only if it
-                      would clip the bar's left/right edge. */}
+                  {/* Popover — hover on desktop, tap-to-toggle on mobile.
+                      Centered on segment, shifted only if it would clip the
+                      bar's left/right edge. */}
                   <div
                     ref={(el) => {
                       tooltipRefs.current[i] = el;
                     }}
-                    className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 rounded-lg border border-white/[0.08] bg-dark-card px-3 py-2 opacity-0 shadow-xl transition-opacity group-hover:opacity-100"
+                    className={`pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 rounded-lg border border-white/[0.08] bg-dark-card px-3 py-2 shadow-xl transition-opacity ${isOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
                     style={{
                       transform: `translateX(calc(-50% + ${shift}px))`,
                     }}

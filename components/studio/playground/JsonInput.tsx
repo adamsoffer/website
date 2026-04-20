@@ -50,7 +50,7 @@ export default function JsonInput({ config, onRun, isRunning }: JsonInputProps) 
           onChange={(e) => setText(e.target.value)}
           spellCheck={false}
           rows={16}
-          className="w-full resize-y rounded-lg border border-white/[0.08] bg-black/40 px-4 py-3 font-mono text-xs leading-relaxed text-white/80 placeholder:text-white/40 focus:border-white/20 focus:outline-none"
+          className="w-full resize-y rounded-md border border-white/[0.08] bg-white/[0.03] px-4 py-3 font-mono text-xs leading-relaxed text-white/80 placeholder:text-white/40 focus:border-white/20 focus:bg-white/[0.05] focus:outline-none"
         />
         {error && (
           <p className="mt-2 text-[11px] text-red-400">{error}</p>

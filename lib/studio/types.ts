@@ -41,8 +41,13 @@ export interface PlaygroundConfig {
   outputType: PlaygroundOutputType;
   mockOutputUrl?: string;
   mockOutputText?: string;
-  /** Selects the playground UI. "webcam" mocks live video-in/video-out with the user's camera. Defaults to "form". */
-  playgroundVariant?: "form" | "webcam";
+  /** Realistic mock response for the JSON tab. When provided, the Output's JSON
+   *  tab renders this shape instead of the generic `{ status, output, metrics }`
+   *  envelope — useful for models whose value IS the structured data (detection
+   *  boxes, depth stats, segmentation polygons, etc.). */
+  mockOutputJson?: unknown;
+  /** Selects the playground UI. "webcam" mocks live video-in/video-out with the user's camera. "transcoding" shapes the output like a Livepeer HLS stream (playbackId, rendition ladder, copyable URLs). Defaults to "form". */
+  playgroundVariant?: "form" | "webcam" | "transcoding";
 }
 
 export interface UsageDataPoint {
@@ -95,6 +100,14 @@ export interface Model {
   readme?: string;
 }
 
+/**
+ * Routing scope for an API token. Tokens route requests to:
+ *  - "any": any connected payment provider (falls back to free tier)
+ *  - a specific SignerKey: only that provider
+ * Kept in sync with SignerKey so the dropdown can enumerate providers.
+ */
+export type ApiKeyScope = "any" | SignerKey;
+
 export interface ApiKey {
   id: string;
   name: string;
@@ -104,6 +117,7 @@ export interface ApiKey {
   lastUsed: string;
   calls7d: number;
   isDefault?: boolean;
+  scope?: ApiKeyScope;
 }
 
 export interface SolutionProvider {

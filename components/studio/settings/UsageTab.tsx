@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { RefreshCw } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -10,10 +11,10 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { ChevronDown } from "lucide-react";
 import StatCard from "@/components/studio/statistics/StatCard";
 import PeriodToggle from "@/components/studio/statistics/PeriodToggle";
 import { StackedChartTooltip } from "@/components/studio/statistics/ChartTooltip";
+import Select from "@/components/ui/Select";
 import {
   ACCOUNT_USAGE_SUMMARY,
   ACCOUNT_USAGE_BY_SIGNER,
@@ -22,6 +23,7 @@ import {
   MOCK_RECENT_REQUESTS,
   SIGNER_COLORS,
 } from "@/lib/studio/mock-data";
+import { computeAxisTicks } from "@/lib/studio/utils";
 import type {
   NetworkStat,
   AccountActivityRow,
@@ -54,8 +56,6 @@ function filterByPeriod(
 
 // ─── Signer filter ───
 
-type SignerFilter = "all" | SignerKey;
-
 const SIGNER_KEYS: SignerKey[] = [
   "freeTier",
   "paymthouse",
@@ -87,50 +87,18 @@ function formatActivityLatency(ms: number | null): string {
   return `${ms} ms`;
 }
 
-// ─── Filter dropdown ───
-
-function FilterSelect<T extends string>({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: T;
-  options: { key: T; label: string }[];
-  onChange: (v: T) => void;
-}) {
-  const current = options.find((o) => o.key === value)?.label ?? "All";
-  return (
-    <label className="relative flex items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.02] px-3 py-1.5 text-xs text-white/60 transition-colors hover:bg-white/[0.04]">
-      <span className="text-white/40">{label}</span>
-      <span className="text-white/80">{current}</span>
-      <ChevronDown className="h-3 w-3 text-white/40" aria-hidden="true" />
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value as T)}
-        className="absolute inset-0 cursor-pointer opacity-0"
-        aria-label={label}
-      >
-        {options.map((o) => (
-          <option key={o.key} value={o.key} className="bg-dark text-white">
-            {o.label}
-          </option>
-        ))}
-      </select>
-    </label>
-  );
-}
 
 // ─── Main ───
 
 export default function UsageTab() {
   const [period, setPeriod] = useState<Period>("30d");
-  const [signerFilter, setSignerFilter] = useState<SignerFilter>("all");
-  const [tokenFilter, setTokenFilter] = useState<string>("all");
+  // Empty array = "all" (no filter). Non-empty = only show selected.
+  const [signerFilters, setSignerFilters] = useState<SignerKey[]>([]);
+  const [tokenFilters, setTokenFilters] = useState<string[]>([]);
   const [highlightedRequestId, setHighlightedRequestId] = useState<
     string | null
   >(null);
+  const [refreshInterval, setRefreshInterval] = useState("30s");
   const searchParams = useSearchParams();
   const targetRequestId = searchParams.get("request");
 
@@ -138,6 +106,7 @@ export default function UsageTab() {
     () => filterByPeriod(ACCOUNT_USAGE_DAILY, period),
     [period],
   );
+  const xTicks = useMemo(() => computeAxisTicks(chartData, "date", 6), [chartData]);
 
   const totalRequests = useMemo(() => {
     return chartData.reduce(
@@ -148,24 +117,24 @@ export default function UsageTab() {
   }, [chartData]);
 
   const visibleSigners: SignerKey[] = useMemo(
-    () => (signerFilter === "all" ? SIGNER_KEYS : [signerFilter]),
-    [signerFilter],
+    () => (signerFilters.length === 0 ? SIGNER_KEYS : signerFilters),
+    [signerFilters],
   );
 
   const filteredSignerRows = useMemo(
     () =>
-      ACCOUNT_USAGE_BY_SIGNER.filter(
-        (row) => signerFilter === "all" || row.signer === signerFilter,
-      ),
-    [signerFilter],
+      signerFilters.length === 0
+        ? ACCOUNT_USAGE_BY_SIGNER
+        : ACCOUNT_USAGE_BY_SIGNER.filter((row) => signerFilters.includes(row.signer)),
+    [signerFilters],
   );
 
   const filteredTokenRows = useMemo(
     () =>
-      ACCOUNT_USAGE_BY_TOKEN.filter(
-        (row) => tokenFilter === "all" || row.tokenId === tokenFilter,
-      ),
-    [tokenFilter],
+      tokenFilters.length === 0
+        ? ACCOUNT_USAGE_BY_TOKEN
+        : ACCOUNT_USAGE_BY_TOKEN.filter((row) => tokenFilters.includes(row.tokenId)),
+    [tokenFilters],
   );
 
   const periodCutoffMs = useMemo(() => {
@@ -178,16 +147,16 @@ export default function UsageTab() {
     return MOCK_RECENT_REQUESTS.filter((row) => {
       const ts = new Date(row.timestamp).getTime();
       if (Number.isNaN(ts) || ts < periodCutoffMs) return false;
-      if (signerFilter !== "all" && row.signer !== signerFilter) return false;
-      if (tokenFilter !== "all" && row.tokenId !== tokenFilter) return false;
+      if (signerFilters.length > 0 && !signerFilters.includes(row.signer)) return false;
+      if (tokenFilters.length > 0 && !tokenFilters.includes(row.tokenId)) return false;
       return true;
     });
-  }, [periodCutoffMs, signerFilter, tokenFilter]);
+  }, [periodCutoffMs, signerFilters, tokenFilters]);
 
   const clearAllFilters = () => {
     setPeriod("30d");
-    setSignerFilter("all");
-    setTokenFilter("all");
+    setSignerFilters([]);
+    setTokenFilters([]);
   };
 
   // Scroll to a specific request row when arriving with `?request=<id>`
@@ -250,27 +219,22 @@ export default function UsageTab() {
     ];
   }, []);
 
-  const signerSelectOptions = useMemo<{ key: SignerFilter; label: string }[]>(
-    () => [
-      { key: "all", label: "All providers" },
-      ...SIGNER_KEYS.map((k) => ({ key: k, label: SIGNER_LABELS[k] })),
-    ],
+  const signerSelectOptions = useMemo(
+    () => SIGNER_KEYS.map((k) => ({ value: k, label: SIGNER_LABELS[k] })),
     [],
   );
 
   const tokenSelectOptions = useMemo(
-    () => [
-      { key: "all", label: "All tokens" },
-      ...ACCOUNT_USAGE_BY_TOKEN.map((t) => ({
-        key: t.tokenId,
+    () =>
+      ACCOUNT_USAGE_BY_TOKEN.map((t) => ({
+        value: t.tokenId,
         label: t.tokenName,
       })),
-    ],
     [],
   );
 
   return (
-    <div className="px-6 pt-6 pb-10">
+    <div className="px-5 pt-6 pb-10 lg:px-6">
       {/* KPI cards */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {headerStats.map((stat) => (
@@ -278,41 +242,49 @@ export default function UsageTab() {
         ))}
       </div>
 
+      {/* Page-level filter toolbar: selects stretch to fill, period tucks in last */}
+      <div className="mt-6 flex flex-wrap items-center gap-3">
+        <Select
+          multiple
+          size="sm"
+          label="Provider"
+          allOptionLabel="All providers"
+          value={signerFilters}
+          options={signerSelectOptions}
+          onChange={(v) => setSignerFilters(v as SignerKey[])}
+          className="min-w-[140px] flex-1 sm:flex-initial"
+        />
+        <Select
+          multiple
+          size="sm"
+          label="Token"
+          allOptionLabel="All tokens"
+          value={tokenFilters}
+          options={tokenSelectOptions}
+          onChange={setTokenFilters}
+          className="min-w-[140px] flex-1 sm:flex-initial"
+        />
+        <PeriodToggle
+          value={period}
+          onChange={setPeriod}
+          options={PERIOD_OPTIONS}
+        />
+      </div>
+
       {/* Usage breakdown chart */}
-      <div className="mt-6 rounded-xl border border-white/[0.06] bg-dark-surface p-5">
+      <div className="mt-4 rounded-xl border border-white/[0.06] bg-dark-surface p-5">
         <div className="mb-1 flex items-start justify-between">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-wider text-white/60">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-white/40">
               Requests
             </p>
             <p className="mt-1 font-mono text-3xl font-bold text-white">
               {totalRequests.toLocaleString()}
             </p>
-            <p className="mt-1 text-sm text-white/55">
+            <p className="mt-1 text-sm text-white/60">
               Daily request volume across providers for the selected period.
             </p>
           </div>
-          <PeriodToggle
-            value={period}
-            onChange={setPeriod}
-            options={PERIOD_OPTIONS}
-          />
-        </div>
-
-        {/* Provider + Token filters */}
-        <div className="mt-4 flex flex-wrap items-center gap-3 border-b border-white/[0.06] pb-4">
-          <FilterSelect
-            label="Provider"
-            value={signerFilter}
-            options={signerSelectOptions}
-            onChange={setSignerFilter}
-          />
-          <FilterSelect
-            label="Token"
-            value={tokenFilter}
-            options={tokenSelectOptions}
-            onChange={setTokenFilter}
-          />
         </div>
 
         <div className="mt-4">
@@ -324,15 +296,9 @@ export default function UsageTab() {
                 tickLine={false}
                 axisLine={false}
                 tickFormatter={(v: string) => v.slice(5)}
-                interval={
-                  period === "24h"
-                    ? 0
-                    : period === "7d"
-                      ? 0
-                      : period === "30d"
-                        ? 4
-                        : 12
-                }
+                ticks={xTicks}
+                interval={0}
+                padding={{ left: 8, right: 8 }}
               />
               <YAxis hide />
               <Tooltip
@@ -360,7 +326,7 @@ export default function UsageTab() {
         <div className="mt-3 flex flex-wrap gap-3">
           {SIGNER_KEYS.map((key) => {
             const dim =
-              signerFilter !== "all" && signerFilter !== key
+              signerFilters.length > 0 && !signerFilters.includes(key)
                 ? "opacity-30"
                 : "";
             return (
@@ -381,7 +347,7 @@ export default function UsageTab() {
       {/* Usage per signer */}
       <div className="mt-6 rounded-xl border border-white/[0.06] bg-dark-surface">
         <div className="border-b border-white/[0.06] px-5 py-3">
-          <h2 className="text-sm font-medium text-white">Usage per provider</h2>
+          <h2 className="text-sm font-medium text-white/60">Usage per provider</h2>
           <p className="text-[11px] text-white/40">
             Cost breakdown by payment routing source.
           </p>
@@ -402,7 +368,7 @@ export default function UsageTab() {
           </span>
         </div>
 
-        <div className="divide-y divide-white/[0.04]">
+        <div className="divide-y divide-white/[0.06]">
           {filteredSignerRows.map((row) => (
             <div key={row.signer}>
               {/* Desktop row */}
@@ -457,7 +423,7 @@ export default function UsageTab() {
       {/* Usage per token */}
       <div className="mt-6 rounded-xl border border-white/[0.06] bg-dark-surface">
         <div className="border-b border-white/[0.06] px-5 py-3">
-          <h2 className="text-sm font-medium text-white">Usage per token</h2>
+          <h2 className="text-sm font-medium text-white/60">Usage per token</h2>
           <p className="text-[11px] text-white/40">
             Activity grouped by API token.
           </p>
@@ -478,7 +444,7 @@ export default function UsageTab() {
           </span>
         </div>
 
-        <div className="divide-y divide-white/[0.04]">
+        <div className="divide-y divide-white/[0.06]">
           {filteredTokenRows.map((row) => (
             <div key={row.tokenId}>
               {/* Desktop row */}
@@ -527,21 +493,35 @@ export default function UsageTab() {
         id="recent-requests"
         className="mt-6 scroll-mt-6 rounded-xl border border-white/[0.06] bg-dark-surface"
       >
-        <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3">
-          <div>
-            <h2 className="text-sm font-medium text-white">Recent requests</h2>
-            <p className="text-[11px] text-white/55">
-              Latest API requests across all providers and tokens.
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-green-bright/10 px-2.5 py-1 text-[11px] font-medium text-green-bright">
+        <div className="border-b border-white/[0.06] px-4 py-3 sm:px-5">
+          {/* Row 1: title + LIVE badge */}
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-sm font-medium text-white/60">Recent requests</h2>
+            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-green-bright/10 px-2.5 py-1 text-[11px] font-medium text-green-bright">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-bright" />
               LIVE
             </span>
-            <span className="font-mono text-[11px] text-white/50">
-              Showing {Math.min(filteredActivity.length, 10)} of{" "}
-              {filteredActivity.length}
+          </div>
+          {/* Row 2: refresh toggle left, count right — mirrors Live Job Feed */}
+          <div className="mt-2.5 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-1 rounded-lg bg-white/[0.04] p-0.5">
+              <RefreshCw className="ml-1.5 h-3 w-3 shrink-0 text-white/30" />
+              {["5s", "15s", "30s", "90s"].map((opt) => (
+                <button
+                  key={opt}
+                  onClick={() => setRefreshInterval(opt)}
+                  className={`shrink-0 rounded-md px-2 py-1 text-[11px] transition-colors ${
+                    refreshInterval === opt
+                      ? "bg-white/[0.1] font-medium text-white"
+                      : "text-white/40 hover:text-white/60"
+                  }`}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+            <span className="shrink-0 whitespace-nowrap font-mono text-[11px] text-white/40">
+              {Math.min(filteredActivity.length, 10)} / {filteredActivity.length}
             </span>
           </div>
         </div>
@@ -586,7 +566,7 @@ export default function UsageTab() {
               </span>
             </div>
 
-            <div className="divide-y divide-white/[0.04]">
+            <div className="divide-y divide-white/[0.06]">
               {filteredActivity.map((row) => {
                 const isSuccess = row.status === "success";
                 const isHighlighted = highlightedRequestId === row.id;

@@ -8,7 +8,7 @@ import UtilizationTab from "@/components/studio/statistics/UtilizationTab";
 import PaymentsTab from "@/components/studio/statistics/PaymentsTab";
 import GpusTab from "@/components/studio/statistics/GpusTab";
 import StudioFooter from "@/components/studio/StudioFooter";
-import StudioSubNav from "@/components/studio/StudioSubNav";
+import StudioSectionSelect from "@/components/studio/StudioSectionSelect";
 
 type StatsTab = "overview" | "utilization" | "payments" | "gpus";
 
@@ -55,12 +55,12 @@ function StatsContent() {
 
   return (
     <main id="main-content" className="flex flex-1 flex-col">
-      {/* Mobile sub-nav */}
-      <StudioSubNav
+      {/* Mobile section picker */}
+      <StudioSectionSelect
         ariaLabel="Statistics"
-        tabs={TABS}
+        sections={TABS.map(({ key, label, icon }) => ({ key, label, icon }))}
         activeKey={tab}
-        onChange={(key) => setTab(key as StatsTab)}
+        onChange={setTab}
       />
 
 

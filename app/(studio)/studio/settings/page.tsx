@@ -5,7 +5,7 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { User, Key, Wallet, Activity } from "lucide-react";
 import { useAuth } from "@/components/studio/AuthContext";
 import StudioFooter from "@/components/studio/StudioFooter";
-import StudioSubNav from "@/components/studio/StudioSubNav";
+import StudioSectionSelect from "@/components/studio/StudioSectionSelect";
 import AccountTab from "@/components/studio/settings/AccountTab";
 import ApiKeysTab from "@/components/studio/settings/ApiKeysTab";
 import PaymentTab from "@/components/studio/settings/PaymentTab";
@@ -13,13 +13,13 @@ import UsageTab from "@/components/studio/settings/UsageTab";
 
 type SettingsTab = "account" | "tokens" | "usage" | "billing";
 
-const VALID_TABS: SettingsTab[] = ["account", "tokens", "usage", "billing"];
+const VALID_TABS: SettingsTab[] = ["account", "tokens", "billing", "usage"];
 
 const TABS: { key: SettingsTab; label: string; icon: React.ElementType }[] = [
   { key: "account", label: "Account", icon: User },
   { key: "tokens", label: "API Tokens", icon: Key },
-  { key: "usage", label: "Usage", icon: Activity },
   { key: "billing", label: "Billing", icon: Wallet },
+  { key: "usage", label: "Usage", icon: Activity },
 ];
 
 export default function SettingsPage() {
@@ -66,12 +66,12 @@ function SettingsContent() {
 
   return (
     <main id="main-content" className="flex flex-1 flex-col">
-      {/* Mobile sub-nav */}
-      <StudioSubNav
+      {/* Mobile section picker */}
+      <StudioSectionSelect
         ariaLabel="Settings"
-        tabs={TABS}
+        sections={TABS.map(({ key, label, icon }) => ({ key, label, icon }))}
         activeKey={tab}
-        onChange={(key) => setTab(key as SettingsTab)}
+        onChange={setTab}
       />
 
 
@@ -104,7 +104,7 @@ function SettingsContent() {
         {/* Content + Footer */}
         <div className="flex flex-1 flex-col overflow-y-auto">
           <div
-            className={`mx-auto w-full flex-1 ${
+            className={`w-full flex-1 ${
               tab === "usage" ? "max-w-5xl" : "max-w-3xl"
             }`}
           >

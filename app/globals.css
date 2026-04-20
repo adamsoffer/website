@@ -338,6 +338,14 @@ summary {
   scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
 }
 
+/* Hidden scrollbar for containers that scroll horizontally without chrome (e.g. mobile tab strips) */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 /* Text wrap utilities */
 .text-balance {
   text-wrap: balance;

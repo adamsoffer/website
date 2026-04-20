@@ -35,7 +35,7 @@ function RoutingStrip({ summary }: { summary: RoutingSummary }) {
       {/* Header: label + total + view details */}
       <div className="flex items-baseline justify-between">
         <div className="flex items-baseline gap-2">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-white/40">
+          <p className="text-[11px] font-medium uppercase tracking-wider text-white/40">
             Routing this month
           </p>
           <span className="font-mono text-xs text-white/30">·</span>
@@ -105,27 +105,24 @@ export default function PaymentTab() {
   const usagePct = (FOUNDATION_USED / FOUNDATION_LIMIT) * 100;
 
   return (
-    <div className="px-6">
+    <div className="px-5 lg:px-6">
       <div className="divide-y divide-white/[0.06]">
         {/* Free tier */}
         <SectionRow
           title="Free tier"
           description="A community payment provider offering free, rate-limited access. Enabled by default for every API token."
         >
-          <div className="rounded-lg border border-white/[0.08] bg-dark-surface p-4">
-            <div className="flex items-baseline justify-between text-xs">
-              <span className="text-white/40">Requests</span>
-              <span className="font-mono text-white/70">
-                {FOUNDATION_USED.toLocaleString()}
-                <span className="text-white/30">
-                  {" / "}
-                  {FOUNDATION_LIMIT.toLocaleString()}
-                </span>
+          <div className="rounded-lg border border-white/[0.08] bg-dark-surface p-5">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-white/40">Requests</p>
+            <p className="mt-1 font-mono text-2xl font-semibold text-white">
+              {FOUNDATION_USED.toLocaleString()}
+              <span className="ml-1 text-base font-normal text-white/40">
+                / {FOUNDATION_LIMIT.toLocaleString()}
               </span>
-            </div>
-            <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/[0.06]">
+            </p>
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
               <div
-                className="h-full rounded-full bg-white/70"
+                className="h-full rounded-full bg-green-bright transition-all"
                 style={{ width: `${Math.min(usagePct, 100)}%` }}
               />
             </div>

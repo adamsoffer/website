@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Snowflake } from "lucide-react";
 import {
   getModelIcon,
   formatRuns,
@@ -54,10 +54,10 @@ export default function ModelCard({ model }: { model: Model }) {
           </span>
         )}
 
-        {/* Warm/Cold pill — bottom-left */}
+        {/* Warm/Cold pill — bottom-left. Matches Explore StatusBadge: warm = orange pulse, cold = blue snowflake */}
         <span
-          className={`absolute bottom-2 left-2 inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[11px] font-medium backdrop-blur-sm ${
-            isWarm ? "bg-black/50 text-warm" : "bg-black/50 text-white/60"
+          className={`absolute bottom-2 left-2 inline-flex items-center gap-1.5 rounded-full bg-black/50 px-2 py-1 text-[11px] font-medium backdrop-blur-sm ${
+            isWarm ? "text-warm" : "text-blue-bright"
           }`}
         >
           {isWarm ? (
@@ -66,7 +66,7 @@ export default function ModelCard({ model }: { model: Model }) {
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-warm" />
             </span>
           ) : (
-            <span className="h-1.5 w-1.5 rounded-full bg-white/40" />
+            <Snowflake className="h-2.5 w-2.5" />
           )}
           {isWarm ? "Warm" : "Cold"}
         </span>

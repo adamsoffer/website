@@ -122,23 +122,39 @@ Full-stack real-time AI video API powered by the Livepeer network.
     playgroundConfig: {
       fields: [
         {
-          name: "source_url",
-          label: "Source URL",
+          name: "name",
+          label: "Stream name",
           type: "text",
           required: true,
-          placeholder: "https://example.com/video.mp4",
-          description: "URL of the video to transcode.",
+          placeholder: "my-live-stream",
+          description: "Human-readable name for the stream.",
+        },
+        {
+          name: "source_url",
+          label: "Source",
+          type: "text",
+          placeholder: "rtmp://rtmp.livepeer.com/live or https://example.com/video.mp4",
+          description: "RTMP/WHIP ingest URL for live, or an HTTPS file URL for VOD.",
         },
         {
           name: "profile",
-          label: "Encoding Profile",
+          label: "Rendition ladder",
           type: "select",
-          options: ["720p", "1080p", "4K", "adaptive"],
+          options: ["adaptive", "1080p", "720p", "480p"],
           defaultValue: "adaptive",
-          description: "Target encoding profile.",
+          description: "adaptive ladders 240p → 720p. Single values cap the top rendition.",
+        },
+        {
+          name: "record",
+          label: "Record to VOD",
+          type: "boolean",
+          defaultValue: true,
+          description: "Persist the stream as a playable recording after it ends.",
         },
       ],
       outputType: "json",
+      mockOutputUrl: "https://picsum.photos/seed/livepeer-stream/1280/720",
+      playgroundVariant: "transcoding",
     },
     readme: `# Livepeer Transcoding
 
@@ -776,6 +792,8 @@ mp3, mp4, mpeg, mpga, m4a, wav, webm
         },
       ],
       outputType: "audio",
+      mockOutputUrl:
+        "https://mdn.github.io/webaudio-examples/audio-basics/outfoxing.mp3",
     },
   },
   {
@@ -813,6 +831,30 @@ mp3, mp4, mpeg, mpga, m4a, wav, webm
       ],
       outputType: "image",
       mockOutputUrl: "https://picsum.photos/seed/depth/1024/1024",
+      mockOutputJson: {
+        status: "succeeded",
+        output: {
+          depth_map: "https://picsum.photos/seed/depth/1024/1024",
+          width: 1024,
+          height: 1024,
+          model_size: "base",
+          // Normalized depth stats — min/max in metres for relative depth mode.
+          stats: { min: 0.42, max: 18.7, mean: 4.18, median: 3.02 },
+          // Downsampled 8×8 preview of the raw depth tensor (metres). Useful
+          // for sanity-checks without shipping the full 1M-sample payload.
+          depth_preview: [
+            [14.8, 14.2, 13.1, 10.4, 7.2, 5.8, 5.4, 5.1],
+            [13.6, 12.9, 11.4, 8.7, 5.9, 4.9, 4.6, 4.4],
+            [11.2, 10.1, 8.6, 6.3, 4.4, 3.7, 3.5, 3.4],
+            [8.4, 7.1, 5.8, 4.3, 3.1, 2.7, 2.6, 2.5],
+            [5.7, 4.8, 3.9, 2.9, 2.2, 1.9, 1.8, 1.7],
+            [3.8, 3.2, 2.6, 2.0, 1.5, 1.3, 1.2, 1.1],
+            [2.5, 2.1, 1.7, 1.3, 1.0, 0.8, 0.8, 0.7],
+            [1.6, 1.3, 1.1, 0.9, 0.7, 0.6, 0.5, 0.5],
+          ],
+        },
+        metrics: { inference_time: 0.042, gpus_matched: 1 },
+      },
     },
   },
   {
@@ -860,6 +902,35 @@ mp3, mp4, mpeg, mpga, m4a, wav, webm
       ],
       outputType: "image",
       mockOutputUrl: "https://picsum.photos/seed/yolo/1024/768",
+      mockOutputJson: {
+        status: "succeeded",
+        output: {
+          image: "https://picsum.photos/seed/yolo/1024/768",
+          width: 1024,
+          height: 768,
+          detections: [
+            {
+              class: "person",
+              class_id: 0,
+              confidence: 0.94,
+              bbox: { x: 312, y: 184, width: 168, height: 412 },
+            },
+            {
+              class: "bicycle",
+              class_id: 1,
+              confidence: 0.88,
+              bbox: { x: 480, y: 402, width: 236, height: 194 },
+            },
+            {
+              class: "dog",
+              class_id: 16,
+              confidence: 0.81,
+              bbox: { x: 128, y: 452, width: 146, height: 138 },
+            },
+          ],
+        },
+        metrics: { inference_time: 0.087, gpus_matched: 1 },
+      },
     },
   },
   {
@@ -903,6 +974,33 @@ mp3, mp4, mpeg, mpga, m4a, wav, webm
       ],
       outputType: "image",
       mockOutputUrl: "https://picsum.photos/seed/sam2/1024/1024",
+      mockOutputJson: {
+        status: "succeeded",
+        output: {
+          image: "https://picsum.photos/seed/sam2/1024/1024",
+          width: 1024,
+          height: 1024,
+          prompt: { type: "point", x: 256, y: 256 },
+          masks: [
+            {
+              id: 0,
+              score: 0.972,
+              area: 184_336,
+              bbox: { x: 142, y: 98, width: 574, height: 612 },
+              // RLE-encoded binary mask — truncated here for readability.
+              rle: { counts: "Y4c02…", size: [1024, 1024] },
+            },
+            {
+              id: 1,
+              score: 0.894,
+              area: 42_108,
+              bbox: { x: 612, y: 412, width: 248, height: 196 },
+              rle: { counts: "P3h01…", size: [1024, 1024] },
+            },
+          ],
+        },
+        metrics: { inference_time: 0.182, gpus_matched: 1 },
+      },
     },
   },
   {
@@ -1039,6 +1137,8 @@ mp3, mp4, mpeg, mpga, m4a, wav, webm
         },
       ],
       outputType: "audio",
+      mockOutputUrl:
+        "https://mdn.github.io/webaudio-examples/audio-basics/outfoxing.mp3",
     },
   },
   {
@@ -1178,7 +1278,7 @@ export const API_KEYS: ApiKey[] = [
 // ─── Network Stats ────────────────────────────────────────────────────────────
 
 export const NETWORK_STATS: NetworkStat[] = [
-  { label: "Active Orchestrators", value: "142", delta: "+3", trend: "up" },
+  { label: "Orchestrators", value: "142", delta: "+3", trend: "up" },
   { label: "GPU Capacity", value: "68%", delta: "+5%", trend: "up" },
   { label: "Median Latency", value: "34ms", delta: "-2ms", trend: "up" },
   { label: "Requests / sec", value: "2,840", delta: "+120", trend: "up" },
@@ -1454,34 +1554,41 @@ export { TOP_APIS, API_COLORS };
 
 // ─── Settings: API Keys ─────────────────────────────────────────────────────
 
+// Default tokens provisioned at signup:
+//   - Free tier (permanent, can only be rotated — tied to the account's free quota)
+//   - Production + Development (starter user tokens, scoped to "any" provider — fully editable)
+// Provider-specific tokens are added by the user in Billing when connecting a provider.
 export const SETTINGS_API_KEYS: ApiKey[] = [
   {
-    id: "key-foundation",
-    name: "Default",
+    id: "key-default-free",
+    name: "Free tier",
     prefix: "lp_fnd_x8k2",
     status: "active",
     created: "2026-01-15",
     lastUsed: "2026-04-11",
     calls7d: 4_230,
     isDefault: true,
+    scope: "freeTier",
   },
   {
     id: "key-1",
     name: "Production",
     prefix: "lp_usr_m3p9",
     status: "active",
-    created: "2026-02-20",
+    created: "2026-01-15",
     lastUsed: "2026-04-10",
     calls7d: 12_840,
+    scope: "any",
   },
   {
     id: "key-2",
     name: "Development",
     prefix: "lp_usr_q7w2",
     status: "active",
-    created: "2026-03-05",
+    created: "2026-01-15",
     lastUsed: "2026-04-09",
     calls7d: 890,
+    scope: "any",
   },
 ];
 

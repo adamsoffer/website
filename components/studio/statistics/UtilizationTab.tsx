@@ -60,22 +60,18 @@ function LiveJobFeed() {
 
   return (
     <div className="rounded-xl border border-white/[0.06] bg-dark-surface">
-      <div className="flex flex-col gap-3 border-b border-white/[0.06] px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-        <div className="flex items-center justify-between gap-3 sm:block">
-          <div className="min-w-0">
-            <h3 className="text-sm font-medium text-white/80">Live Job Feed</h3>
-            <p className="text-[11px] text-white/40">
-              Showing {LIVE_JOBS.length} of {activeJobCount + 9} active jobs
-            </p>
-          </div>
-          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-green-bright/10 px-2.5 py-1 text-[11px] font-medium text-green-bright sm:hidden">
+      <div className="border-b border-white/[0.06] px-4 py-3 sm:px-5">
+        {/* Row 1: title + LIVE badge */}
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="text-sm font-medium text-white/60">Live Job Feed</h3>
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-green-bright/10 px-2.5 py-1 text-[11px] font-medium text-green-bright">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-bright" />
             LIVE
           </span>
         </div>
-        <div className="flex items-center gap-3">
-          {/* Refresh interval toggle */}
-          <div className="flex flex-1 items-center gap-1 overflow-x-auto rounded-lg bg-white/[0.04] p-0.5 sm:flex-none">
+        {/* Row 2: refresh toggle left, job count right */}
+        <div className="mt-2.5 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-1 rounded-lg bg-white/[0.04] p-0.5">
             <RefreshCw className="ml-1.5 h-3 w-3 shrink-0 text-white/30" />
             {REFRESH_OPTIONS.map((opt) => (
               <button
@@ -91,9 +87,8 @@ function LiveJobFeed() {
               </button>
             ))}
           </div>
-          <span className="hidden shrink-0 items-center gap-1.5 rounded-full bg-green-bright/10 px-2.5 py-1 text-[11px] font-medium text-green-bright sm:inline-flex">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-bright" />
-            LIVE
+          <span className="shrink-0 whitespace-nowrap text-[11px] text-white/40">
+            {LIVE_JOBS.length} / {activeJobCount + 9} active
           </span>
         </div>
       </div>
@@ -191,13 +186,16 @@ export default function UtilizationTab() {
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-5 lg:p-6">
-      {/* Header */}
-      <div>
+      {/* Header — hidden on mobile (dropdown nav already identifies the section) */}
+      <div className="hidden lg:block">
         <h2 className="text-lg font-semibold text-white">Utilization</h2>
         <p className="mt-1 text-sm text-white/60">
           Real-time network activity and pipeline capacity across the Livepeer AI inference network.
         </p>
       </div>
+      <p className="text-sm text-white/60 lg:hidden">
+        Real-time network activity and pipeline capacity across the Livepeer AI inference network.
+      </p>
 
       {/* KPI cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -211,24 +209,24 @@ export default function UtilizationTab() {
 
       {/* Pipelines */}
       <div className="rounded-xl border border-white/[0.06] bg-dark-surface">
-        <div className="flex flex-col gap-3 border-b border-white/[0.06] px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-5">
-          <div className="min-w-0">
-            <h3 className="text-sm font-medium text-white/80">Pipelines</h3>
-            <p className="text-[11px] text-white/55">
+        <div className="border-b border-white/[0.06] px-4 py-3 sm:px-5">
+          <div className="flex items-start justify-between gap-3">
+            <h3 className="text-sm font-medium text-white/60">Pipelines</h3>
+            <p className="shrink-0 text-[11px] text-white/40">
               {filteredPipelines.length} active · {PIPELINE_UTILIZATION.filter((p) => p.status !== "cold").length} warm · {Math.round(
                 PIPELINE_UTILIZATION.filter((p) => p.status !== "cold").reduce((s, p) => s + p.utilizationPct, 0) /
                   PIPELINE_UTILIZATION.filter((p) => p.status !== "cold").length,
-              )}% avg utilization
+              )}% avg
             </p>
           </div>
-          <div className="relative w-full sm:w-auto sm:shrink-0">
+          <div className="relative mt-2.5">
             <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-white/30" />
             <input
               type="text"
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPipelinePage(0); }}
               placeholder="Search pipelines..."
-              className="w-full rounded-lg border border-white/[0.08] bg-white/[0.03] py-1.5 pl-9 pr-3 text-xs text-white placeholder:text-white/30 focus:border-white/20 focus:outline-none sm:w-56"
+              className="w-full rounded-lg border border-white/[0.08] bg-white/[0.03] py-1.5 pl-9 pr-3 text-xs text-white placeholder:text-white/30 focus:border-white/20 focus:outline-none"
             />
           </div>
         </div>
