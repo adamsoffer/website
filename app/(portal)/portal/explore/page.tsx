@@ -390,7 +390,7 @@ function ExplorePageInner() {
     <main id="main-content" className="flex flex-1 flex-col">
       <div className="flex flex-1 min-h-[calc(100vh-3rem-2.75rem)]">
         {/* Filter sidebar */}
-        <div className="hidden w-[260px] flex-shrink-0 self-stretch border-r border-white/10 bg-dark lg:block">
+        <div className="hidden w-[260px] flex-shrink-0 self-stretch border-r border-white/10 bg-shell lg:block">
         <div className="sticky top-12 max-h-[calc(100vh-3rem)] overflow-y-auto space-y-4 px-5 pt-6 pb-5">
           {/* Source filter */}
           <div>
@@ -541,7 +541,7 @@ function ExplorePageInner() {
         </div>
 
         {/* Content + Footer */}
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex min-w-0 flex-1 flex-col bg-dark">
           {/* Toolbar — the page header is intentionally omitted; the active nav tab
               + breadcrumb already establish "Explore" context on both breakpoints */}
           <div className="sticky top-16 lg:top-12 z-30 flex flex-col gap-2.5 border-b border-white/10 bg-dark-surface/95 backdrop-blur-xl px-4 py-2.5 lg:flex-row lg:items-center lg:gap-3 lg:px-5 lg:py-3">

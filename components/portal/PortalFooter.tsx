@@ -121,7 +121,7 @@ function LegalLinks({ className }: { className?: string }) {
 
 export default function PortalFooter() {
   return (
-    <footer className="relative mt-12 border-t border-white/[0.08] bg-dark lg:mt-16">
+    <footer className="relative mt-12 border-t border-white/[0.08] bg-shell lg:mt-16">
       <div className="divider-gradient absolute top-0 left-0 right-0" />
 
       {/* ─── Desktop: single row, left = status, right = dev | legal | copyright ─── */}

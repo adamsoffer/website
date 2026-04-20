@@ -77,7 +77,7 @@ function SettingsContent() {
 
       <div className="flex flex-1 min-h-[calc(100vh-3rem-2.75rem)]">
         {/* Sidebar */}
-        <div className="hidden w-[260px] flex-shrink-0 self-stretch border-r border-white/10 bg-dark lg:block">
+        <div className="hidden w-[260px] flex-shrink-0 self-stretch border-r border-white/10 bg-shell lg:block">
           <div className="sticky top-12 max-h-[calc(100vh-3rem)] overflow-y-auto px-5 pt-6 pb-5 space-y-4">
             <p className="mb-1.5 px-3 text-xs font-medium uppercase tracking-wider text-white/50">
               Settings
@@ -102,7 +102,7 @@ function SettingsContent() {
         </div>
 
         {/* Content + Footer */}
-        <div className="flex flex-1 flex-col overflow-y-auto">
+        <div className="flex flex-1 flex-col overflow-y-auto bg-dark">
           <div
             className={`w-full flex-1 ${
               tab === "usage" ? "max-w-5xl" : "max-w-3xl"

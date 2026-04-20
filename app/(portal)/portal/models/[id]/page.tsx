@@ -480,7 +480,7 @@ export default function ModelDetailPage() {
 
   if (!model) {
     return (
-      <main id="main-content" className="flex flex-1 flex-col">
+      <main id="main-content" className="flex flex-1 flex-col bg-dark">
         <div className="flex flex-1 flex-col items-center justify-center text-center">
           <p className="text-sm text-white/40">Model not found</p>
           <Link
@@ -504,7 +504,7 @@ export default function ModelDetailPage() {
   };
 
   return (
-    <main id="main-content" className="flex flex-1 flex-col">
+    <main id="main-content" className="flex flex-1 flex-col bg-dark">
       <div className="flex-1">
         <div className="mx-auto max-w-5xl px-5 py-8">
           {/* Hero */}

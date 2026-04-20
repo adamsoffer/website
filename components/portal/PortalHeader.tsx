@@ -342,8 +342,8 @@ export default function PortalHeader() {
   // Row 1 fades out as it scrolls, cross-fading with the symbol in Row 2
   const row1Opacity = Math.max(0, Math.min(1, 1 - scrollY / 80));
 
-  const glassHeavy = "bg-dark/80 backdrop-blur-xl border-b border-white/10 shadow-lg shadow-black/20";
-  const glassLight = "bg-dark/60 backdrop-blur-md border-b border-white/[0.08]";
+  const glassHeavy = "bg-shell/85 backdrop-blur-xl border-b border-white/10 shadow-lg shadow-black/20";
+  const glassLight = "bg-shell/70 backdrop-blur-md border-b border-white/[0.08]";
 
   return (
     <>
