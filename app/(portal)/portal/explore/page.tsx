@@ -370,11 +370,12 @@ function ExplorePageInner() {
           return (bTs - aTs) * dir;
         }
         default: {
-          // Recommended: tier by (realtime, warm), then by runs7d. Showcases the moat
-          // while still bubbling usable-now models above cold ones within each tier.
+          // Recommended: tier by (realtime, warm), then by runs7d. Tier is always
+          // best-first regardless of direction; only the popularity tiebreaker flips
+          // when the user toggles asc/desc.
           const tier = (m: Model) => (m.realtime ? 0 : 2) + (m.status === "hot" ? 0 : 1);
           const tierDiff = tier(a) - tier(b);
-          if (tierDiff !== 0) return tierDiff * dir;
+          if (tierDiff !== 0) return tierDiff;
           return (b.runs7d - a.runs7d) * dir;
         }
       }

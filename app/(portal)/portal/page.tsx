@@ -316,9 +316,9 @@ function StarredCapabilities() {
           )}
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
         {starred.map((model) => (
-          <ModelCard key={model.id} model={model} />
+          <ModelCard key={model.id} model={model} hideNewBadge />
         ))}
       </div>
     </div>

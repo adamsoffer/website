@@ -12,11 +12,18 @@ import { generateCardBackground } from "@/lib/portal/generate-card-visual";
 import StarButton from "@/components/portal/StarButton";
 import type { Model } from "@/lib/portal/types";
 
-export default function ModelCard({ model }: { model: Model }) {
+export default function ModelCard({
+  model,
+  hideNewBadge = false,
+}: {
+  model: Model;
+  /** Starred/recently-viewed contexts already imply discovery — the NEW badge reads as noise there. */
+  hideNewBadge?: boolean;
+}) {
   const Icon = getModelIcon(model.category);
   const providerSlug = model.provider.toLowerCase().replace(/\s+/g, "-");
   const isWarm = model.status === "hot";
-  const isNew = isModelNew(model);
+  const isNew = isModelNew(model) && !hideNewBadge;
 
   return (
     <Link
