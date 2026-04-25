@@ -19,7 +19,7 @@ export function SectionRow({
     <section className="grid grid-cols-1 gap-y-4 py-6 md:grid-cols-3 md:gap-x-8 md:py-8">
       <div className="md:col-span-1">
         <h2 className="text-base font-medium text-white">{title}</h2>
-        <p className="mt-1.5 text-sm leading-relaxed text-white/60">
+        <p className="mt-1.5 text-sm leading-relaxed text-fg-muted">
           {description}
         </p>
       </div>
@@ -38,7 +38,7 @@ export function FieldLabel({
   return (
     <label
       htmlFor={htmlFor}
-      className="mb-1.5 block text-xs font-medium text-white/50"
+      className="mb-1.5 block text-xs font-medium text-fg-faint"
     >
       {children}
     </label>

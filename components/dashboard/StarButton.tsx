@@ -32,14 +32,15 @@ export default function StarButton({
         onClick={handleClick}
         aria-pressed={starred}
         aria-label={starred ? "Unstar capability" : "Star capability"}
-        className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs transition-colors focus:outline-none sm:px-3 ${
+        className={`inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-bright/40 ${
           starred
             ? "border-warm/30 bg-warm-subtle text-warm"
-            : "border-white/[0.08] text-white/40 hover:bg-white/[0.04]"
+            : "border-subtle text-fg-strong hover:border-strong hover:bg-white/[0.04] hover:text-white"
         } ${className}`}
       >
         <Star
-          className={`h-3.5 w-3.5 ${starred ? "fill-warm" : ""}`}
+          className={`h-3.5 w-3.5 shrink-0 ${starred ? "fill-warm" : ""}`}
+          aria-hidden="true"
         />
         <span className="hidden sm:inline">
           {starred ? "Starred" : "Star"}
@@ -62,7 +63,7 @@ export default function StarButton({
     >
       <Star
         className={`h-3 w-3 transition-colors ${
-          starred ? "fill-warm text-warm" : "text-white/70"
+          starred ? "fill-warm text-warm" : "text-fg-strong"
         }`}
       />
     </button>

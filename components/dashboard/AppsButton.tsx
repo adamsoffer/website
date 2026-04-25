@@ -79,7 +79,7 @@ function AppsDropdownContent({ onClose }: { onClose: () => void }) {
   ];
 
   return (
-    <div className="w-72 overflow-hidden rounded-2xl border border-white/10 bg-dark/95 shadow-2xl shadow-black/40 backdrop-blur-xl">
+    <div className="w-72 overflow-hidden rounded-xl border border-hairline bg-dark-card backdrop-blur-xl">
       <div className="p-1.5">
         {apps.map((app) => {
           const Tag = app.external ? "a" : Link;
@@ -107,12 +107,12 @@ function AppsDropdownContent({ onClose }: { onClose: () => void }) {
                   </span>
                   {app.badge && <Badge variant="neutral">{app.badge}</Badge>}
                 </div>
-                <span className="text-[11px] text-white/50">
+                <span className="text-[11px] text-fg-faint">
                   {app.subtitle}
                 </span>
               </div>
               {app.external && (
-                <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-white/20 transition-colors group-hover:text-white/40" />
+                <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-fg-disabled transition-colors group-hover:text-fg-label" />
               )}
             </Tag>
           );

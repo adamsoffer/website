@@ -21,10 +21,12 @@ import Button from "@/components/ui/Button";
 import SearchInput from "@/components/ui/SearchInput";
 import Drawer from "@/components/ui/Drawer";
 import Select from "@/components/ui/Select";
-import { getModelIcon, formatRuns, formatPrice } from "@/lib/dashboard/utils";
+import { getModelIcon, formatPrice } from "@/lib/dashboard/utils";
 import { useStarredModels } from "@/lib/dashboard/useStarredModels";
-import DashboardFooter from "@/components/dashboard/DashboardFooter";
 import ModelCard from "@/components/dashboard/ModelCard";
+import StatusDot from "@/components/dashboard/StatusDot";
+import TabStrip from "@/components/dashboard/TabStrip";
+import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
 import type { Model, ModelCategory } from "@/lib/dashboard/types";
 
 const VALID_CATEGORIES: ModelCategory[] = [
@@ -70,10 +72,7 @@ function StatusBadge({ status }: { status: "hot" | "cold" }) {
   if (status === "hot") {
     return (
       <span className="inline-flex items-center gap-1.5 rounded-full bg-warm-subtle px-2 py-0.5 text-[11px] font-medium text-warm">
-        <span className="relative flex h-1.5 w-1.5">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-warm opacity-75" />
-          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-warm" />
-        </span>
+        <StatusDot tone="warm" />
         Warm
       </span>
     );
@@ -95,21 +94,26 @@ function ExploreEmptyState({
 }) {
   return (
     <div className="flex flex-col items-center py-24 text-center">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.02]">
-        <Search className="h-5 w-5 text-white/30" />
+      {/* Geometric placeholder — three concentric squares riffing on the
+          Livepeer symbol's grid construction. Quiet brand reminder. */}
+      <div className="relative flex h-20 w-20 items-center justify-center" aria-hidden="true">
+        <span className="absolute inset-0 rounded-2xl border border-hairline" />
+        <span className="absolute inset-2 rounded-xl border border-subtle" />
+        <span className="absolute inset-4 rounded-lg border border-strong" />
+        <Search className="relative h-5 w-5 text-fg-faint" />
       </div>
-      <h3 className="mt-6 text-xl font-semibold tracking-tight text-white">
+      <h3 className="mt-6 text-xl font-semibold tracking-tight text-white text-balance">
         No capabilities match your filters
       </h3>
-      <p className="mt-2 max-w-sm text-sm text-white/50">
-        Try loosening your filters — the network is open.
+      <p className="mt-2 max-w-sm text-sm text-fg-faint">
+        Try loosening your filters or browse everything available on the network.
       </p>
       <div className="mt-6 flex flex-col items-center gap-3">
         <Button onClick={onClearFilters} variant="secondary" size="sm">
           Clear filters
         </Button>
-        <div className="font-mono text-xs">
-          <span className="text-white/40">Missing something? </span>
+        <div className="text-xs">
+          <span className="text-fg-label">Missing something? </span>
           <a
             href="https://docs.livepeer.org"
             target="_blank"
@@ -132,7 +136,7 @@ function ModelListItem({ model }: { model: Model }) {
   return (
     <Link
       href={`/dashboard/models/${model.id}`}
-      className="group flex w-full items-center gap-4 border-b border-white/[0.04] px-5 py-4 text-left transition-colors hover:bg-dark-surface"
+      className="group flex w-full items-center gap-4 border-b border-hairline px-5 py-4 text-left transition-colors hover:bg-dark-surface"
     >
       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/[0.06] transition-colors group-hover:bg-white/[0.08]">
         {model.coverImage ? (
@@ -142,26 +146,26 @@ function ModelListItem({ model }: { model: Model }) {
             className="h-full w-full rounded-xl object-cover"
           />
         ) : (
-          <Icon className="h-5 w-5 text-white/40" />
+          <Icon className="h-5 w-5 text-fg-label" />
         )}
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className="text-[15px] font-semibold text-white group-hover:text-green-bright transition-colors">
+        <p className="text-[15px] font-medium text-white">
           {model.name}
           {model.precision && (
-            <span className="ml-1.5 rounded bg-white/[0.06] px-1.5 py-0.5 text-[11px] font-normal text-white/50">
+            <span className="ml-1.5 rounded bg-white/[0.06] px-1.5 py-0.5 text-[11px] font-normal text-fg-faint">
               {model.precision}
             </span>
           )}
         </p>
-        <p className="text-xs text-white/50 truncate">
+        <p className="text-xs text-fg-faint truncate">
           {model.provider}
         </p>
       </div>
 
       <div className="hidden items-center gap-2 sm:flex">
-        <span className="inline-flex items-center gap-1.5 rounded-md bg-white/[0.05] px-2.5 py-1 text-xs text-white/50">
+        <span className="inline-flex items-center gap-1.5 rounded-md bg-white/[0.05] px-2.5 py-1 text-xs text-fg-faint">
           <span className="h-1.5 w-1.5 rounded-full bg-white/30" />
           {model.category}
         </span>
@@ -169,10 +173,7 @@ function ModelListItem({ model }: { model: Model }) {
       </div>
 
       <div className="w-40 shrink-0 text-right">
-        <p className="font-mono text-xs font-medium text-white/60">{formatPrice(model)}</p>
-        <p className="font-mono text-[11px] text-white/40">
-          {formatRuns(model.runs7d)} runs
-        </p>
+        <p className="text-xs font-medium text-fg-muted">{formatPrice(model)}</p>
       </div>
     </Link>
   );
@@ -224,14 +225,14 @@ function PriceRangeFilter({
   return (
     <div>
       <div className="mb-2 flex items-center justify-between px-3">
-        <p className="text-xs font-medium uppercase tracking-wider text-white/30">
+        <p className="text-xs font-medium uppercase tracking-wider text-fg-disabled">
           Price Range
         </p>
         {isFiltered && (
           <button
             type="button"
             onClick={() => onChange(0, 100)}
-            className="flex items-center gap-1 text-[11px] text-white/50 transition-colors hover:text-white/60"
+            className="flex items-center gap-1 text-[11px] text-fg-faint transition-colors hover:text-fg-muted"
           >
             <X className="h-3 w-3" />
             Clear
@@ -251,8 +252,8 @@ function PriceRangeFilter({
               style={{
                 height: `${height}%`,
                 backgroundColor: active
-                  ? "rgba(64, 191, 134, 0.5)"
-                  : "rgba(255, 255, 255, 0.06)",
+                  ? "rgb(64, 191, 134)"
+                  : "rgba(255, 255, 255, 0.12)",
               }}
             />
           );
@@ -293,10 +294,13 @@ function PriceRangeFilter({
           style={{ zIndex: 3 }}
         />
       </div>
-      <div className="flex justify-between text-[11px] text-white/50">
+      <div className="flex justify-between text-[11px] text-fg-faint">
         <span>${minPrice.toFixed(3)}</span>
         <span>${maxPriceValue.toFixed(3)}</span>
       </div>
+      <p className="mt-2 text-[10px] text-fg-disabled">
+        List price per model unit (request, minute, or token). See each card for the exact unit.
+      </p>
       </div>
     </div>
   );
@@ -399,189 +403,47 @@ function ExplorePageInner() {
       : []),
   ];
 
+  const ALL_CATEGORIES = [...VIDEO_CATEGORIES, ...OTHER_CATEGORIES];
+
   return (
-    <main id="main-content" className="flex flex-1 flex-col">
-      <div className="flex flex-1 min-h-[calc(100vh-3rem-2.75rem)]">
-        {/* Filter sidebar */}
-        <div className="hidden w-[260px] flex-shrink-0 self-stretch border-r border-white/10 bg-shell lg:block">
-        <div className="sticky top-12 max-h-[calc(100vh-3rem)] overflow-y-auto space-y-4 px-5 pt-6 pb-5">
-          {/* Source filter */}
-          <div>
-            {/* Capability type */}
-            <p className="mb-1.5 px-3 text-xs font-medium uppercase tracking-wider text-white/50">
-              Tasks
-            </p>
-            <div className="space-y-1">
-              <button
-                onClick={() => setCategory(null)}
-                className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
-                  !category
-                    ? "bg-white/[0.08] font-medium text-white"
-                    : "text-white/50 hover:bg-white/[0.04] hover:text-white/70"
-                }`}
-              >
-                All
-              </button>
+    <main id="main-content" className="flex flex-1 flex-col bg-dark">
+      <div className="mx-auto w-full max-w-7xl px-5 pt-6 pb-5 lg:px-6 lg:pt-10">
+        <DashboardPageHeader
+          bordered={false}
+          title="Capabilities"
+          description="Models, services, and pipelines for real-time AI video inference on the open network."
+          actions={
+            <span className="hidden text-[12px] tabular-nums text-fg-faint sm:inline">
+              {MODELS.length} capabilities
+            </span>
+          }
+        />
+      </div>
 
-              <div className="my-1.5 h-px bg-white/[0.08]" />
-
-              {VIDEO_CATEGORIES.map(({ label: cat, icon: CatIcon }) => (
-                <button
-                  key={cat}
-                  onClick={() => setCategory(category === cat ? null : cat)}
-                  className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
-                    category === cat
-                      ? "bg-white/[0.08] font-medium text-white"
-                      : "text-white/50 hover:bg-white/[0.04] hover:text-white/70"
-                  }`}
-                >
-                  <CatIcon className="h-3.5 w-3.5" />
-                  {cat}
-                </button>
-              ))}
-
-              <div className="my-1.5 h-px bg-white/[0.08]" />
-
-              {OTHER_CATEGORIES.map(({ label: cat, icon: CatIcon }) => (
-                <button
-                  key={cat}
-                  onClick={() => setCategory(category === cat ? null : cat)}
-                  className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
-                    category === cat
-                      ? "bg-white/[0.08] font-medium text-white"
-                      : "text-white/50 hover:bg-white/[0.04] hover:text-white/70"
-                  }`}
-                >
-                  <CatIcon className="h-3.5 w-3.5" />
-                  {cat}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="h-px bg-white/[0.08]" />
-
-          {/* Availability */}
-          <div>
-            <p className="mb-1.5 px-3 text-xs font-medium uppercase tracking-wider text-white/50">
-              Availability
-            </p>
-            <div className="flex gap-1.5">
-              <button
-                onClick={() => setAvailabilityFilter(availabilityFilter === "warm" ? "all" : "warm")}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-[13px] transition-colors ${
-                  availabilityFilter === "warm"
-                    ? "bg-warm-subtle font-medium text-warm"
-                    : "text-white/50 hover:bg-white/[0.04] hover:text-white/70"
-                }`}
-              >
-                <Flame className="h-3 w-3" />
-                Warm
-              </button>
-              <button
-                onClick={() => setAvailabilityFilter(availabilityFilter === "cold" ? "all" : "cold")}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-[13px] transition-colors ${
-                  availabilityFilter === "cold"
-                    ? "bg-blue/10 font-medium text-blue-bright"
-                    : "text-white/50 hover:bg-white/[0.04] hover:text-white/70"
-                }`}
-              >
-                <Snowflake className="h-3 w-3" />
-                Cold
-              </button>
-            </div>
-          </div>
-
-          <div className="h-px bg-white/[0.08]" />
-
-          {/* Realtime — capability filter, Livepeer moat */}
-          <div>
-            <p className="mb-1.5 px-3 text-xs font-medium uppercase tracking-wider text-white/50">
-              Realtime
-            </p>
-            <button
-              onClick={() => setRealtimeOnly(!realtimeOnly)}
-              className={`flex w-full items-center gap-1.5 rounded-lg px-3 py-2 text-[13px] transition-colors ${
-                realtimeOnly
-                  ? "bg-green-bright/10 font-medium text-green-bright"
-                  : "text-white/50 hover:bg-white/[0.04] hover:text-white/70"
-              }`}
-            >
-              <Zap
-                className="h-3 w-3"
-                fill={realtimeOnly ? "currentColor" : "none"}
-              />
-              Realtime only
-            </button>
-          </div>
-
-          <div className="h-px bg-white/[0.08]" />
-
-          {/* Starred */}
-          <div>
-            <p className="mb-1.5 px-3 text-xs font-medium uppercase tracking-wider text-white/50">
-              Starred
-            </p>
-            <button
-              onClick={() => setFavoritesOnly(!favoritesOnly)}
-              disabled={starredIds.length === 0}
-              className={`flex w-full items-center gap-1.5 rounded-lg px-3 py-2 text-[13px] transition-colors ${
-                favoritesOnly
-                  ? "bg-warm-subtle font-medium text-warm"
-                  : "text-white/50 hover:bg-white/[0.04] hover:text-white/70 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-white/50"
-              }`}
-            >
-              <Star
-                className={`h-3 w-3 ${favoritesOnly ? "fill-warm" : ""}`}
-              />
-              Starred only
-              {starredIds.length > 0 && (
-                <span
-                  className={`ml-auto font-mono text-[11px] ${
-                    favoritesOnly ? "text-warm/70" : "text-white/30"
-                  }`}
-                >
-                  {starredIds.length}
-                </span>
-              )}
-            </button>
-          </div>
-
-          <div className="h-px bg-white/[0.08]" />
-
-          <PriceRangeFilter
-            min={priceMin}
-            max={priceMax}
-            onChange={(min, max) => { setPriceMin(min); setPriceMax(max); }}
-            models={MODELS}
+      {/* Category pill row — primary filter, horizontal scroll on overflow */}
+      <div className="border-b border-hairline">
+        <div className="mx-auto w-full max-w-7xl px-5 lg:px-6">
+          <TabStrip
+            tabs={[
+              { key: "all" as const, label: "All" },
+              ...ALL_CATEGORIES.map((c) => ({
+                key: c.label,
+                label: c.label,
+                icon: c.icon,
+              })),
+            ]}
+            active={category ?? "all"}
+            onChange={(key) => setCategory(key === "all" ? null : (key as ModelCategory))}
+            layoutId="explore-categories"
+            ariaLabel="Capability category"
           />
-
-          {activeFilters.length > 0 && (
-            <>
-              <div className="h-px bg-white/[0.08]" />
-              <button
-                onClick={() => {
-                  setCategory(null);
-                  setAvailabilityFilter("all");
-                  setFavoritesOnly(false);
-                  setRealtimeOnly(false);
-                  setPriceMin(0);
-                  setPriceMax(100);
-                }}
-                className="text-xs text-white/50 hover:text-white/60"
-              >
-                Clear all filters
-              </button>
-            </>
-          )}
         </div>
-        </div>
+      </div>
 
-        {/* Content + Footer */}
-        <div className="flex min-w-0 flex-1 flex-col bg-dark">
-          {/* Toolbar — the page header is intentionally omitted; the active nav tab
-              + breadcrumb already establish "Explore" context on both breakpoints */}
-          <div className="sticky top-16 lg:top-12 z-30 flex flex-col gap-2.5 border-b border-white/10 bg-dark-surface/95 backdrop-blur-xl px-4 py-2 lg:flex-row lg:items-center lg:gap-3 lg:px-5 lg:py-2">
+      {/* Content + Footer — single column now that the secondary sidebar is gone */}
+      <div className="flex min-w-0 flex-1 flex-col">
+        {/* Toolbar */}
+          <div className="sticky top-0 z-20 flex flex-col gap-2.5 border-b border-hairline bg-dark px-4 py-2 lg:flex-row lg:items-center lg:gap-3 lg:px-5 lg:py-2">
             {/* Search — full-width on mobile, capped on desktop */}
             <SearchInput
               value={search}
@@ -599,7 +461,7 @@ function ExplorePageInner() {
                   <button
                     key={f.label}
                     onClick={f.onClear}
-                    className="inline-flex items-center gap-1 rounded-full bg-white/[0.06] px-2.5 py-1 text-xs text-white/60 transition-colors hover:bg-white/[0.1] hover:text-white"
+                    className="inline-flex items-center gap-1 rounded-full bg-white/[0.06] px-2.5 py-1 text-xs text-fg-muted transition-colors hover:bg-white/[0.1] hover:text-white"
                   >
                     {f.label}
                     <X className="h-3 w-3" />
@@ -615,12 +477,12 @@ function ExplorePageInner() {
                 type="button"
                 onClick={() => setFilterDrawerOpen(true)}
                 aria-label="Filters"
-                className="flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 text-xs text-white/70 transition-colors hover:border-white/20 hover:bg-white/[0.05] hover:text-white sm:px-3 lg:hidden"
+                className="flex h-9 lg:h-8 shrink-0 items-center gap-1.5 rounded-lg border border-subtle bg-white/[0.03] px-2.5 text-xs text-fg-strong transition-colors hover:border-strong hover:bg-white/[0.05] hover:text-white sm:px-3"
               >
                 <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
                 <span className="hidden sm:inline">Filters</span>
                 {activeFilters.length > 0 && (
-                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-green-bright/15 px-1 font-mono text-[11px] font-medium text-green-bright">
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-green-bright/15 px-1 text-[11px] font-medium text-green-bright">
                     {activeFilters.length}
                   </span>
                 )}
@@ -646,18 +508,18 @@ function ExplorePageInner() {
                       : "Sort direction: ascending, tap to descend"
                   }
                   aria-pressed={sortDir === "desc"}
-                  className="flex h-9 w-9 lg:h-8 lg:w-8 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] transition-colors hover:border-white/20 hover:bg-white/[0.05] focus:outline-none"
+                  className="flex h-9 w-9 lg:h-8 lg:w-8 shrink-0 items-center justify-center rounded-lg border border-subtle bg-white/[0.03] transition-colors hover:border-strong hover:bg-white/[0.05] focus:outline-none"
                 >
                   {sortDir === "desc" ? (
-                    <ArrowDown className="h-4 w-4 text-white/70" />
+                    <ArrowDown className="h-4 w-4 text-fg-strong" />
                   ) : (
-                    <ArrowUp className="h-4 w-4 text-white/70" />
+                    <ArrowUp className="h-4 w-4 text-fg-strong" />
                   )}
                 </button>
               </div>
 
               {/* View toggle — display preference, anchored last */}
-              <div className="flex shrink-0 rounded-lg border border-white/[0.08] bg-white/[0.03]">
+              <div className="flex shrink-0 rounded-lg border border-subtle bg-white/[0.03]">
                 <button
                   onClick={() => setView("grid")}
                   aria-label="Grid view"
@@ -665,7 +527,7 @@ function ExplorePageInner() {
                   className={`flex h-9 w-9 lg:h-8 lg:w-8 items-center justify-center rounded-l-lg transition-colors focus:outline-none ${
                     view === "grid"
                       ? "bg-white/[0.08] text-white"
-                      : "text-white/60 hover:text-white"
+                      : "text-fg-muted hover:text-white"
                   }`}
                 >
                   <LayoutGrid className="h-3.5 w-3.5" />
@@ -677,7 +539,7 @@ function ExplorePageInner() {
                   className={`flex h-9 w-9 lg:h-8 lg:w-8 items-center justify-center rounded-r-lg transition-colors focus:outline-none ${
                     view === "list"
                       ? "bg-white/[0.08] text-white"
-                      : "text-white/60 hover:text-white"
+                      : "text-fg-muted hover:text-white"
                   }`}
                 >
                   <List className="h-4 w-4" />
@@ -708,7 +570,7 @@ function ExplorePageInner() {
                 ))}
               </div>
             ) : (
-              <div className="overflow-hidden rounded-xl border border-white/[0.08] bg-dark-surface">
+              <div className="overflow-hidden rounded-xl border border-subtle bg-dark-surface">
                 {filtered.map((model) => (
                   <ModelListItem key={model.id} model={model} />
                 ))}
@@ -716,13 +578,13 @@ function ExplorePageInner() {
             )}
           </div>
           {filtered.length > 0 && (
-            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 px-6 py-3 font-mono text-xs">
-              <span className="text-white/65">
+            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 px-6 py-3 text-xs">
+              <span className="text-fg-muted">
                 Showing {filtered.length}{" "}
                 {filtered.length === 1 ? "capability" : "capabilities"}
               </span>
-              <span className="text-white/30" aria-hidden="true">·</span>
-              <span className="text-white/55">Missing something?</span>
+              <span className="text-fg-disabled" aria-hidden="true">·</span>
+              <span className="text-fg-faint">Missing something?</span>
               <a
                 href="https://docs.livepeer.org"
                 target="_blank"
@@ -733,11 +595,11 @@ function ExplorePageInner() {
               </a>
             </div>
           )}
-          <DashboardFooter />
-        </div>
       </div>
 
-      {/* Mobile filter drawer */}
+      {/* Filter drawer — Availability / Realtime / Starred / Price.
+          Tasks (categories) live in the horizontal pill row above; only secondary
+          filters live here. Used at all breakpoints. */}
       <Drawer
         open={filterDrawerOpen}
         onClose={() => setFilterDrawerOpen(false)}
@@ -745,64 +607,9 @@ function ExplorePageInner() {
         ariaLabel="Filters"
       >
         <div className="space-y-4 px-5 py-4">
-          {/* Capability type */}
-          <div>
-            <p className="mb-1.5 px-3 text-xs font-medium uppercase tracking-wider text-white/60">
-              Tasks
-            </p>
-            <div className="space-y-0.5">
-              <button
-                onClick={() => { setCategory(null); setFilterDrawerOpen(false); }}
-                className={`flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-[15px] transition-colors ${
-                  !category
-                    ? "bg-white/[0.08] font-medium text-white"
-                    : "text-white/70 hover:bg-white/[0.06] hover:text-white"
-                }`}
-              >
-                All
-              </button>
-
-              <div className="my-1.5 h-px bg-white/[0.06]" />
-
-              {VIDEO_CATEGORIES.map(({ label: cat, icon: CatIcon }) => (
-                <button
-                  key={cat}
-                  onClick={() => { setCategory(category === cat ? null : cat); setFilterDrawerOpen(false); }}
-                  className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-[15px] transition-colors ${
-                    category === cat
-                      ? "bg-white/[0.08] font-medium text-white"
-                      : "text-white/70 hover:bg-white/[0.06] hover:text-white"
-                  }`}
-                >
-                  <CatIcon className="h-4 w-4 text-white/40" aria-hidden="true" />
-                  {cat}
-                </button>
-              ))}
-
-              <div className="my-1.5 h-px bg-white/[0.06]" />
-
-              {OTHER_CATEGORIES.map(({ label: cat, icon: CatIcon }) => (
-                <button
-                  key={cat}
-                  onClick={() => { setCategory(category === cat ? null : cat); setFilterDrawerOpen(false); }}
-                  className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-[15px] transition-colors ${
-                    category === cat
-                      ? "bg-white/[0.08] font-medium text-white"
-                      : "text-white/70 hover:bg-white/[0.06] hover:text-white"
-                  }`}
-                >
-                  <CatIcon className="h-4 w-4 text-white/40" aria-hidden="true" />
-                  {cat}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="h-px bg-white/[0.06]" />
-
           {/* Availability */}
           <div>
-            <p className="mb-1.5 px-3 text-xs font-medium uppercase tracking-wider text-white/60">
+            <p className="mb-1.5 px-3 text-xs font-medium uppercase tracking-wider text-fg-muted">
               Availability
             </p>
             <div className="flex gap-2">
@@ -811,7 +618,7 @@ function ExplorePageInner() {
                 className={`flex items-center gap-1.5 rounded-lg px-3 py-2.5 text-sm transition-colors ${
                   availabilityFilter === "warm"
                     ? "bg-warm-subtle font-medium text-warm"
-                    : "text-white/70 hover:bg-white/[0.06]"
+                    : "text-fg-strong hover:bg-white/[0.06]"
                 }`}
               >
                 <Flame className="h-3.5 w-3.5" />
@@ -822,7 +629,7 @@ function ExplorePageInner() {
                 className={`flex items-center gap-1.5 rounded-lg px-3 py-2.5 text-sm transition-colors ${
                   availabilityFilter === "cold"
                     ? "bg-blue/10 font-medium text-blue-bright"
-                    : "text-white/70 hover:bg-white/[0.06]"
+                    : "text-fg-strong hover:bg-white/[0.06]"
                 }`}
               >
                 <Snowflake className="h-3.5 w-3.5" />
@@ -835,7 +642,7 @@ function ExplorePageInner() {
 
           {/* Realtime — capability filter */}
           <div>
-            <p className="mb-1.5 px-3 text-xs font-medium uppercase tracking-wider text-white/60">
+            <p className="mb-1.5 px-3 text-xs font-medium uppercase tracking-wider text-fg-muted">
               Realtime
             </p>
             <button
@@ -843,7 +650,7 @@ function ExplorePageInner() {
               className={`flex w-full items-center gap-1.5 rounded-lg px-3 py-2.5 text-sm transition-colors ${
                 realtimeOnly
                   ? "bg-green-bright/10 font-medium text-green-bright"
-                  : "text-white/70 hover:bg-white/[0.06]"
+                  : "text-fg-strong hover:bg-white/[0.06]"
               }`}
             >
               <Zap
@@ -858,7 +665,7 @@ function ExplorePageInner() {
 
           {/* Starred */}
           <div>
-            <p className="mb-1.5 px-3 text-xs font-medium uppercase tracking-wider text-white/60">
+            <p className="mb-1.5 px-3 text-xs font-medium uppercase tracking-wider text-fg-muted">
               Starred
             </p>
             <button
@@ -867,13 +674,13 @@ function ExplorePageInner() {
               className={`flex w-full items-center gap-1.5 rounded-lg px-3 py-2.5 text-sm transition-colors ${
                 favoritesOnly
                   ? "bg-warm-subtle font-medium text-warm"
-                  : "text-white/70 hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-40"
+                  : "text-fg-strong hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-40"
               }`}
             >
               <Star className={`h-3.5 w-3.5 ${favoritesOnly ? "fill-warm" : ""}`} />
               Starred only
               {starredIds.length > 0 && (
-                <span className={`ml-auto font-mono text-[11px] ${favoritesOnly ? "text-warm/70" : "text-white/40"}`}>
+                <span className={`ml-auto text-[11px] ${favoritesOnly ? "text-warm/70" : "text-fg-label"}`}>
                   {starredIds.length}
                 </span>
               )}
@@ -892,7 +699,7 @@ function ExplorePageInner() {
         </div>
 
         {/* Sticky footer — always visible, no layout shift */}
-        <div className="sticky bottom-0 flex items-center justify-between gap-3 border-t border-white/[0.06] bg-dark px-5 py-3">
+        <div className="sticky bottom-0 flex items-center justify-between gap-3 border-t border-hairline bg-dark px-5 py-3">
           <button
             type="button"
             onClick={() => {
@@ -904,7 +711,7 @@ function ExplorePageInner() {
               setPriceMax(100);
             }}
             disabled={activeFilters.length === 0}
-            className="text-sm text-white/60 underline decoration-white/30 underline-offset-2 transition-colors hover:text-white disabled:no-underline disabled:text-white/30 disabled:cursor-default"
+            className="text-sm text-fg-muted underline decoration-white/30 underline-offset-2 transition-colors hover:text-white disabled:no-underline disabled:text-fg-disabled disabled:cursor-default"
           >
             Clear all
           </button>

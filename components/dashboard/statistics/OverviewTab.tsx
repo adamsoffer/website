@@ -69,19 +69,19 @@ function TopPipelinesGrid() {
   const totalRuns = MODELS.reduce((s, m) => s + m.runs7d, 0);
 
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-dark-surface">
-      <div className="border-b border-white/[0.06] px-5 py-3">
-        <h3 className="text-sm font-medium text-white/60">Top Pipelines</h3>
-        <p className="text-[11px] text-white/40">By request volume (last 3 months)</p>
+    <div className="rounded-xl border border-hairline bg-dark-surface">
+      <div className="border-b border-hairline px-5 py-3">
+        <h3 className="text-sm font-medium text-fg-muted">Top Pipelines</h3>
+        <p className="text-[11px] text-fg-label">By request volume (last 3 months)</p>
       </div>
 
       {/* Column headers */}
-      <div className="flex items-center gap-3 border-b border-white/[0.06] px-5 py-2">
+      <div className="flex items-center gap-3 border-b border-hairline px-5 py-2">
         <span className="w-5" />
         <span className="w-7" />
-        <span className="min-w-0 flex-1 text-[11px] font-medium uppercase tracking-wider text-white/30">Pipeline</span>
-        <span className="hidden w-12 shrink-0 text-right text-[11px] font-medium uppercase tracking-wider text-white/30 sm:block">Share</span>
-        <span className="w-16 shrink-0 text-right text-[11px] font-medium uppercase tracking-wider text-white/30">Requests</span>
+        <span className="min-w-0 flex-1 text-[11px] font-medium uppercase tracking-wider text-fg-disabled">Pipeline</span>
+        <span className="hidden w-12 shrink-0 text-right text-[11px] font-medium uppercase tracking-wider text-fg-disabled sm:block">Share</span>
+        <span className="w-16 shrink-0 text-right text-[11px] font-medium uppercase tracking-wider text-fg-disabled">Requests</span>
       </div>
 
       <div className="divide-y divide-white/[0.04]">
@@ -95,7 +95,7 @@ function TopPipelinesGrid() {
               href={`/dashboard/models/${model.id}`}
               className="group flex items-center gap-3 px-5 py-3 transition-colors hover:bg-white/[0.03]"
             >
-              <span className="w-5 text-right font-mono text-[11px] text-white/25">
+              <span className="w-5 text-right text-[11px] text-fg-disabled">
                 {i + 1}
               </span>
               <div
@@ -104,13 +104,13 @@ function TopPipelinesGrid() {
               >
                 <Icon className="h-3.5 w-3.5" style={{ color }} />
               </div>
-              <p className="min-w-0 flex-1 truncate text-sm text-white/80 group-hover:text-white transition-colors">
+              <p className="min-w-0 flex-1 truncate text-sm text-fg-strong">
                 {model.name}
               </p>
-              <span className="hidden w-12 shrink-0 text-right font-mono text-[11px] text-white/50 sm:block">
+              <span className="hidden w-12 shrink-0 text-right text-[11px] text-fg-faint sm:block">
                 {pct}%
               </span>
-              <span className="w-16 shrink-0 text-right font-mono text-xs text-white/70">
+              <span className="w-16 shrink-0 text-right text-xs text-fg-strong">
                 {formatRuns(model.runs7d)}
               </span>
             </Link>
@@ -118,15 +118,15 @@ function TopPipelinesGrid() {
         })}
         {othersRuns > 0 && (
           <div className="flex items-center gap-3 px-5 py-3">
-            <span className="w-5 text-right font-mono text-[11px] text-white/40">+</span>
+            <span className="w-5 text-right text-[11px] text-fg-label">+</span>
             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white/[0.04]">
-              <span className="text-xs text-white/40">...</span>
+              <span className="text-xs text-fg-label">...</span>
             </div>
-            <p className="min-w-0 flex-1 text-sm text-white/60">Others</p>
-            <span className="hidden w-12 shrink-0 text-right font-mono text-[11px] text-white/40 sm:block">
+            <p className="min-w-0 flex-1 text-sm text-fg-muted">Others</p>
+            <span className="hidden w-12 shrink-0 text-right text-[11px] text-fg-label sm:block">
               {((othersRuns / totalRuns) * 100).toFixed(1)}%
             </span>
-            <span className="w-16 shrink-0 text-right font-mono text-xs text-white/60">
+            <span className="w-16 shrink-0 text-right text-xs text-fg-muted">
               {formatRuns(othersRuns)}
             </span>
           </div>
@@ -159,11 +159,11 @@ export default function OverviewTab() {
       {/* Header — hidden on mobile (dropdown nav already identifies the section) */}
       <div className="hidden lg:block">
         <h2 className="text-lg font-semibold text-white">Network Stats</h2>
-        <p className="mt-1 text-sm text-white/60">
+        <p className="mt-1 text-sm text-fg-muted">
           Network-wide request volumes, top APIs, and growth metrics for the Livepeer AI inference network.
         </p>
       </div>
-      <p className="text-sm text-white/60 lg:hidden">
+      <p className="text-sm text-fg-muted lg:hidden">
         Network-wide request volumes, top APIs, and growth metrics for the Livepeer AI inference network.
       </p>
 
@@ -175,19 +175,19 @@ export default function OverviewTab() {
       </div>
 
       {/* Total Requests section */}
-      <div className="rounded-xl border border-white/[0.06] bg-dark-surface p-5">
+      <div className="rounded-xl border border-hairline bg-dark-surface p-5">
         <div className="mb-1 flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-white/40">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-fg-label">
               Total Requests
             </p>
-            <p className="mt-1 font-mono text-3xl font-bold text-white">
+            <p className="mt-1 text-3xl font-semibold text-white">
               {(totalRequests / 1_000_000).toFixed(1)}M
             </p>
           </div>
           <PeriodToggle value={period} onChange={setPeriod} options={PERIOD_OPTIONS} />
         </div>
-        <p className="mt-1 text-sm text-white/60">
+        <p className="mt-1 text-sm text-fg-muted">
           Total inference requests across all APIs on the network.
         </p>
 
@@ -212,7 +212,9 @@ export default function OverviewTab() {
                   dataKey={api}
                   stackId="requests"
                   fill={API_COLORS[i]}
-                  radius={i === TOP_APIS.length - 1 ? [2, 2, 0, 0] : [0, 0, 0, 0]}
+                  radius={i === TOP_APIS.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
+                  animationDuration={600}
+                  animationEasing="ease-out"
                 />
               ))}
             </BarChart>
@@ -227,7 +229,7 @@ export default function OverviewTab() {
                 className="h-2 w-2 rounded-full"
                 style={{ backgroundColor: API_COLORS[i] }}
               />
-              <span className="text-[11px] text-white/50">{api}</span>
+              <span className="text-[11px] text-fg-faint">{api}</span>
             </div>
           ))}
         </div>

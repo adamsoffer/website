@@ -19,7 +19,7 @@ interface SearchResult {
 const SUGGESTIONS: SearchResult[] = [
   { title: "Generate a video", subtitle: "Text-to-video and image-to-video on the network", href: "/dashboard/explore" },
   { title: "Explore capabilities", subtitle: "Browse capabilities available on the network", href: "/dashboard/explore" },
-  { title: "Get your API key", subtitle: "Authenticate and start sending requests", href: "/dashboard/keys" },
+  { title: "Get your API key", subtitle: "Authenticate and start sending requests", href: "/dashboard/settings?tab=tokens" },
   { title: "Transcode a stream", subtitle: "Live transcoding on GPU infrastructure", href: "/dashboard/models/livepeer-transcode" },
 ];
 
@@ -38,7 +38,10 @@ const ALL_RESULTS: SearchResult[] = [
   { title: "Whisper v3 Large", subtitle: "Speech-to-text transcription", href: "/dashboard/models/whisper-v3" },
   { title: "Kokoro TTS", subtitle: "Text-to-speech synthesis", href: "/dashboard/models/kokoro-tts" },
   { title: "Home", subtitle: "Dashboard overview", href: "/dashboard" },
-  { title: "Billing", subtitle: "Manage billing and payments", href: "/dashboard/billing" },
+  { title: "API Tokens", subtitle: "Manage your API keys", href: "/dashboard/settings?tab=tokens" },
+  { title: "Billing", subtitle: "Manage billing and payments", href: "/dashboard/settings?tab=billing" },
+  { title: "Usage", subtitle: "Request volume and spend", href: "/dashboard/usage" },
+  { title: "Account", subtitle: "Profile and security", href: "/dashboard/settings?tab=account" },
   { title: "Settings", subtitle: "Account settings", href: "/dashboard/settings" },
 ];
 
@@ -144,8 +147,8 @@ export default function DashboardSearch({ mobile = false }: DashboardSearchProps
         aria-label="Search"
         className={
           mobile
-            ? "flex h-11 w-full items-center gap-2.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-4 text-sm text-white/40 transition-colors hover:border-white/20 hover:bg-white/[0.05] select-none"
-            : "flex items-center gap-2.5 rounded-lg border border-white/[0.12] bg-white/[0.03] px-3.5 py-1.5 text-sm text-white/40 transition-colors hover:border-white/20 hover:bg-white/[0.05] select-none min-w-[200px]"
+            ? "flex h-9 w-full items-center gap-2.5 rounded-lg border border-subtle bg-white/[0.03] px-3 text-sm text-fg-label transition-colors hover:border-strong hover:bg-white/[0.05] select-none"
+            : "flex items-center gap-2.5 rounded-lg border border-strong bg-white/[0.03] px-3.5 py-1.5 text-sm text-fg-label transition-colors hover:border-strong hover:bg-white/[0.05] select-none min-w-[200px]"
         }
       >
         <Search className="h-4 w-4 shrink-0" aria-hidden="true" />
@@ -159,7 +162,7 @@ export default function DashboardSearch({ mobile = false }: DashboardSearchProps
           {mobile ? "Search…" : "Search..."}
         </span>
         {!mobile && (
-          <kbd className="ml-auto rounded border border-white/10 bg-white/[0.04] px-1.5 py-0.5 font-mono text-[10px] text-white/40">
+          <kbd className="ml-auto rounded border border-subtle bg-white/[0.04] px-1.5 py-0.5 text-[10px] text-fg-label">
             ⌘K
           </kbd>
         )}
@@ -170,7 +173,7 @@ export default function DashboardSearch({ mobile = false }: DashboardSearchProps
         {/* Input */}
         <div className="flex items-center gap-3 px-5 py-4 sm:gap-4 sm:px-6 sm:py-5">
           <Search
-            className="h-5 w-5 shrink-0 text-white/50"
+            className="h-5 w-5 shrink-0 text-fg-faint"
             aria-hidden="true"
           />
           <input
@@ -181,13 +184,13 @@ export default function DashboardSearch({ mobile = false }: DashboardSearchProps
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="flex-1 bg-transparent text-base text-white placeholder:text-white/40 outline-none"
+            className="flex-1 bg-transparent text-base text-white placeholder:text-fg-label outline-none"
           />
           <button
             type="button"
             onClick={closeDialog}
             aria-label="Close search"
-            className="shrink-0 rounded-md border border-white/10 bg-white/[0.06] px-2.5 py-1 font-mono text-[11px] text-white/60 transition-colors hover:border-white/20 hover:bg-white/[0.1] hover:text-white"
+            className="shrink-0 rounded-md border border-subtle bg-white/[0.06] px-2.5 py-1 text-[11px] text-fg-muted transition-colors hover:border-strong hover:bg-white/[0.1] hover:text-white"
           >
             ESC
           </button>
@@ -198,20 +201,20 @@ export default function DashboardSearch({ mobile = false }: DashboardSearchProps
         {/* Results */}
         <div ref={listRef} className="max-h-[360px] overflow-y-auto py-3">
           {query.trim() === "" && (
-            <p className="px-6 pb-2 text-[11px] font-medium tracking-widest text-white/30 uppercase">
+            <p className="px-6 pb-2 text-[11px] font-medium tracking-widest text-fg-disabled uppercase">
               Suggestions
             </p>
           )}
 
           {results.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-2 py-14 text-center">
-              <p className="text-sm text-white/30">
+              <p className="text-sm text-fg-disabled">
                 No results for &ldquo;{query}&rdquo;
               </p>
-              <p className="text-xs text-white/20">
+              <p className="text-xs text-fg-disabled">
                 Try a capability name or keyword
               </p>
-              <Link href="/dashboard/explore" onClick={closeDialog} className="mt-1 text-xs text-green-bright/60 hover:text-green-bright transition-colors">
+              <Link href="/dashboard/explore" onClick={closeDialog} className="mt-1 text-xs text-green-bright/60 hover:text-white transition-colors">
                 Browse all capabilities →
               </Link>
             </div>
@@ -229,14 +232,14 @@ export default function DashboardSearch({ mobile = false }: DashboardSearchProps
               >
                 <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${
                   i === highlightedIndex
-                    ? "border-white/10 bg-white/[0.06]"
-                    : "border-white/[0.06] bg-white/[0.02]"
+                    ? "border-subtle bg-white/[0.06]"
+                    : "border-hairline bg-white/[0.02]"
                 }`}>
-                  <ArrowRight className={`h-4 w-4 ${i === highlightedIndex ? "text-white/60" : "text-white/20"}`} aria-hidden="true" />
+                  <ArrowRight className={`h-4 w-4 ${i === highlightedIndex ? "text-fg-muted" : "text-fg-disabled"}`} aria-hidden="true" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <span className="block truncate text-[15px] font-medium text-white">{result.title}</span>
-                  <span className="block truncate text-sm text-white/40">{result.subtitle}</span>
+                  <span className="block truncate text-sm text-fg-label">{result.subtitle}</span>
                 </div>
               </button>
             ))
@@ -246,7 +249,7 @@ export default function DashboardSearch({ mobile = false }: DashboardSearchProps
         <div className="h-px bg-white/[0.06]" />
 
         {/* Footer */}
-        <div className="px-6 py-4 text-center text-[12px] text-white/25">
+        <div className="px-6 py-4 text-center text-xs text-fg-disabled">
           Try{" "}
           <span className="text-green-bright/60">&ldquo;text-to-video&rdquo;</span>,{" "}
           <span className="text-green-bright/60">&ldquo;live transcoding&rdquo;</span>,{" "}

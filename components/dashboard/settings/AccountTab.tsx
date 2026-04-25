@@ -63,6 +63,7 @@ export default function AccountTab() {
   const { user, updateUser, disconnect } = useAuth();
   const router = useRouter();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleteConfirmEmail, setDeleteConfirmEmail] = useState("");
 
   // Local edit state
   const [emailDraft, setEmailDraft] = useState(user?.email ?? "");
@@ -132,18 +133,70 @@ export default function AccountTab() {
   };
 
   const handleDeleteAccount = () => {
+    if (deleteConfirmEmail.trim().toLowerCase() !== user.email.toLowerCase()) {
+      return;
+    }
     setShowDeleteDialog(false);
+    setDeleteConfirmEmail("");
     disconnect();
     router.replace("/dashboard/login");
   };
 
+  const closeDeleteDialog = () => {
+    setShowDeleteDialog(false);
+    setDeleteConfirmEmail("");
+  };
+
+  const canDelete =
+    deleteConfirmEmail.trim().toLowerCase() === user.email.toLowerCase();
+
   return (
     <div className="px-5 lg:px-6">
+      {/* Profile summary card — shown for both OAuth and email users so the top of the
+         Account tab looks the same regardless of how you signed up. Edit affordances
+         live below for email users; OAuth users get a "managed by {provider}" hint. */}
+      <div className="pt-6">
+        <div className="flex items-center gap-3 rounded-xl border border-hairline bg-dark-surface px-4 py-4">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-green-bright/15 text-sm font-semibold text-green-bright ring-1 ring-green-bright/25">
+            {user.avatarUrl ? (
+              <img
+                src={user.avatarUrl}
+                alt={`${user.name} avatar`}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              user.initials
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium text-white">
+              {user.name}
+            </p>
+            <p className="mt-0.5 truncate text-xs text-fg-faint">
+              {user.email}
+            </p>
+          </div>
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] font-medium text-fg-muted">
+            {user.provider === "github" ? (
+              <GitHubGlyph className="h-3 w-3" />
+            ) : user.provider === "google" ? (
+              <GoogleGlyph className="h-3 w-3" />
+            ) : null}
+            {providerInfo.name}
+          </span>
+        </div>
+        {isOAuth && (
+          <p className="mt-2 text-xs text-fg-faint">
+            Name and avatar come from your {providerInfo.name} profile. Update them in your {providerInfo.name} account settings.
+          </p>
+        )}
+      </div>
+
       <div className="divide-y divide-white/[0.06]">
         {/* Email — always editable */}
         <SectionRow
           title="Email"
-          description="Set or update the email address where you will receive notifications about your account."
+          description="Where we'll send account notifications."
         >
           <FieldLabel htmlFor="email">Email address</FieldLabel>
           <div className="flex flex-col gap-2 sm:flex-row">
@@ -152,59 +205,27 @@ export default function AccountTab() {
               type="email"
               value={emailDraft}
               onChange={(e) => setEmailDraft(e.target.value)}
-              className="w-full rounded-md border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-sm text-white transition-colors focus:border-white/20 focus:bg-white/[0.05] focus:outline-none sm:flex-1 sm:py-2"
+              className="w-full rounded-md border border-subtle bg-white/[0.03] px-3 py-2.5 text-sm text-white transition-colors focus:border-strong focus:bg-white/[0.05] focus:outline-none sm:flex-1 sm:py-2"
             />
             <button
               type="button"
               onClick={handleEmailSave}
               disabled={!emailDraft || emailDraft === user.email}
-              className="w-full rounded-md border border-white/[0.12] px-4 py-2.5 text-sm font-medium text-white/80 transition-colors hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto sm:shrink-0 sm:py-2"
+              className="w-full rounded-md border border-strong px-4 py-2.5 text-sm font-medium text-fg-strong transition-colors hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto sm:shrink-0 sm:py-2"
             >
               {savedFlash === "email" ? "Saved" : "Update"}
             </button>
           </div>
         </SectionRow>
 
-        {/* Profile — provider-aware */}
-        {isOAuth ? (
-          <SectionRow
-            title="Profile"
-            description={`Your name and avatar come from your ${providerInfo.name} profile. To update them, visit your ${providerInfo.name} account settings.`}
-          >
-            <div className="flex items-center gap-3 rounded-lg border border-white/[0.06] bg-dark-surface px-4 py-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-green-bright/15 text-sm font-semibold text-green-bright ring-1 ring-green-bright/25">
-                {user.avatarUrl ? (
-                  <img
-                    src={user.avatarUrl}
-                    alt={`${user.name} avatar`}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  user.initials
-                )}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-white">{user.name}</p>
-                <p className="mt-0.5 truncate text-xs text-white/40">
-                  {user.email}
-                </p>
-              </div>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] font-medium text-white/60">
-                {user.provider === "github" ? (
-                  <GitHubGlyph className="h-3 w-3" />
-                ) : (
-                  <GoogleGlyph className="h-3 w-3" />
-                )}
-                {providerInfo.name}
-              </span>
-            </div>
-          </SectionRow>
-        ) : (
+        {/* Edit fields — email users only. OAuth users manage name/avatar/password
+            via their provider; the summary card above is their read-only view. */}
+        {!isOAuth && (
           <>
             {/* Display name */}
             <SectionRow
               title="Display name"
-              description="The name shown on your profile and in the Developer Dashboard header."
+              description="The name shown on your profile and in the dashboard header."
             >
               <FieldLabel htmlFor="name">Name</FieldLabel>
               <div className="flex flex-col gap-2 sm:flex-row">
@@ -213,13 +234,13 @@ export default function AccountTab() {
                   type="text"
                   value={nameDraft}
                   onChange={(e) => setNameDraft(e.target.value)}
-                  className="w-full rounded-md border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-sm text-white transition-colors focus:border-white/20 focus:bg-white/[0.05] focus:outline-none sm:flex-1 sm:py-2"
+                  className="w-full rounded-md border border-subtle bg-white/[0.03] px-3 py-2.5 text-sm text-white transition-colors focus:border-strong focus:bg-white/[0.05] focus:outline-none sm:flex-1 sm:py-2"
                 />
                 <button
                   type="button"
                   onClick={handleNameSave}
                   disabled={!nameDraft || nameDraft === user.name}
-                  className="w-full rounded-md border border-white/[0.12] px-4 py-2.5 text-sm font-medium text-white/80 transition-colors hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto sm:shrink-0 sm:py-2"
+                  className="w-full rounded-md border border-strong px-4 py-2.5 text-sm font-medium text-fg-strong transition-colors hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto sm:shrink-0 sm:py-2"
                 >
                   {savedFlash === "name" ? "Saved" : "Update"}
                 </button>
@@ -229,7 +250,7 @@ export default function AccountTab() {
             {/* Avatar */}
             <SectionRow
               title="Avatar"
-              description="Click the avatar to upload a new image. PNG or JPG, max 2MB."
+              description="Click to upload. PNG or JPG, 2MB max."
             >
               <div className="flex h-full items-center gap-4 md:min-h-[4rem]">
                 <button
@@ -269,7 +290,7 @@ export default function AccountTab() {
                   <button
                     type="button"
                     onClick={handleAvatarRemove}
-                    className="text-sm text-white/50 transition-colors hover:text-white/80"
+                    className="text-sm text-fg-faint transition-colors hover:text-fg-strong"
                   >
                     Remove
                   </button>
@@ -283,7 +304,7 @@ export default function AccountTab() {
             {/* Password */}
             <SectionRow
               title="Password"
-              description="Change the password used to sign in to your account."
+              description="Change the password you use to sign in."
             >
               <div className="space-y-3">
                 <div>
@@ -294,7 +315,7 @@ export default function AccountTab() {
                     id="current-password"
                     type="password"
                     placeholder="••••••••"
-                    className="w-full rounded-md border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-white/30 transition-colors focus:border-white/20 focus:bg-white/[0.05] focus:outline-none sm:py-2"
+                    className="w-full rounded-md border border-subtle bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-fg-disabled transition-colors focus:border-strong focus:bg-white/[0.05] focus:outline-none sm:py-2"
                   />
                 </div>
                 <div>
@@ -303,14 +324,14 @@ export default function AccountTab() {
                     id="new-password"
                     type="password"
                     placeholder="••••••••"
-                    className="w-full rounded-md border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-white/30 transition-colors focus:border-white/20 focus:bg-white/[0.05] focus:outline-none sm:py-2"
+                    className="w-full rounded-md border border-subtle bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-fg-disabled transition-colors focus:border-strong focus:bg-white/[0.05] focus:outline-none sm:py-2"
                   />
                 </div>
                 <div className="flex justify-end pt-1">
                   <button
                     type="button"
                     onClick={handlePasswordSave}
-                    className="rounded-md border border-white/[0.12] px-3.5 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/[0.06] hover:text-white"
+                    className="rounded-md border border-strong px-3.5 py-2 text-sm font-medium text-fg-strong transition-colors hover:bg-white/[0.06] hover:text-white"
                   >
                     {savedFlash === "password" ? "Saved" : "Change password"}
                   </button>
@@ -323,12 +344,12 @@ export default function AccountTab() {
 
       {/* Danger zone — intentionally outside the divide-y for emphasis */}
       <section className="mt-12 mb-10">
-        <h2 className="text-base font-medium text-white/55">Danger zone</h2>
+        <h2 className="text-base font-medium text-fg-faint">Danger zone</h2>
         <div className="mt-4 rounded-lg border border-red-500/20 bg-red-500/[0.03] p-5">
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-sm font-medium text-white">Delete account</p>
-              <p className="mt-0.5 text-xs text-white/50">
+              <p className="mt-0.5 text-xs text-fg-faint">
                 Permanently delete your account, API tokens, and all payment provider
                 connections. This cannot be undone.
               </p>
@@ -347,7 +368,7 @@ export default function AccountTab() {
       {/* Delete confirmation dialog */}
       <Dialog
         open={showDeleteDialog}
-        onClose={() => setShowDeleteDialog(false)}
+        onClose={closeDeleteDialog}
         maxWidth="max-w-md"
       >
         <div className="p-6">
@@ -359,17 +380,17 @@ export default function AccountTab() {
               <h3 className="text-base font-semibold text-white">
                 Delete account
               </h3>
-              <p className="text-sm text-white/50">
+              <p className="text-sm text-fg-faint">
                 This action cannot be undone.
               </p>
             </div>
           </div>
 
-          <div className="mt-5 rounded-lg border border-white/[0.06] bg-dark-surface p-4">
-            <p className="text-sm text-white/60">
+          <div className="mt-5 rounded-lg border border-hairline bg-dark-surface p-4">
+            <p className="text-sm text-fg-muted">
               What happens when you delete your account:
             </p>
-            <ul className="mt-2 space-y-1.5 text-sm text-white/40">
+            <ul className="mt-2 space-y-1.5 text-sm text-fg-label">
               <li>Your API tokens will be revoked immediately</li>
               <li>All connected payment providers will be disconnected</li>
               <li>Your usage history will be permanently deleted</li>
@@ -377,16 +398,35 @@ export default function AccountTab() {
             </ul>
           </div>
 
+          <div className="mt-5">
+            <label
+              htmlFor="delete-confirm-email"
+              className="text-xs text-fg-faint"
+            >
+              Type <span className="text-white">{user.email}</span> to confirm.
+            </label>
+            <input
+              id="delete-confirm-email"
+              type="email"
+              autoComplete="off"
+              value={deleteConfirmEmail}
+              onChange={(e) => setDeleteConfirmEmail(e.target.value)}
+              placeholder={user.email}
+              className="mt-2 w-full rounded-md border border-subtle bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-fg-disabled transition-colors focus:border-red-500/40 focus:bg-white/[0.05] focus:outline-none focus:ring-1 focus:ring-red-500/30"
+            />
+          </div>
+
           <div className="mt-6 flex justify-end gap-3">
             <button
-              onClick={() => setShowDeleteDialog(false)}
-              className="rounded-lg border border-white/[0.08] px-4 py-2 text-sm text-white/50 transition-colors hover:bg-white/[0.04]"
+              onClick={closeDeleteDialog}
+              className="rounded-lg border border-subtle px-4 py-2 text-sm text-fg-faint transition-colors hover:bg-white/[0.04]"
             >
               Cancel
             </button>
             <button
               onClick={handleDeleteAccount}
-              className="rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-600"
+              disabled={!canDelete}
+              className="rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:bg-red-500/40 disabled:hover:bg-red-500/40"
             >
               Delete account
             </button>

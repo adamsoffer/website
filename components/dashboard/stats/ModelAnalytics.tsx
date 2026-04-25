@@ -65,7 +65,7 @@ export default function ModelAnalytics({ model }: { model: Model }) {
       trend: stats.kpis.throughputTrend,
     },
     {
-      label: "Orchestrators",
+      label: "GPU providers",
       value: stats.kpis.orchestrators.toString(),
       delta: stats.kpis.orchestratorsDelta,
       trend: stats.kpis.orchestratorsTrend,
@@ -83,8 +83,8 @@ export default function ModelAnalytics({ model }: { model: Model }) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-medium text-white/60">Analytics</h3>
-          <p className="mt-1 text-sm text-white/60">
+          <h3 className="text-sm font-medium text-fg-muted">Analytics</h3>
+          <p className="mt-1 text-sm text-fg-muted">
             Performance, supply, and reliability for {model.name} on the network.
           </p>
         </div>
@@ -99,10 +99,10 @@ export default function ModelAnalytics({ model }: { model: Model }) {
       </div>
 
       {/* Request volume */}
-      <div className="rounded-xl border border-white/[0.06] bg-dark-surface p-5">
+      <div className="rounded-xl border border-hairline bg-dark-surface p-5">
         <div>
-          <h4 className="text-sm font-medium text-white/60">Request volume</h4>
-          <p className="mt-1 text-sm text-white/60">
+          <h4 className="text-sm font-medium text-fg-muted">Request volume</h4>
+          <p className="mt-1 text-sm text-fg-muted">
             Inference requests routed to {model.name} over the selected period.
           </p>
         </div>
@@ -140,15 +140,15 @@ export default function ModelAnalytics({ model }: { model: Model }) {
       </div>
 
       {/* Latency trend */}
-      <div className="rounded-xl border border-white/[0.06] bg-dark-surface p-5">
+      <div className="rounded-xl border border-hairline bg-dark-surface p-5">
         <div className="flex items-start justify-between">
           <div>
-            <h4 className="text-sm font-medium text-white/60">Latency trend</h4>
-            <p className="mt-1 text-sm text-white/60">
+            <h4 className="text-sm font-medium text-fg-muted">Latency trend</h4>
+            <p className="mt-1 text-sm text-fg-muted">
               P50, P90, and P99 across the selected period.
             </p>
           </div>
-          <div className="flex items-center gap-3 text-[11px] text-white/50">
+          <div className="flex items-center gap-3 text-[11px] text-fg-faint">
             {(["p50", "p90", "p99"] as const).map((key) => (
               <span key={key} className="flex items-center gap-1.5">
                 <span
@@ -213,22 +213,22 @@ export default function ModelAnalytics({ model }: { model: Model }) {
       </div>
 
       {/* Regional supply */}
-      <div className="rounded-xl border border-white/[0.06] bg-dark-surface p-5">
+      <div className="rounded-xl border border-hairline bg-dark-surface p-5">
         <div>
-          <h4 className="text-sm font-medium text-white/60">Regional supply</h4>
-          <p className="mt-1 text-sm text-white/60">
-            Orchestrators serving {model.name}, ranked by traffic share.
+          <h4 className="text-sm font-medium text-fg-muted">Regional supply</h4>
+          <p className="mt-1 text-sm text-fg-muted">
+            GPU providers serving {model.name}, ranked by traffic share.
           </p>
         </div>
         <div className="mt-5 space-y-3">
           {stats.regions.map((region) => (
             <div key={region.region}>
               <div className="flex items-center justify-between text-xs">
-                <span className="text-white/70">{region.region}</span>
-                <div className="flex items-center gap-4 font-mono text-white/50">
-                  <span>{region.orchestrators} orch</span>
+                <span className="text-fg-strong">{region.region}</span>
+                <div className="flex items-center gap-4 tabular-nums text-fg-faint">
+                  <span>{region.orchestrators} GPUs</span>
                   <span>{region.latency}ms</span>
-                  <span className="w-10 text-right text-white/80">
+                  <span className="w-10 text-right text-fg-strong">
                     {(region.share * 100).toFixed(0)}%
                   </span>
                 </div>
@@ -245,15 +245,15 @@ export default function ModelAnalytics({ model }: { model: Model }) {
       </div>
 
       {/* Uptime strip */}
-      <div className="rounded-xl border border-white/[0.06] bg-dark-surface p-5">
+      <div className="rounded-xl border border-hairline bg-dark-surface p-5">
         <div className="flex items-center justify-between">
           <div>
-            <h4 className="text-sm font-medium text-white/60">Uptime (90 days)</h4>
-            <p className="mt-1 text-sm text-white/60">
-              Daily reachability across all orchestrators.
+            <h4 className="text-sm font-medium text-fg-muted">Uptime (90 days)</h4>
+            <p className="mt-1 text-sm text-fg-muted">
+              Daily reachability across all GPU providers.
             </p>
           </div>
-          <span className="font-mono text-sm text-white/80">
+          <span className="text-sm tabular-nums text-fg-strong">
             {stats.kpis.uptime}
           </span>
         </div>
@@ -268,7 +268,7 @@ export default function ModelAnalytics({ model }: { model: Model }) {
             />
           ))}
         </div>
-        <div className="mt-3 flex items-center gap-3 text-[10px] text-white/40">
+        <div className="mt-3 flex items-center gap-3 text-[10px] text-fg-label">
           <span className="flex items-center gap-1">
             <span className="h-2 w-2 rounded-[2px] bg-green-bright/40" /> Up
           </span>

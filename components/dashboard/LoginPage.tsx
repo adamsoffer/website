@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth, type AuthProvider } from "@/components/dashboard/AuthContext";
-import { LivepeerSymbol } from "@/components/icons/LivepeerLogo";
+import { LivepeerWordmark } from "@/components/icons/LivepeerLogo";
 
 function getInitials(name: string): string {
   return name
@@ -92,132 +92,108 @@ export default function LoginPage() {
     router.push("/dashboard");
   }
 
+  // Each surface is built from a tight 3-weight hierarchy:
+  //  • Wordmark — quiet brand stamp, never competes with the heading
+  //  • Heading — dominant hero element, medium weight, generous tracking
+  //  • Inputs/buttons — h-10 working surface tier, hairline borders, pill radius
+  //  • Submit — saturated brand color (green-bright) with white text, no shadow
+  // Anchored ~28% from top so it doesn't drown in the viewport.
+  const inputClass =
+    "h-10 w-full rounded-md border border-hairline bg-white/[0.015] px-3 text-[13px] text-white placeholder:text-fg-disabled transition-colors hover:border-subtle hover:bg-white/[0.025] focus:border-strong focus:bg-white/[0.03] focus:outline-none";
+
+  const oauthButtonClass =
+    "inline-flex h-10 w-full items-center justify-center gap-2.5 rounded-full border border-hairline bg-transparent px-4 text-[13px] font-medium text-fg-strong transition-colors hover:border-subtle hover:bg-white/[0.04] hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-strong";
+
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden">
-      {/* ─── Layer 1: dark base ─── */}
-      <div className="absolute inset-0 bg-dark" />
+    <div className="flex min-h-screen flex-col bg-dark">
+      <div className="flex flex-1 flex-col items-center px-6 pt-[18vh] pb-12">
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-[320px]"
+        >
+          {/* Wordmark — the hero element. Stripe / Vercel pattern: brand mark dominant,
+              heading reads as supporting subtitle below. */}
+          <div className="mb-5 flex justify-center">
+            <LivepeerWordmark
+              className="h-6 w-auto text-white"
+              aria-label="Livepeer"
+            />
+          </div>
 
-      {/* ─── Layer 2: primary green glow — centered behind form ─── */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse 65% 55% at 50% 44%, rgba(24,121,78,0.10) 0%, rgba(24,121,78,0.04) 35%, transparent 68%)",
-        }}
-        aria-hidden="true"
-      />
-
-      {/* ─── Layer 3: secondary warm glow — offset for depth ─── */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse 50% 45% at 55% 58%, rgba(30,153,96,0.04) 0%, transparent 60%)",
-        }}
-        aria-hidden="true"
-      />
-
-      {/* ─── Layer 4: vignette — theatrical edge darkening ─── */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse 75% 70% at 50% 48%, transparent 40%, rgba(18,18,18,0.5) 70%, rgba(18,18,18,0.85) 100%)",
-        }}
-        aria-hidden="true"
-      />
-
-      {/* ─── Form content ─── */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-        className="relative z-10 w-full max-w-sm px-6"
-      >
-        {/* Logo */}
-        <div className="mb-10 flex justify-center">
-          <LivepeerSymbol className="h-9 w-9 text-white" />
-        </div>
-
-        {/* Heading */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={mode}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
-            className="mb-8 text-center"
-          >
-            <h1 className="text-[28px] font-medium tracking-tight text-white">
+          {/* Heading — supporting subtitle to the wordmark above. Smaller weight,
+              text-fg-muted color tier so it sits clearly below the wordmark in
+              hierarchy. */}
+          <AnimatePresence mode="wait">
+            <motion.h1
+              key={mode}
+              initial={{ opacity: 0, y: 3 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -3 }}
+              transition={{ duration: 0.15 }}
+              className="text-balance text-center text-base font-normal leading-[1.4] tracking-tight text-fg-muted sm:text-lg"
+            >
               {mode === "signin"
-                ? "Log in to the Developer Dashboard"
-                : "Create your account"}
-            </h1>
-            <p className="mt-2 text-sm text-white/40">
-              {mode === "signin"
-                ? "Welcome back"
-                : "Get started with the open GPU network"}
-            </p>
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Social auth buttons */}
-        <div className="space-y-3">
-          <button
-            type="button"
-            onClick={() => handleOAuthSubmit("github")}
-            className="flex w-full items-center justify-center gap-3 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm font-medium text-white shadow-sm shadow-black/20 backdrop-blur-sm transition-colors hover:bg-white/[0.1] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green/30 focus-visible:ring-offset-1 focus-visible:ring-offset-dark"
-          >
-            <GitHubIcon className="h-5 w-5" />
-            Continue with GitHub
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleOAuthSubmit("google")}
-            className="flex w-full items-center justify-center gap-3 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm font-medium text-white shadow-sm shadow-black/20 backdrop-blur-sm transition-colors hover:bg-white/[0.1] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green/30 focus-visible:ring-offset-1 focus-visible:ring-offset-dark"
-          >
-            <GoogleIcon className="h-5 w-5" />
-            Continue with Google
-          </button>
-        </div>
-
-        {/* Divider */}
-        <div className="my-6 flex items-center gap-3">
-          <div className="h-px flex-1 bg-white/[0.06]" />
-          <span className="text-xs uppercase tracking-widest text-white/20">
-            or
-          </span>
-          <div className="h-px flex-1 bg-white/[0.06]" />
-        </div>
-
-        {/* Email/password form */}
-        <form onSubmit={handleEmailSubmit} className="space-y-3">
-          <AnimatePresence>
-            {mode === "signup" && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                <label htmlFor="name" className="sr-only">
-                  Name
-                </label>
-                <input
-                  id="name"
-                  type="text"
-                  placeholder="Name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder:text-white/30 transition-[border-color,box-shadow] focus:border-green/50 focus:outline-none focus:ring-1 focus:ring-green/20"
-                />
-              </motion.div>
-            )}
+                ? "Log in to the Livepeer Dashboard"
+                : "Get started with Livepeer"}
+            </motion.h1>
           </AnimatePresence>
 
-          <div>
+          {/* OAuth — restrained pills, equal hierarchy, no Popular badge clutter */}
+          <div className="mt-8 space-y-2">
+            <button
+              type="button"
+              onClick={() => handleOAuthSubmit("github")}
+              className={oauthButtonClass}
+            >
+              <GitHubIcon className="h-4 w-4" />
+              Continue with GitHub
+            </button>
+            <button
+              type="button"
+              onClick={() => handleOAuthSubmit("google")}
+              className={oauthButtonClass}
+            >
+              <GoogleIcon className="h-4 w-4" />
+              Continue with Google
+            </button>
+          </div>
+
+          {/* Divider — disciplined: hairline + tiny lowercase "or", same vertical
+              gutter as section spacing so the rhythm reads "block / pause / block". */}
+          <div className="my-6 flex items-center gap-3">
+            <div className="h-px flex-1 bg-hairline" />
+            <span className="text-[11px] text-fg-faint">or</span>
+            <div className="h-px flex-1 bg-hairline" />
+          </div>
+
+          {/* Email/password form */}
+          <form onSubmit={handleEmailSubmit} className="space-y-2">
+            <AnimatePresence initial={false}>
+              {mode === "signup" && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                  animate={{ opacity: 1, height: "auto", marginBottom: 8 }}
+                  exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                  transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                  className="overflow-hidden"
+                >
+                  <label htmlFor="name" className="sr-only">
+                    Name
+                  </label>
+                  <input
+                    id="name"
+                    type="text"
+                    placeholder="Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className={inputClass}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <label htmlFor="email" className="sr-only">
               Email
             </label>
@@ -227,11 +203,10 @@ export default function LoginPage() {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder:text-white/30 transition-[border-color,box-shadow] focus:border-green/50 focus:outline-none focus:ring-1 focus:ring-green/20"
+              autoComplete="email"
+              className={inputClass}
             />
-          </div>
 
-          <div>
             <label htmlFor="password" className="sr-only">
               Password
             </label>
@@ -241,60 +216,120 @@ export default function LoginPage() {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder:text-white/30 transition-[border-color,box-shadow] focus:border-green/50 focus:outline-none focus:ring-1 focus:ring-green/20"
+              autoComplete={mode === "signin" ? "current-password" : "new-password"}
+              className={inputClass}
             />
-          </div>
 
-          <button
-            type="submit"
-            className="w-full rounded-lg bg-green py-3 text-sm font-medium text-white transition-colors hover:bg-green-light active:bg-green-dark focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-bright/50 focus-visible:ring-offset-1 focus-visible:ring-offset-dark"
-          >
-            {mode === "signin" ? "Sign in" : "Create account"}
-          </button>
-        </form>
-
-        {/* Mode toggle */}
-        <p className="mt-6 text-center text-sm text-white/40">
-          {mode === "signin" ? (
-            <>
-              Don&apos;t have an account?{" "}
-              <button
-                type="button"
-                onClick={() => setMode("signup")}
-                className="font-medium text-green-bright transition-colors hover:text-green-light"
-              >
-                Sign up
-              </button>
-            </>
-          ) : (
-            <>
-              Already have an account?{" "}
-              <button
-                type="button"
-                onClick={() => setMode("signin")}
-                className="font-medium text-green-bright transition-colors hover:text-green-light"
-              >
-                Sign in
-              </button>
-            </>
-          )}
-        </p>
-
-        {/* Terms (signup only) */}
-        <AnimatePresence>
-          {mode === "signup" && (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="mt-4 text-center text-xs text-white/25"
+            {/* Submit — saturated brand color (green-bright #40bf86) instead of muted
+                green so it carries the same energy as Linear's purple. White text,
+                no shadow. The kbd chip is sized & weighted to read as a hint, not a
+                label — same pattern Linear uses for "C" on Create new issue. */}
+            <button
+              type="submit"
+              className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full bg-green-bright text-[13px] font-medium text-white transition-colors hover:bg-green-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-bright/40"
             >
-              By creating an account, you agree to our Terms of Service and
-              Privacy Policy.
-            </motion.p>
-          )}
-        </AnimatePresence>
-      </motion.div>
+              <span>{mode === "signin" ? "Log in with email" : "Create account"}</span>
+              <kbd
+                aria-hidden="true"
+                className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-[4px] bg-black/15 px-1 text-[11px] font-medium leading-none text-white/85"
+              >
+                ↵
+              </kbd>
+            </button>
+          </form>
+
+          {/* Mode toggle — fine print, underline tucked tight (offset-2 not offset-4
+              so it reads as part of the word, not floating below it). */}
+          <p className="mt-7 text-center text-[12px] text-fg-faint">
+            {mode === "signin" ? (
+              <>
+                Don&apos;t have an account?{" "}
+                <button
+                  type="button"
+                  onClick={() => setMode("signup")}
+                  className="text-fg-strong underline decoration-fg-disabled underline-offset-2 transition-colors hover:text-white hover:decoration-fg-strong"
+                >
+                  Sign up
+                </button>
+              </>
+            ) : (
+              <>
+                Already have an account?{" "}
+                <button
+                  type="button"
+                  onClick={() => setMode("signin")}
+                  className="text-fg-strong underline decoration-fg-disabled underline-offset-2 transition-colors hover:text-white hover:decoration-fg-strong"
+                >
+                  Log in
+                </button>
+              </>
+            )}
+          </p>
+
+          {/* Sign-up terms — fine print directly under the toggle, only on signup */}
+          <AnimatePresence>
+            {mode === "signup" && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.18 }}
+                className="mt-3 text-balance text-center text-[11px] leading-relaxed text-fg-disabled"
+              >
+                By creating an account, you agree to our{" "}
+                <a
+                  href="https://livepeer.org/terms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-fg-faint underline decoration-fg-disabled underline-offset-2 transition-colors hover:text-fg-strong hover:decoration-fg-faint"
+                >
+                  Terms
+                </a>{" "}
+                and{" "}
+                <a
+                  href="https://livepeer.org/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-fg-faint underline decoration-fg-disabled underline-offset-2 transition-colors hover:text-fg-strong hover:decoration-fg-faint"
+                >
+                  Privacy Policy
+                </a>
+                .
+              </motion.p>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </div>
+
+      {/* Footer — quiet legal links pinned to the viewport bottom */}
+      <footer className="shrink-0 px-6 py-5">
+        <div className="flex items-center justify-center gap-4 text-[11px] text-fg-disabled">
+          <a
+            href="https://livepeer.org/terms"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition-colors hover:text-fg-faint"
+          >
+            Terms
+          </a>
+          <a
+            href="https://livepeer.org/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition-colors hover:text-fg-faint"
+          >
+            Privacy
+          </a>
+          <a
+            href="https://docs.livepeer.org"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition-colors hover:text-fg-faint"
+          >
+            Docs
+          </a>
+        </div>
+      </footer>
     </div>
   );
 }

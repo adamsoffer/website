@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { RotateCcw } from "lucide-react";
+import CostTag from "@/components/dashboard/CostTag";
 import type { PlaygroundConfig } from "@/lib/dashboard/types";
 
 interface JsonInputProps {
@@ -50,18 +51,18 @@ export default function JsonInput({ config, onRun, isRunning }: JsonInputProps) 
           onChange={(e) => setText(e.target.value)}
           spellCheck={false}
           rows={16}
-          className="w-full resize-y rounded-md border border-white/[0.08] bg-white/[0.03] px-4 py-3 font-mono text-xs leading-relaxed text-white/80 placeholder:text-white/40 focus:border-white/20 focus:bg-white/[0.05] focus:outline-none"
+          className="w-full resize-y rounded-md border border-subtle bg-white/[0.03] px-4 py-3 font-mono text-xs leading-relaxed text-fg-strong placeholder:text-fg-label focus:border-strong focus:bg-white/[0.05] focus:outline-none"
         />
         {error && (
           <p className="mt-2 text-[11px] text-red-400">{error}</p>
         )}
       </div>
 
-      <div className="flex items-center gap-2 border-t border-white/[0.06] pt-4">
+      <div className="flex items-center gap-2 border-t border-hairline pt-4">
         <button
           type="button"
           onClick={handleReset}
-          className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] px-3 py-2 text-xs text-white/40 transition-colors hover:bg-white/[0.04] hover:text-white/60 focus:outline-none"
+          className="flex items-center gap-1.5 rounded-lg border border-subtle px-3 py-2 text-xs text-fg-label transition-colors hover:bg-white/[0.04] hover:text-fg-muted focus:outline-none"
         >
           <RotateCcw className="h-3 w-3" />
           Reset to defaults
@@ -69,18 +70,19 @@ export default function JsonInput({ config, onRun, isRunning }: JsonInputProps) 
         <button
           type="submit"
           disabled={isRunning}
-          className="flex items-center gap-2 rounded-lg bg-green px-4 py-2 text-sm font-medium text-white transition-all hover:bg-green-light disabled:opacity-50 focus:outline-none"
+          className="flex items-center gap-2 rounded-lg bg-green px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-light active:scale-[0.98] disabled:bg-white/[0.06] disabled:text-fg-disabled focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-bright/50 motion-reduce:active:scale-100"
         >
           {isRunning ? (
             <>
-              <span className="h-3 w-3 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+              <span className="h-3 w-3 animate-spin rounded-full border-2 border-strong border-t-white" />
               Running...
             </>
           ) : (
             "Run"
           )}
         </button>
-        <span className="ml-auto text-[10px] text-white/40">ctrl+enter</span>
+        <CostTag mode="free" />
+        <span className="ml-auto text-[10px] text-fg-label">ctrl+enter</span>
       </div>
     </form>
   );

@@ -6,8 +6,6 @@ import Link from "next/link";
 import {
   Flame,
   Snowflake,
-  Copy,
-  Check,
   BarChart3,
   Play,
   Code,
@@ -17,10 +15,15 @@ import {
   RotateCcw,
   Zap,
 } from "lucide-react";
-import DashboardFooter from "@/components/dashboard/DashboardFooter";
+import Breadcrumb from "@/components/dashboard/Breadcrumb";
+import CopyButton from "@/components/dashboard/CopyButton";
 import DashboardSubNav from "@/components/dashboard/DashboardSubNav";
+import CostTag from "@/components/dashboard/CostTag";
+import KeyBadge from "@/components/dashboard/KeyBadge";
 import StarButton from "@/components/dashboard/StarButton";
-import { getModelById } from "@/lib/dashboard/mock-data";
+import StatusDot from "@/components/dashboard/StatusDot";
+import Tooltip from "@/components/ui/Tooltip";
+import { getModelById, SETTINGS_API_KEYS } from "@/lib/dashboard/mock-data";
 import { getModelIcon, formatRuns, formatPrice } from "@/lib/dashboard/utils";
 import PlaygroundForm from "@/components/dashboard/playground/PlaygroundForm";
 import JsonInput from "@/components/dashboard/playground/JsonInput";
@@ -49,9 +52,11 @@ function PlaygroundTab({ model }: { model: Model }) {
   const [isRunning, setIsRunning] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [inferenceTime, setInferenceTime] = useState<number | undefined>();
+  const [lastRunValues, setLastRunValues] = useState<Record<string, unknown> | null>(null);
 
   const handleRun = useCallback(
-    (_values: Record<string, unknown>) => {
+    (values: Record<string, unknown>) => {
+      setLastRunValues(values);
       setIsRunning(true);
       setResult(null);
       const time = 0.3 + Math.random() * 1.5;
@@ -107,8 +112,8 @@ function PlaygroundTab({ model }: { model: Model }) {
   if (!model.playgroundConfig) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <Play className="h-10 w-10 text-white/10" />
-        <p className="mt-3 text-sm text-white/40">
+        <Play className="h-10 w-10 text-fg-disabled" />
+        <p className="mt-3 text-sm text-fg-label">
           Playground not available for this model
         </p>
       </div>
@@ -134,13 +139,13 @@ function PlaygroundTab({ model }: { model: Model }) {
         {/* Label stacks above the format picker on mobile where 5 segments + label
             would overflow; inline side-by-side from sm+ where there's room. */}
         <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-          <span className="text-[11px] font-medium uppercase tracking-wider text-white/40">
+          <span className="text-[11px] font-medium uppercase tracking-wider text-fg-label">
             Request
           </span>
           <div
             role="tablist"
             aria-label="Request format"
-            className="scrollbar-none flex shrink-0 items-center overflow-x-auto rounded-lg border border-white/[0.06] bg-white/[0.02] p-0.5"
+            className="scrollbar-none flex shrink-0 items-center overflow-x-auto rounded-lg border border-hairline bg-white/[0.02] p-0.5"
           >
             {INPUT_MODES.map((mode) => {
               const selected = inputMode === mode.key;
@@ -153,7 +158,7 @@ function PlaygroundTab({ model }: { model: Model }) {
                   className={`flex h-9 shrink-0 items-center rounded-md px-2.5 text-xs font-medium transition-colors focus:outline-none sm:h-7 ${
                     selected
                       ? "bg-white/[0.08] text-white shadow-sm"
-                      : "text-white/50 hover:text-white/80"
+                      : "text-fg-faint hover:text-fg-strong"
                   }`}
                 >
                   {mode.label}
@@ -184,10 +189,10 @@ function PlaygroundTab({ model }: { model: Model }) {
             <div className="pb-4">
               <CodeSnippets model={model} fixedLang={inputMode} />
             </div>
-            <div className="flex items-center gap-2 border-t border-white/[0.06] pt-4">
+            <div className="flex items-center gap-2 border-t border-hairline pt-4">
               <button
                 type="button"
-                className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] px-3 py-2 text-xs text-white/40 transition-colors hover:bg-white/[0.04] hover:text-white/60 focus:outline-none"
+                className="flex items-center gap-1.5 rounded-lg border border-subtle px-3 py-2 text-xs text-fg-label transition-colors hover:bg-white/[0.04] hover:text-fg-muted focus:outline-none"
               >
                 <RotateCcw className="h-3 w-3" />
                 Reset to defaults
@@ -196,18 +201,19 @@ function PlaygroundTab({ model }: { model: Model }) {
                 type="button"
                 onClick={() => handleRun({})}
                 disabled={isRunning}
-                className="flex items-center gap-2 rounded-lg bg-green px-4 py-2 text-sm font-medium text-white transition-all hover:bg-green-light disabled:opacity-50 focus:outline-none"
+                className="flex items-center gap-2 rounded-lg bg-green px-4 py-2 text-sm font-medium text-white transition-all hover:bg-green-light hover:shadow-lg hover:shadow-green-bright/25 active:scale-[0.98] disabled:bg-white/[0.06] disabled:text-fg-disabled disabled:hover:shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-bright/50 motion-reduce:active:scale-100"
               >
                 {isRunning ? (
                   <>
-                    <span className="h-3 w-3 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    <span className="h-3 w-3 animate-spin rounded-full border-2 border-strong border-t-white" />
                     Running...
                   </>
                 ) : (
                   "Run"
                 )}
               </button>
-              <span className="ml-auto text-[10px] text-white/40">
+              <CostTag mode="free" />
+              <span className="ml-auto text-[10px] text-fg-label">
                 ctrl+enter
               </span>
             </div>
@@ -217,7 +223,7 @@ function PlaygroundTab({ model }: { model: Model }) {
 
       {/* Right: Output */}
       <div>
-        <h3 className="mb-4 text-sm font-medium text-white/50">Output</h3>
+        <h3 className="mb-4 text-sm font-medium text-fg-faint">Output</h3>
         {model.playgroundConfig.playgroundVariant === "transcoding" ? (
           <TranscodingOutput
             result={result}
@@ -235,6 +241,8 @@ function PlaygroundTab({ model }: { model: Model }) {
             category={model.category}
             modelName={model.name}
             mockOutputJson={model.playgroundConfig.mockOutputJson}
+            model={model}
+            lastRunValues={lastRunValues}
           />
         )}
       </div>
@@ -250,19 +258,39 @@ function ApiTab({ model }: { model: Model }) {
     model.category === "Language"
       ? `${baseUrl}/chat/completions`
       : `${baseUrl}/${model.id}`;
+  const defaultKey =
+    SETTINGS_API_KEYS.find((k) => k.isDefault) ?? SETTINGS_API_KEYS[0];
 
   return (
     <div className="space-y-6">
+      {/* Auth — your key, ready to copy */}
+      <div>
+        <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-fg-faint">
+          Your API key
+        </p>
+        <KeyBadge prefix={defaultKey.prefix} />
+        <p className="mt-2 text-[11px] text-fg-faint">
+          Drop this into the <code className="text-fg-muted">Authorization</code> header below, or{" "}
+          <Link
+            href="/dashboard/settings?tab=tokens"
+            className="text-fg-strong underline-offset-2 hover:text-white hover:underline"
+          >
+            manage your keys
+          </Link>
+          .
+        </p>
+      </div>
+
       {/* Endpoint */}
       <div>
-        <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-white/50">
+        <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-fg-faint">
           Endpoint
         </p>
-        <div className="flex items-center gap-2 rounded-xl border border-white/[0.06] bg-dark-surface p-4">
-          <span className="shrink-0 rounded bg-green/15 px-1.5 py-0.5 text-[10px] font-bold text-green-bright">
+        <div className="flex items-center gap-2 rounded-xl border border-hairline bg-dark-surface p-4">
+          <span className="shrink-0 rounded bg-green/15 px-1.5 py-0.5 text-[10px] font-semibold text-green-bright">
             POST
           </span>
-          <code className="min-w-0 flex-1 break-all font-mono text-xs text-white/80 sm:text-sm">
+          <code className="min-w-0 flex-1 break-all text-xs text-fg-strong sm:text-sm">
             {endpoint}
           </code>
         </div>
@@ -270,20 +298,20 @@ function ApiTab({ model }: { model: Model }) {
 
       {/* Quick start */}
       <div>
-        <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-white/50">
+        <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-fg-faint">
           Quick start
         </p>
         <CodeSnippets model={model} />
       </div>
 
       {/* Pricing footer — compact, since the hero already shows the list price */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/[0.06] bg-dark-surface px-4 py-3 text-xs text-white/55">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-hairline bg-dark-surface px-4 py-3 text-xs text-fg-faint">
         <span>
-          Pay-per-inference. Throughput scales with your connected providers.
+          Billed per request. Free tier covers your first 10,000 each month.
         </span>
         <Link
           href="/dashboard/settings?tab=billing"
-          className="text-white/70 underline-offset-2 hover:text-white hover:underline"
+          className="text-fg-strong underline-offset-2 hover:text-white hover:underline"
         >
           Add a payment provider →
         </Link>
@@ -298,8 +326,8 @@ function ReadmeTab({ model }: { model: Model }) {
   if (!model.readme) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <FileText className="h-10 w-10 text-white/10" />
-        <p className="mt-3 text-sm text-white/40">No README available</p>
+        <FileText className="h-10 w-10 text-fg-disabled" />
+        <p className="mt-3 text-sm text-fg-label">No README available</p>
       </div>
     );
   }
@@ -317,15 +345,15 @@ function ReadmeTab({ model }: { model: Model }) {
       elements.push(
         <div
           key={`table-${elements.length}`}
-          className="overflow-hidden rounded-lg border border-white/[0.06]"
+          className="overflow-hidden rounded-lg border border-hairline"
         >
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-white/[0.06] bg-dark-surface">
+              <tr className="border-b border-hairline bg-dark-surface">
                 {tableRows[0].map((cell, i) => (
                   <th
                     key={i}
-                    className="px-3 py-2 text-left font-medium text-white/50"
+                    className="px-3 py-2 text-left font-medium text-fg-faint"
                   >
                     {cell.trim()}
                   </th>
@@ -336,10 +364,10 @@ function ReadmeTab({ model }: { model: Model }) {
               {tableRows.slice(2).map((row, ri) => (
                 <tr
                   key={ri}
-                  className="border-b border-white/[0.04] last:border-0"
+                  className="border-b border-hairline last:border-0"
                 >
                   {row.map((cell, ci) => (
-                    <td key={ci} className="px-3 py-2 text-white/40">
+                    <td key={ci} className="px-3 py-2 text-fg-label">
                       {cell.trim()}
                     </td>
                   ))}
@@ -360,7 +388,7 @@ function ReadmeTab({ model }: { model: Model }) {
         elements.push(
           <pre
             key={`code-${i}`}
-            className="scrollbar-dark overflow-x-auto rounded-lg border border-white/[0.06] bg-black/40 p-4 font-mono text-xs leading-relaxed text-white/60"
+            className="scrollbar-dark overflow-x-auto rounded-lg border border-hairline bg-black/40 p-4 text-xs leading-relaxed text-fg-muted"
           >
             {codeContent.trim()}
           </pre>,
@@ -403,7 +431,7 @@ function ReadmeTab({ model }: { model: Model }) {
       elements.push(
         <h2
           key={i}
-          className="mt-5 mb-2 text-lg font-semibold text-white/90 first:mt-0"
+          className="mt-5 mb-2 text-lg font-semibold text-fg first:mt-0"
         >
           {line.slice(3)}
         </h2>,
@@ -412,7 +440,7 @@ function ReadmeTab({ model }: { model: Model }) {
       elements.push(
         <h3
           key={i}
-          className="mt-4 mb-2 text-sm font-semibold text-white/80 first:mt-0"
+          className="mt-4 mb-2 text-sm font-semibold text-fg-strong first:mt-0"
         >
           {line.slice(4)}
         </h3>,
@@ -421,18 +449,18 @@ function ReadmeTab({ model }: { model: Model }) {
       const match = line.match(/^- \*\*(.+?)\*\*\s*[—–-]\s*(.+)$/);
       if (match) {
         elements.push(
-          <div key={i} className="flex items-start gap-2 pl-4 text-sm text-white/50">
+          <div key={i} className="flex items-start gap-2 pl-4 text-sm text-fg-faint">
             <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-white/40" aria-hidden="true" />
             <span>
-              <span className="font-medium text-white/70">{match[1]}</span>
-              <span className="text-white/30"> — </span>
+              <span className="font-medium text-fg-strong">{match[1]}</span>
+              <span className="text-fg-disabled"> — </span>
               {match[2]}
             </span>
           </div>,
         );
       } else {
         elements.push(
-          <div key={i} className="flex items-start gap-2 pl-4 text-sm text-white/50">
+          <div key={i} className="flex items-start gap-2 pl-4 text-sm text-fg-faint">
             <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-white/40" aria-hidden="true" />
             <span>{line.slice(2).replace(/\*\*/g, "")}</span>
           </div>,
@@ -440,7 +468,7 @@ function ReadmeTab({ model }: { model: Model }) {
       }
     } else if (line.startsWith("- ")) {
       elements.push(
-        <div key={i} className="flex items-start gap-2 pl-4 text-sm text-white/50">
+        <div key={i} className="flex items-start gap-2 pl-4 text-sm text-fg-faint">
           <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-white/40" aria-hidden="true" />
           <span>{line.slice(2)}</span>
         </div>,
@@ -449,7 +477,7 @@ function ReadmeTab({ model }: { model: Model }) {
       elements.push(<div key={i} className="h-2" />);
     } else {
       elements.push(
-        <p key={i} className="text-sm leading-relaxed text-white/50">
+        <p key={i} className="text-sm leading-relaxed text-fg-faint">
           {line}
         </p>,
       );
@@ -459,7 +487,7 @@ function ReadmeTab({ model }: { model: Model }) {
   if (inTable) flushTable();
 
   return (
-    <article className="rounded-xl border border-white/[0.06] bg-dark-surface p-5">
+    <article className="rounded-xl border border-hairline bg-dark-surface p-5">
       <div className="max-w-3xl space-y-1">{elements}</div>
     </article>
   );
@@ -476,14 +504,13 @@ function StatsTab({ model }: { model: Model }) {
 export default function ModelDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState<Tab>("playground");
-  const [copied, setCopied] = useState(false);
   const model = getModelById(id);
 
   if (!model) {
     return (
       <main id="main-content" className="flex flex-1 flex-col bg-dark">
         <div className="flex flex-1 flex-col items-center justify-center text-center">
-          <p className="text-sm text-white/40">Model not found</p>
+          <p className="text-sm text-fg-label">Model not found</p>
           <Link
             href="/dashboard/explore"
             className="mt-3 text-xs text-green-bright hover:underline focus:outline-none rounded"
@@ -491,60 +518,59 @@ export default function ModelDetailPage() {
             Back to Explore
           </Link>
         </div>
-        <DashboardFooter />
       </main>
     );
   }
 
   const Icon = getModelIcon(model.category);
 
-  const handleCopyId = () => {
-    navigator.clipboard.writeText(model.id);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   return (
     <main id="main-content" className="flex flex-1 flex-col bg-dark">
       <div className="flex-1">
-        <div className="mx-auto max-w-5xl px-5 py-8">
-          {/* Hero */}
-          <div className="flex items-start gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white/[0.06]">
-              <Icon className="h-6 w-6 text-white/70" strokeWidth={2} />
+        <div className="mx-auto max-w-5xl px-5 pt-6 pb-8 lg:pt-10">
+          <Breadcrumb
+            className="mb-5"
+            items={[
+              { label: "Explore", href: "/dashboard/explore" },
+              { label: model.name },
+            ]}
+          />
+          {/* Hero — tightened: smaller icon, smaller title, less chrome */}
+          <div className="flex items-start gap-3.5">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-white/[0.05] ring-1 ring-hairline">
+              <Icon className="h-5 w-5 text-fg-strong" strokeWidth={1.75} />
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between gap-3">
-                <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-                  <span className="text-sm text-white/65">{model.provider}</span>
-                  <span className="text-white/30" aria-hidden="true">/</span>
-                  <h1 className="text-xl font-semibold text-white break-words">
-                    {model.name}
-                  </h1>
-                  {model.precision && (
-                    <span className="text-xs text-white/55">
-                      {model.precision}
-                    </span>
-                  )}
+                <div className="min-w-0">
+                  <p className="text-[10px] uppercase tracking-wider text-fg-label">
+                    {model.provider}
+                  </p>
+                  <div className="mt-0.5 flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
+                    <h1 className="text-lg font-semibold text-white text-balance break-words">
+                      {model.name}
+                    </h1>
+                    {model.precision && (
+                      <span className="font-mono text-[11px] text-fg-faint">
+                        {model.precision}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 {/* Actions — top right, icon-only on mobile to avoid cramping */}
                 <div className="flex shrink-0 items-center gap-2">
                   <StarButton modelId={model.id} variant="inline" />
-                  <button
-                    onClick={handleCopyId}
-                    aria-label="Copy capability ID"
-                    className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] px-2.5 py-1.5 text-xs text-white/40 transition-colors hover:bg-white/[0.04] focus:outline-none sm:px-3"
-                  >
-                    {copied ? (
-                      <Check className="h-3.5 w-3.5 text-green-bright" />
-                    ) : (
-                      <Copy className="h-3.5 w-3.5" />
-                    )}
-                    <span className="hidden sm:inline">Copy ID</span>
-                  </button>
+                  <CopyButton
+                    value={model.id}
+                    label="Copy ID"
+                    ariaLabel="Copy capability ID"
+                    variant="bordered"
+                    size="md"
+                    hideLabelOnMobile
+                  />
                 </div>
               </div>
-              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/60">
+              <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-fg-muted">
                 {model.description}
               </p>
             </div>
@@ -552,14 +578,11 @@ export default function ModelDetailPage() {
 
           {/* Status + metadata — one wrapping row, status first. Slightly more gap-y so the
               colored pill row and the plain-text metadata row read as two distinct groupings. */}
-          <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2.5 text-xs text-white/65">
+          <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2.5 text-xs text-fg-muted">
             {/* Warm / Cold — matches Explore StatusBadge palette (orange / blue) for consistency across surfaces */}
             {model.status === "hot" ? (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-warm-subtle px-2.5 py-1 font-medium text-warm">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-warm opacity-75" />
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-warm" />
-                </span>
+                <StatusDot tone="warm" />
                 Warm
               </span>
             ) : (
@@ -570,43 +593,44 @@ export default function ModelDetailPage() {
             )}
             {/* Realtime — moat capability marker, clickable to filter Explore */}
             {model.realtime && (
-              <Link
-                href="/dashboard/explore?realtime=1"
-                title="Supports streaming (WebRTC) inference"
-                className="inline-flex items-center gap-1.5 rounded-full bg-green-bright/10 px-2.5 py-1 font-medium text-green-bright transition-colors hover:bg-green-bright/15"
-              >
-                <Zap className="h-2.5 w-2.5" fill="currentColor" />
-                Realtime
-              </Link>
+              <Tooltip content="Supports streaming (WebRTC) inference">
+                <Link
+                  href="/dashboard/explore?realtime=1"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-green-bright/10 px-2.5 py-1 font-medium text-green-bright transition-colors hover:bg-green-bright/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-bright/40"
+                >
+                  <Zap className="h-2.5 w-2.5" fill="currentColor" />
+                  Realtime
+                </Link>
+              </Tooltip>
             )}
             {/* Task badge — clickable, filters Explore by this category */}
             <Link
               href={`/dashboard/explore?category=${encodeURIComponent(model.category)}`}
-              className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.06] px-2.5 py-1 text-white/80 transition-colors hover:bg-white/[0.1] hover:text-white"
+              className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.06] px-2.5 py-1 text-fg-strong transition-colors hover:bg-white/[0.1] hover:text-white"
             >
-              <Icon className="h-2.5 w-2.5 text-white/50" aria-hidden="true" />
+              <Icon className="h-2.5 w-2.5 text-fg-faint" aria-hidden="true" />
               {model.category}
             </Link>
-            <span className="flex items-center gap-1.5">
-              <Flame className="h-3 w-3 text-white/25" aria-hidden="true" />
+            <span className="hidden items-center gap-1.5 sm:flex">
+              <Flame className="h-3 w-3 text-fg-disabled" aria-hidden="true" />
               {formatRuns(model.runs7d)} runs
             </span>
-            <span className="flex items-center gap-1.5">
-              <Clock className="h-3 w-3 text-white/25" aria-hidden="true" />
+            <span className="hidden items-center gap-1.5 sm:flex">
+              <Clock className="h-3 w-3 text-fg-disabled" aria-hidden="true" />
               {model.latency}ms latency
             </span>
-            <span className="flex items-center gap-1.5">
-              <Server className="h-3 w-3 text-white/25" aria-hidden="true" />
+            <span className="hidden items-center gap-1.5 sm:flex">
+              <Server className="h-3 w-3 text-fg-disabled" aria-hidden="true" />
               {model.orchestrators} GPUs
             </span>
-            <span className="font-mono text-white/70">
+            <span className="text-fg-strong">
               {formatPrice(model)}
             </span>
           </div>
 
           {/* Tabs — desktop horizontal strip */}
           <div
-            className="mt-8 hidden gap-1 overflow-x-auto border-b border-white/[0.08] md:flex"
+            className="mt-8 hidden gap-1 overflow-x-auto border-b border-subtle md:flex"
             role="tablist"
             aria-label="Model section"
             style={{ scrollbarWidth: "none" }}
@@ -641,12 +665,12 @@ export default function ModelDetailPage() {
                   className={`-mb-px flex h-11 shrink-0 items-center gap-2 border-b-2 px-4 text-sm transition-colors focus:outline-none ${
                     selected
                       ? "border-green-bright font-semibold text-white"
-                      : "border-transparent font-medium text-white/55 hover:text-white/90"
+                      : "border-transparent font-medium text-fg-faint hover:text-fg"
                   }`}
                 >
                   <tab.icon
                     className={`h-4 w-4 ${
-                      selected ? "text-green-bright" : "text-white/40"
+                      selected ? "text-green-bright" : "text-fg-label"
                     }`}
                   />
                   {tab.label}
@@ -679,7 +703,6 @@ export default function ModelDetailPage() {
           </div>
         </div>
       </div>
-      <DashboardFooter />
     </main>
   );
 }

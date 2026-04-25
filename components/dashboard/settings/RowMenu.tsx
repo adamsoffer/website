@@ -66,7 +66,7 @@ export default function RowMenu({ items, ariaLabel = "Actions" }: RowMenuProps) 
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((prev) => !prev)}
-        className="flex h-9 w-9 items-center justify-center rounded-md text-white/40 transition-colors hover:bg-white/[0.06] hover:text-white sm:h-7 sm:w-7"
+        className="flex h-9 w-9 items-center justify-center rounded-md text-fg-label transition-colors hover:bg-white/[0.06] hover:text-white sm:h-7 sm:w-7"
       >
         <MoreHorizontal className="h-4 w-4" />
       </button>
@@ -74,7 +74,7 @@ export default function RowMenu({ items, ariaLabel = "Actions" }: RowMenuProps) 
       {open && (
         <div
           role="menu"
-          className={`absolute right-0 z-20 w-44 overflow-hidden rounded-lg border border-white/[0.08] bg-dark-card shadow-xl shadow-black/60 ${
+          className={`absolute right-0 z-20 w-44 overflow-hidden rounded-lg border border-hairline bg-dark-card ${
             direction === "down" ? "top-full mt-1" : "bottom-full mb-1"
           }`}
         >
@@ -93,10 +93,10 @@ export default function RowMenu({ items, ariaLabel = "Actions" }: RowMenuProps) 
                 disabled={item.disabled}
                 className={`flex w-full items-center gap-2.5 px-3 py-2 text-left text-xs transition-colors ${
                   item.disabled
-                    ? "cursor-not-allowed text-white/20"
+                    ? "cursor-not-allowed text-fg-disabled"
                     : item.destructive
                       ? "text-red-400 hover:bg-red-500/10"
-                      : "text-white/70 hover:bg-white/[0.06] hover:text-white"
+                      : "text-fg-strong hover:bg-white/[0.06] hover:text-white"
                 }`}
               >
                 {Icon && <Icon className="h-3.5 w-3.5" />}

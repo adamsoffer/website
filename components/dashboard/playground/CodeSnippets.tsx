@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Check } from "lucide-react";
+import CopyButton from "@/components/dashboard/CopyButton";
 import type { Model } from "@/lib/dashboard/types";
 
 type Lang = "curl" | "python" | "node" | "http";
@@ -13,7 +13,10 @@ const LANGS: { key: Lang; label: string }[] = [
   { key: "http", label: "HTTP" },
 ];
 
-function generateSnippets(model: Model): Record<Lang, string> {
+function generateSnippets(
+  model: Model,
+  runValues?: Record<string, unknown>,
+): Record<Lang, string> {
   const baseUrl = model.apiEndpoint ?? "https://gateway.livepeer.org/v1";
   const endpoint =
     model.category === "Language"
@@ -22,8 +25,19 @@ function generateSnippets(model: Model): Record<Lang, string> {
 
   const isLLM = model.category === "Language";
 
-  const body = isLLM
-    ? `{
+  // If the user has supplied playground inputs, bake them into the request body
+  // so "Copy code for this run" produces production code matching what they tested.
+  const useRunValues = runValues && Object.keys(runValues).length > 0;
+
+  let body: string;
+  if (useRunValues) {
+    const payload = isLLM
+      ? { model: model.id, ...runValues }
+      : { ...runValues, model: model.id };
+    body = JSON.stringify(payload, null, 2);
+  } else {
+    body = isLLM
+      ? `{
     "model": "${model.id}",
     "messages": [
       {"role": "user", "content": "Hello, how are you?"}
@@ -31,10 +45,11 @@ function generateSnippets(model: Model): Record<Lang, string> {
     "temperature": 0.7,
     "max_tokens": 1024
   }`
-    : `{
+      : `{
     "prompt": "A scenic mountain landscape at sunset",
     "model": "${model.id}"
   }`;
+  }
 
   return {
     curl: `curl -X POST "${endpoint}" \\
@@ -42,8 +57,20 @@ function generateSnippets(model: Model): Record<Lang, string> {
   -H "Content-Type: application/json" \\
   -d '${body}'`,
 
-    python: isLLM
-      ? `from openai import OpenAI
+    python: useRunValues
+      ? `import requests
+
+response = requests.post(
+    "${endpoint}",
+    headers={
+        "Authorization": "Bearer YOUR_API_KEY",
+        "Content-Type": "application/json",
+    },
+    json=${body.replace(/^/gm, "    ").trimStart()},
+)
+print(response.json())`
+      : isLLM
+        ? `from openai import OpenAI
 
 client = OpenAI(
     base_url="${baseUrl}",
@@ -59,7 +86,7 @@ response = client.chat.completions.create(
     max_tokens=1024,
 )
 print(response.choices[0].message.content)`
-      : `import requests
+        : `import requests
 
 response = requests.post(
     "${endpoint}",
@@ -74,8 +101,19 @@ response = requests.post(
 )
 print(response.json())`,
 
-    node: isLLM
-      ? `import OpenAI from "openai";
+    node: useRunValues
+      ? `const response = await fetch("${endpoint}", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify(${body.replace(/^/gm, "  ").trimStart()}),
+});
+const result = await response.json();
+console.log(result);`
+      : isLLM
+        ? `import OpenAI from "openai";
 
 const client = new OpenAI({
   baseURL: "${baseUrl}",
@@ -91,7 +129,7 @@ const response = await client.chat.completions.create({
   max_tokens: 1024,
 });
 console.log(response.choices[0].message.content);`
-      : `const response = await fetch("${endpoint}", {
+        : `const response = await fetch("${endpoint}", {
   method: "POST",
   headers: {
     Authorization: "Bearer YOUR_API_KEY",
@@ -117,26 +155,23 @@ ${body}`,
 export default function CodeSnippets({
   model,
   fixedLang,
+  runValues,
 }: {
   model: Model;
   fixedLang?: Lang;
+  /** When provided, snippets bake these values into the request body instead of
+   *  the generic example. Used by the Playground's "Copy code for this run". */
+  runValues?: Record<string, unknown>;
 }) {
   const [lang, setLang] = useState<Lang>(fixedLang ?? "curl");
-  const [copied, setCopied] = useState(false);
-  const snippets = generateSnippets(model);
+  const snippets = generateSnippets(model, runValues);
   const activeLang = fixedLang ?? lang;
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(snippets[activeLang]);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   return (
-    <div className="overflow-hidden rounded-lg border border-white/[0.06]">
-      <div className="flex items-center justify-between border-b border-white/[0.06] bg-white/[0.02]">
+    <div className="overflow-hidden rounded-lg border border-hairline">
+      <div className="flex items-center justify-between border-b border-hairline bg-white/[0.02]">
         {fixedLang ? (
-          <span className="px-3 py-2 text-xs font-medium text-white/50">
+          <span className="px-3 py-2 text-xs font-medium text-fg-faint">
             {LANGS.find((l) => l.key === fixedLang)?.label}
           </span>
         ) : (
@@ -148,7 +183,7 @@ export default function CodeSnippets({
                 className={`border-b-2 px-3 py-2 text-xs font-medium transition-colors ${
                   lang === l.key
                     ? "border-green-bright text-white"
-                    : "border-transparent text-white/50 hover:text-white/60"
+                    : "border-transparent text-fg-faint hover:text-fg-muted"
                 }`}
               >
                 {l.label}
@@ -156,19 +191,14 @@ export default function CodeSnippets({
             ))}
           </div>
         )}
-        <button
-          onClick={handleCopy}
-          className="mr-2 flex items-center gap-1 rounded-md px-2 py-1 text-[11px] text-white/50 hover:bg-white/[0.04] hover:text-white/60"
-        >
-          {copied ? (
-            <Check className="h-3 w-3 text-green-bright" />
-          ) : (
-            <Copy className="h-3 w-3" />
-          )}
-          {copied ? "Copied" : "Copy"}
-        </button>
+        <CopyButton
+          value={snippets[activeLang]}
+          label="Copy"
+          ariaLabel="Copy code"
+          className="mr-2"
+        />
       </div>
-      <pre className="scrollbar-dark overflow-x-auto bg-black/40 p-4 font-mono text-xs leading-relaxed text-white/60">
+      <pre className="scrollbar-dark overflow-x-auto bg-black/40 p-4 font-mono text-xs leading-relaxed text-fg-muted">
         {snippets[activeLang]}
       </pre>
     </div>

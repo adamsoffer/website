@@ -13,18 +13,20 @@ interface DrawerProps {
   title?: string;
   /** aria-label when no title is provided. */
   ariaLabel?: string;
+  /** Which edge the drawer slides in from. Defaults to "bottom". */
+  side?: "bottom" | "left";
   children: ReactNode;
 }
 
 /**
- * Bottom sheet drawer — slides up from the viewport bottom with a backdrop.
+ * Drawer — slides in from the bottom (default) or left with a backdrop.
  * Vaul/shadcn-inspired but dependency-free.
  *
  * - ESC and backdrop tap dismiss
  * - Body scroll lock while open
- * - `max-h-[85vh]` so users can always dismiss by tapping the uncovered area
- * - Safe-area inset padding at the bottom (iPhone home indicator)
  * - Portal-rendered to document.body so stacking contexts never trap it
+ * - Bottom sheet: max-h-[85vh] + safe-area bottom padding + drag handle
+ * - Left sheet: w-[min(280px,80vw)] full-height, no drag handle
  */
 export default function Drawer({
   id,
@@ -32,6 +34,7 @@ export default function Drawer({
   onClose,
   title,
   ariaLabel,
+  side = "bottom",
   children,
 }: DrawerProps) {
   const [mounted, setMounted] = useState(false);
@@ -102,14 +105,22 @@ export default function Drawer({
         aria-modal="true"
         aria-label={title || ariaLabel}
         tabIndex={-1}
-        className={`absolute bottom-0 left-0 right-0 flex max-h-[85vh] flex-col overflow-hidden rounded-t-2xl border-t border-white/10 bg-dark shadow-2xl shadow-black/60 outline-none transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none ${
-          open ? "translate-y-0" : "translate-y-full"
-        }`}
+        className={
+          side === "left"
+            ? `absolute bottom-0 left-0 top-0 flex w-[min(280px,80vw)] flex-col overflow-hidden rounded-r-2xl border-r border-white/10 bg-dark shadow-2xl shadow-black/60 outline-none transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none ${
+                open ? "translate-x-0" : "-translate-x-full"
+              }`
+            : `absolute bottom-0 left-0 right-0 flex max-h-[85vh] flex-col overflow-hidden rounded-t-2xl border-t border-white/10 bg-dark shadow-2xl shadow-black/60 outline-none transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none ${
+                open ? "translate-y-0" : "translate-y-full"
+              }`
+        }
       >
-        {/* Drag handle */}
-        <div className="flex shrink-0 justify-center pb-1 pt-2">
-          <div className="h-1 w-10 rounded-full bg-white/20" />
-        </div>
+        {/* Drag handle — bottom sheet only */}
+        {side === "bottom" && (
+          <div className="flex shrink-0 justify-center pb-1 pt-2">
+            <div className="h-1 w-10 rounded-full bg-white/20" />
+          </div>
+        )}
 
         {/* Optional header */}
         {title && (
@@ -127,7 +138,13 @@ export default function Drawer({
         )}
 
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto pb-[max(env(safe-area-inset-bottom),1rem)]">
+        <div
+          className={
+            side === "left"
+              ? "flex-1 overflow-y-auto"
+              : "flex-1 overflow-y-auto pb-[max(env(safe-area-inset-bottom),1rem)]"
+          }
+        >
           {children}
         </div>
       </div>

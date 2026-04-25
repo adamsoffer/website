@@ -86,7 +86,7 @@ export default function DashboardSubNav({
     <nav
       aria-label={ariaLabel}
       role="tablist"
-      className={`${hideClass} relative border-b border-white/[0.08] ${className}`}
+      className={`${hideClass} relative border-b border-subtle ${className}`}
     >
       <div
         ref={stripRef}
@@ -106,13 +106,13 @@ export default function DashboardSubNav({
               className={`-mb-px flex h-11 shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-3 text-sm transition-colors sm:px-0 ${
                 active
                   ? "border-green-bright font-semibold text-white"
-                  : "border-transparent font-medium text-white/55 hover:text-white/90"
+                  : "border-transparent font-medium text-fg-faint hover:text-fg"
               }`}
             >
               {Icon && (
                 <Icon
                   className={`h-4 w-4 ${
-                    active ? "text-green-bright" : "text-white/40"
+                    active ? "text-green-bright" : "text-fg-label"
                   }`}
                   aria-hidden="true"
                 />

@@ -23,7 +23,7 @@ export default function PeriodToggle<T extends string>({
           className={`flex h-9 items-center px-3 text-xs transition-colors sm:h-7 ${
             value === key
               ? "bg-white/[0.08] font-medium text-white"
-              : "text-white/50 hover:text-white/60"
+              : "text-fg-faint hover:text-fg-muted"
           } ${i === 0 ? "rounded-l-lg" : i === options.length - 1 ? "rounded-r-lg" : ""}`}
         >
           {label}

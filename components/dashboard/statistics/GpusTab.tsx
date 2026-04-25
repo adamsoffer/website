@@ -141,11 +141,11 @@ export default function GpusTab() {
       {/* Header — hidden on mobile (dropdown nav already identifies the section) */}
       <div className="hidden lg:block">
         <h2 className="text-lg font-semibold text-white">GPUs</h2>
-        <p className="mt-1 text-sm text-white/60">
+        <p className="mt-1 text-sm text-fg-muted">
           GPU hardware backing the network — node growth, type distribution, and hardware specifications.
         </p>
       </div>
-      <p className="text-sm text-white/60 lg:hidden">
+      <p className="text-sm text-fg-muted lg:hidden">
         GPU hardware backing the network — node growth, type distribution, and hardware specifications.
       </p>
 
@@ -157,13 +157,13 @@ export default function GpusTab() {
       </div>
 
       {/* Growth chart */}
-      <div className="rounded-xl border border-white/[0.06] bg-dark-surface p-5">
+      <div className="rounded-xl border border-hairline bg-dark-surface p-5">
         <div className="mb-1 flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-white/40">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-fg-label">
               GPU Growth
             </p>
-            <p className="mt-1 font-mono text-3xl font-bold text-white">
+            <p className="mt-1 text-3xl font-semibold text-white">
               {latestGrowth.total.toLocaleString()}
             </p>
             <div className="mt-1 flex items-center gap-1 text-xs text-green-bright">
@@ -179,7 +179,7 @@ export default function GpusTab() {
               className={`rounded-md px-2.5 py-1 text-xs transition-colors ${
                 chartMode === "total"
                   ? "bg-white/[0.08] font-medium text-white"
-                  : "text-white/50 hover:text-white/70"
+                  : "text-fg-faint hover:text-fg-strong"
               }`}
             >
               Total
@@ -189,14 +189,14 @@ export default function GpusTab() {
               className={`rounded-md px-2.5 py-1 text-xs transition-colors ${
                 chartMode === "byType"
                   ? "bg-white/[0.08] font-medium text-white"
-                  : "text-white/50 hover:text-white/70"
+                  : "text-fg-faint hover:text-fg-strong"
               }`}
             >
               By Type
             </button>
           </div>
         </div>
-        <p className="mt-1 text-sm text-white/60">
+        <p className="mt-1 text-sm text-fg-muted">
           Total GPU count across all nodes over the last 90 days.
         </p>
 
@@ -268,7 +268,7 @@ export default function GpusTab() {
                   className="h-2 w-2 rounded-full"
                   style={{ backgroundColor: GPU_COLORS[i] }}
                 />
-                <span className="text-[11px] text-white/50">{key}</span>
+                <span className="text-[11px] text-fg-faint">{key}</span>
               </div>
             ))}
           </div>
@@ -276,16 +276,16 @@ export default function GpusTab() {
       </div>
 
       {/* GPU Inventory — mix bar + table in one card */}
-      <div className="overflow-x-clip rounded-xl border border-white/[0.06] bg-dark-surface">
-        <div className="border-b border-white/[0.06] px-5 py-3">
-          <h3 className="text-sm font-medium text-white/60">GPU Inventory</h3>
-          <p className="text-[11px] text-white/40">
+      <div className="overflow-x-clip rounded-xl border border-hairline bg-dark-surface">
+        <div className="border-b border-hairline px-5 py-3">
+          <h3 className="text-sm font-medium text-fg-muted">GPU Inventory</h3>
+          <p className="text-[11px] text-fg-label">
             Current GPU types on the network with hardware specifications
           </p>
         </div>
 
         {/* GPU Mix bar — inline above table */}
-        <div className="relative border-b border-white/[0.06] px-5 py-4">
+        <div className="relative border-b border-hairline px-5 py-4">
           <div ref={barRef} className="flex h-10 gap-[1px] rounded-lg">
             {GPU_NODES.map((node, i) => {
               const pct = (node.count / totalGpus) * 100;
@@ -330,13 +330,13 @@ export default function GpusTab() {
                     ref={(el) => {
                       tooltipRefs.current[i] = el;
                     }}
-                    className={`pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 rounded-lg border border-white/[0.08] bg-dark-card px-3 py-2 shadow-xl transition-opacity ${isOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+                    className={`pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 rounded-lg border border-hairline bg-dark-card px-3 py-2 transition-opacity ${isOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
                     style={{
                       transform: `translateX(calc(-50% + ${shift}px))`,
                     }}
                   >
                     <p className="whitespace-nowrap text-xs font-medium text-white">{node.name}</p>
-                    <p className="mt-0.5 whitespace-nowrap font-mono text-[11px] text-white/50">
+                    <p className="mt-0.5 whitespace-nowrap text-[11px] text-fg-faint">
                       {node.count} GPUs · {pct.toFixed(1)}%
                     </p>
                   </div>
@@ -347,7 +347,7 @@ export default function GpusTab() {
         </div>
 
         {/* Header */}
-        <div className="flex items-center gap-3 border-b border-white/[0.06] px-5 py-2 text-[11px] font-medium uppercase tracking-wider text-white/30">
+        <div className="flex items-center gap-3 border-b border-hairline px-5 py-2 text-[11px] font-medium uppercase tracking-wider text-fg-disabled">
           <span className="flex-1 pl-[18px]">GPU Name</span>
           <span className="w-14 text-right">Count</span>
           <span className="w-12 text-right">Share</span>
@@ -362,26 +362,26 @@ export default function GpusTab() {
             const pct = ((node.count / totalGpus) * 100).toFixed(1);
             return (
               <div key={node.name} className="flex items-center gap-3 px-5 py-3">
-                <span className="flex flex-1 items-center gap-2 text-sm text-white/70">
+                <span className="flex flex-1 items-center gap-2 text-sm text-fg-strong">
                   <span
                     className="h-2 w-2 shrink-0 rounded-full"
                     style={{ backgroundColor: GPU_COLORS[i % GPU_COLORS.length] }}
                   />
                   <span className="truncate">{node.name}</span>
                 </span>
-                <span className="w-14 text-right font-mono text-sm font-medium text-white">
+                <span className="w-14 text-right text-sm font-medium text-white">
                   {node.count}
                 </span>
-                <span className="w-12 text-right font-mono text-[11px] text-white/30">
+                <span className="w-12 text-right text-[11px] text-fg-disabled">
                   {pct}%
                 </span>
-                <span className="hidden w-24 text-right font-mono text-xs text-white/50 sm:block">
+                <span className="hidden w-24 text-right text-xs text-fg-faint sm:block">
                   {node.memory}
                 </span>
-                <span className="hidden w-16 text-right font-mono text-xs text-white/50 md:block">
+                <span className="hidden w-16 text-right text-xs text-fg-faint md:block">
                   {node.tflops}
                 </span>
-                <span className="hidden w-16 text-right font-mono text-xs text-white/50 lg:block">
+                <span className="hidden w-16 text-right text-xs text-fg-faint lg:block">
                   {node.maxPower}
                 </span>
               </div>
@@ -390,13 +390,13 @@ export default function GpusTab() {
         </div>
 
         {/* Total row */}
-        <div className="flex items-center gap-3 border-t border-white/[0.08] bg-white/[0.02] px-5 py-3">
-          <span className="flex-1 text-sm font-medium text-white/60">Total</span>
-          <span className="w-14 text-right font-mono text-sm font-bold text-white">
+        <div className="flex items-center gap-3 border-t border-subtle bg-white/[0.02] px-5 py-3">
+          <span className="flex-1 text-sm font-medium text-fg-muted">Total</span>
+          <span className="w-14 text-right text-sm font-semibold text-white">
             {totalGpus.toLocaleString()}
           </span>
-          <span className="w-12 text-right font-mono text-[11px] text-white/30">100%</span>
-          <span className="hidden w-24 text-right font-mono text-xs text-white/40 sm:block">
+          <span className="w-12 text-right text-[11px] text-fg-disabled">100%</span>
+          <span className="hidden w-24 text-right text-xs text-fg-label sm:block">
             {(totalVram / 1000).toFixed(0)} TB
           </span>
           <span className="hidden w-16 md:block" />

@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Check, Copy, Play, Radio } from "lucide-react";
+import { Play, Radio } from "lucide-react";
 import type { ReactNode } from "react";
+import CopyButton from "@/components/dashboard/CopyButton";
+import StatusDot from "@/components/dashboard/StatusDot";
 
 interface TranscodingOutputProps {
   result: string | null;
@@ -41,31 +43,20 @@ function randHex(len: number) {
 }
 
 function CopyChip({ label, value }: { label: string; value: string }) {
-  const [copied, setCopied] = useState(false);
   return (
-    <div className="flex flex-col gap-1.5 rounded-lg border border-white/[0.06] bg-dark-surface p-3">
+    <div className="flex flex-col gap-1.5 rounded-lg border border-hairline bg-dark-surface p-3">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[10px] font-medium uppercase tracking-wider text-white/40">
+        <span className="text-[10px] font-medium uppercase tracking-wider text-fg-label">
           {label}
         </span>
-        <button
-          type="button"
-          onClick={() => {
-            navigator.clipboard.writeText(value);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-          }}
-          className="flex items-center gap-1 rounded-md bg-white/[0.04] px-2 py-1 text-[10px] text-white/50 transition-colors hover:bg-white/[0.08] hover:text-white/80 focus:outline-none"
-        >
-          {copied ? (
-            <Check className="h-3 w-3 text-green-bright" />
-          ) : (
-            <Copy className="h-3 w-3" />
-          )}
-          {copied ? "Copied" : "Copy"}
-        </button>
+        <CopyButton
+          value={value}
+          label="Copy"
+          ariaLabel={`Copy ${label}`}
+          size="xs"
+        />
       </div>
-      <code className="break-all font-mono text-xs text-white/75">{value}</code>
+      <code className="break-all font-mono text-xs text-fg-strong">{value}</code>
     </div>
   );
 }
@@ -78,7 +69,7 @@ function CopyChip({ label, value }: { label: string; value: string }) {
 // not a black void.
 function PlayerFrame({ children }: { children: ReactNode }) {
   return (
-    <div className="relative aspect-video w-full overflow-hidden rounded-xl border border-white/[0.06] bg-dark-surface">
+    <div className="relative aspect-video w-full overflow-hidden rounded-xl border border-hairline bg-dark-surface">
       {children}
     </div>
   );
@@ -114,10 +105,7 @@ function HlsPlayerMock({
 
       {/* Live badge */}
       <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-md bg-black/60 px-2 py-1 backdrop-blur-sm">
-        <span className="relative flex h-1.5 w-1.5">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75" />
-          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-red-500" />
-        </span>
+        <StatusDot tone="red" />
         <span className="text-[10px] font-semibold tracking-wider text-white">LIVE</span>
       </div>
 
@@ -129,10 +117,10 @@ function HlsPlayerMock({
           className="flex items-center gap-1.5 rounded-md bg-black/60 px-2 py-1 text-[10px] font-medium text-white backdrop-blur-sm hover:bg-black/80 focus:outline-none"
         >
           <span className="font-mono">{activeRendition.label}</span>
-          <span className="text-white/50">▾</span>
+          <span className="text-fg-faint">▾</span>
         </button>
         {menuOpen && (
-          <div className="absolute right-0 mt-1 min-w-[120px] rounded-lg border border-white/[0.08] bg-dark-surface/95 p-1 shadow-xl backdrop-blur-sm">
+          <div className="absolute right-0 mt-1 min-w-[120px] rounded-lg border border-hairline bg-dark-card p-1 backdrop-blur-sm">
             {DEFAULT_LADDER.map((r) => (
               <button
                 key={r.label}
@@ -142,11 +130,11 @@ function HlsPlayerMock({
                   setMenuOpen(false);
                 }}
                 className={`flex w-full items-center justify-between gap-3 rounded-md px-2 py-1.5 text-left text-[11px] transition-colors hover:bg-white/[0.06] focus:outline-none ${
-                  r.label === activeRendition.label ? "text-white" : "text-white/60"
+                  r.label === activeRendition.label ? "text-white" : "text-fg-muted"
                 }`}
               >
                 <span className="font-mono">{r.label}</span>
-                <span className="text-white/40">{r.bitrate}</span>
+                <span className="text-fg-label">{r.bitrate}</span>
               </button>
             ))}
           </div>
@@ -161,7 +149,7 @@ function HlsPlayerMock({
       </div>
 
       {/* Resolution stamp */}
-      <div className="absolute bottom-3 right-3 rounded-md bg-black/60 px-2 py-1 font-mono text-[10px] text-white/70 backdrop-blur-sm">
+      <div className="absolute bottom-3 right-3 rounded-md bg-black/60 px-2 py-1 font-mono text-[10px] text-fg-strong backdrop-blur-sm">
         {activeRendition.width}×{activeRendition.height} · {activeRendition.fps}fps
       </div>
     </PlayerFrame>
@@ -173,10 +161,10 @@ function TranscodingEmpty({ modelName }: { modelName?: string }) {
     <PlayerFrame>
       <div className="relative flex h-full w-full flex-col items-center justify-center gap-3 p-6 text-center">
         <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/[0.04]">
-          <Radio className="h-6 w-6 text-white/60" strokeWidth={2} aria-hidden="true" />
+          <Radio className="h-6 w-6 text-fg-muted" strokeWidth={2} aria-hidden="true" />
         </div>
-        <p className="text-sm text-white/55">Ready to create a stream</p>
-        <p className="max-w-sm text-xs text-white/40">
+        <p className="text-sm text-fg-faint">Ready to create a stream</p>
+        <p className="max-w-sm text-xs text-fg-label">
           {modelName
             ? `Run ${modelName} to get an HLS playback URL, rendition ladder, and RTMP ingest.`
             : "Fill in the form and click Run"}
@@ -190,8 +178,8 @@ function TranscodingLoading() {
   return (
     <PlayerFrame>
       <div className="relative flex h-full w-full flex-col items-center justify-center gap-3 p-6 text-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-white/10 border-t-green-bright" />
-        <p className="animate-pulse text-xs text-white/50">Provisioning stream…</p>
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-subtle border-t-green-bright" />
+        <p className="animate-pulse text-xs text-fg-faint">Provisioning stream…</p>
       </div>
     </PlayerFrame>
   );
@@ -262,7 +250,7 @@ export default function TranscodingOutput({
     <div className="flex flex-col gap-3">
       {/* View mode tabs — disabled until a result lands, keeps layout from jumping. */}
       <div
-        className={`flex items-center gap-0 border-b border-white/[0.06] transition-opacity duration-300 ${
+        className={`flex items-center gap-0 border-b border-hairline transition-opacity duration-300 ${
           state === "result" ? "opacity-100" : "pointer-events-none opacity-40"
         }`}
         aria-disabled={state !== "result"}
@@ -273,7 +261,7 @@ export default function TranscodingOutput({
           className={`border-b-2 px-3 py-1.5 text-xs font-medium transition-colors focus:outline-none ${
             state === "result" && viewMode === "preview"
               ? "border-green-bright text-white"
-              : "border-transparent text-white/50 hover:text-white/60"
+              : "border-transparent text-fg-faint hover:text-fg-muted"
           }`}
         >
           Preview
@@ -284,7 +272,7 @@ export default function TranscodingOutput({
           className={`border-b-2 px-3 py-1.5 text-xs font-medium transition-colors focus:outline-none ${
             state === "result" && viewMode === "json"
               ? "border-green-bright text-white"
-              : "border-transparent text-white/50 hover:text-white/60"
+              : "border-transparent text-fg-faint hover:text-fg-muted"
           }`}
         >
           JSON
@@ -295,8 +283,8 @@ export default function TranscodingOutput({
       {state === "empty" && <TranscodingEmpty modelName={modelName} />}
 
       {state === "result" && viewMode === "json" && (
-        <div className="relative rounded-lg border border-white/[0.08] bg-white/[0.03]">
-          <pre className="overflow-x-auto p-4 font-mono text-xs leading-relaxed text-white/60">
+        <div className="relative rounded-lg border border-subtle bg-white/[0.03]">
+          <pre className="overflow-x-auto p-4 font-mono text-xs leading-relaxed text-fg-muted">
             {responseJson}
           </pre>
         </div>
@@ -311,12 +299,12 @@ export default function TranscodingOutput({
           />
 
           {/* Rendition ladder */}
-          <div className="rounded-xl border border-white/[0.06] bg-dark-surface">
-            <div className="flex items-center justify-between border-b border-white/[0.06] px-3 py-2">
-              <span className="text-[10px] font-medium uppercase tracking-wider text-white/40">
+          <div className="rounded-xl border border-hairline bg-dark-surface">
+            <div className="flex items-center justify-between border-b border-hairline px-3 py-2">
+              <span className="text-[10px] font-medium uppercase tracking-wider text-fg-label">
                 Rendition ladder
               </span>
-              <span className="text-[10px] text-white/40">
+              <span className="text-[10px] text-fg-label">
                 4 renditions · H.264
               </span>
             </div>
@@ -327,7 +315,7 @@ export default function TranscodingOutput({
                   <div
                     key={r.label}
                     className={`col-span-4 grid grid-cols-subgrid items-center py-1.5 transition-colors ${
-                      active ? "text-white" : "text-white/50"
+                      active ? "text-white" : "text-fg-faint"
                     }`}
                   >
                     <span
@@ -337,10 +325,10 @@ export default function TranscodingOutput({
                       aria-hidden="true"
                     />
                     <span className="font-mono">{r.label}</span>
-                    <span className="font-mono text-white/60">
+                    <span className="font-mono text-fg-muted">
                       {r.width}×{r.height}
                     </span>
-                    <span className="font-mono text-white/60">{r.bitrate}</span>
+                    <span className="font-mono text-fg-muted">{r.bitrate}</span>
                   </div>
                 );
               })}
@@ -355,9 +343,9 @@ export default function TranscodingOutput({
           </div>
 
           {inferenceTime !== undefined && (
-            <p className="text-xs text-white/50">
+            <p className="text-xs text-fg-faint">
               Provisioned in{" "}
-              <span className="font-mono text-white/50">{inferenceTime}s</span>
+              <span className="font-mono text-fg-faint">{inferenceTime}s</span>
             </p>
           )}
         </>

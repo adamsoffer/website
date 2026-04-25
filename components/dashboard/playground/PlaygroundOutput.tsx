@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Copy, Check, Download } from "lucide-react";
-import type { PlaygroundOutputType } from "@/lib/dashboard/types";
+import { Download } from "lucide-react";
+import type { Model, PlaygroundOutputType } from "@/lib/dashboard/types";
 import { getModelIcon } from "@/lib/dashboard/utils";
 import type { ModelCategory } from "@/lib/dashboard/types";
+import CodeSnippets from "@/components/dashboard/playground/CodeSnippets";
+import CopyButton from "@/components/dashboard/CopyButton";
 import WaveSurferAudio from "@/components/dashboard/playground/WaveSurferAudio";
 import WaveformStatic from "@/components/dashboard/playground/WaveformStatic";
 
@@ -19,6 +21,10 @@ interface PlaygroundOutputProps {
    *  the generic { status, output, metrics } envelope — gives developers a real
    *  response shape (detection boxes, depth stats, masks) to integrate against. */
   mockOutputJson?: unknown;
+  /** When provided alongside `lastRunValues`, the result panel renders a
+   *  "Use this in your code" section with snippets that match what was just run. */
+  model?: Model;
+  lastRunValues?: Record<string, unknown> | null;
 }
 
 // ─── Placeholders — sized per output type so the layout doesn't jump when a real result arrives ───
@@ -50,7 +56,7 @@ function PlaceholderFrame({
   const shape = placeholderShape(outputType);
   return (
     <div
-      className={`flex w-full flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-white/[0.08] bg-white/[0.02] p-6 text-center ${shape}`}
+      className={`flex w-full flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-subtle bg-white/[0.02] p-6 text-center ${shape}`}
     >
       {children}
     </div>
@@ -71,8 +77,8 @@ function ShimmerLoader({
   }
   return (
     <PlaceholderFrame outputType={outputType}>
-      <div className="h-10 w-10 animate-spin rounded-full border-2 border-white/10 border-t-green-bright" />
-      <p className="mt-3 animate-pulse text-xs text-white/50">Running inference…</p>
+      <div className="h-10 w-10 animate-spin rounded-full border-2 border-subtle border-t-green-bright" />
+      <p className="mt-3 animate-pulse text-xs text-fg-faint">Running inference…</p>
     </PlaceholderFrame>
   );
 }
@@ -101,7 +107,7 @@ function AudioPlaygroundOutput({
         : "Fill in the form and click Run";
 
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-white/[0.06] bg-dark-surface px-5 py-6">
+    <div className="flex flex-col gap-4 rounded-xl border border-hairline bg-dark-surface px-5 py-6">
       {state === "result" && url ? (
         <WaveSurferAudio url={url} />
       ) : (
@@ -110,7 +116,7 @@ function AudioPlaygroundOutput({
           {/* Bottom slot — fixed height so empty / loading / result frames match. */}
           <div className="flex h-8 items-center">
             <p
-              className={`w-full text-center text-xs ${state === "loading" ? "animate-pulse text-white/50" : "text-white/40"}`}
+              className={`w-full text-center text-xs ${state === "loading" ? "animate-pulse text-fg-faint" : "text-fg-label"}`}
             >
               {label}
             </p>
@@ -136,12 +142,12 @@ function EmptyState({
   // Chat-like empty state for LLM outputs — matches Replicate/Chutes convention
   if (outputType === "text") {
     return (
-      <div className="flex min-h-[320px] w-full flex-col justify-end gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+      <div className="flex min-h-[320px] w-full flex-col justify-end gap-3 rounded-xl border border-hairline bg-white/[0.02] p-4">
         <div className="flex items-start gap-2">
           <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/[0.04]">
-            {Icon && <Icon className="h-3.5 w-3.5 text-white/60" strokeWidth={2} />}
+            {Icon && <Icon className="h-3.5 w-3.5 text-fg-muted" strokeWidth={2} />}
           </div>
-          <div className="flex min-h-[48px] flex-1 items-center rounded-lg bg-white/[0.03] px-3 py-2 text-xs text-white/40">
+          <div className="flex min-h-[48px] flex-1 items-center rounded-lg bg-white/[0.03] px-3 py-2 text-xs text-fg-label">
             {label}
           </div>
         </div>
@@ -158,11 +164,11 @@ function EmptyState({
     <PlaceholderFrame outputType={outputType}>
       {Icon && (
         <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/[0.04]">
-          <Icon className="h-6 w-6 text-white/60" strokeWidth={2} aria-hidden="true" />
+          <Icon className="h-6 w-6 text-fg-muted" strokeWidth={2} aria-hidden="true" />
         </div>
       )}
-      <p className="mt-3 text-sm text-white/55">Ready to run</p>
-      <p className="mt-1 px-6 text-xs text-white/40">{label}</p>
+      <p className="mt-3 text-sm text-fg-faint">Ready to run</p>
+      <p className="mt-1 px-6 text-xs text-fg-label">{label}</p>
     </PlaceholderFrame>
   );
 }
@@ -192,7 +198,7 @@ function ImageOutput({ url }: { url: string }) {
 
   return (
     <div
-      className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.02] transition-[aspect-ratio] duration-500 ease-out"
+      className="relative overflow-hidden rounded-xl border border-hairline bg-white/[0.02] transition-[aspect-ratio] duration-500 ease-out"
       style={{ aspectRatio: aspect }}
     >
       {/* Full-frame pulse — soft opacity breath while the image bytes decode.
@@ -249,7 +255,7 @@ function StreamingTextOutput({ text }: { text: string }) {
   const isStreaming = displayed.length < text.length;
 
   return (
-    <div className="min-h-[320px] rounded-lg border border-white/[0.08] bg-white/[0.03] p-4 font-mono text-sm leading-relaxed text-white/70">
+    <div className="min-h-[320px] rounded-lg border border-subtle bg-white/[0.03] p-4 font-mono text-sm leading-relaxed text-fg-strong">
       <pre className="whitespace-pre-wrap">{displayed}</pre>
       {isStreaming && (
         <span className="inline-block h-4 w-0.5 animate-pulse bg-green-bright" />
@@ -263,24 +269,16 @@ function AudioOutput({ modelName, url }: { modelName?: string; url?: string }) {
 }
 
 function JsonOutput({ data }: { data: string }) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(data);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   return (
-    <div className="relative rounded-lg border border-white/[0.08] bg-white/[0.03]">
-      <button
-        onClick={handleCopy}
-        className="absolute right-2 top-2 flex items-center gap-1 rounded-md bg-white/[0.06] px-2 py-1 text-[10px] text-white/40 hover:bg-white/[0.1] hover:text-white/60 focus:outline-none"
-      >
-        {copied ? <Check className="h-3 w-3 text-green-bright" /> : <Copy className="h-3 w-3" />}
-        {copied ? "Copied" : "Copy"}
-      </button>
-      <pre className="overflow-x-auto p-4 font-mono text-xs leading-relaxed text-white/60">
+    <div className="relative rounded-lg border border-subtle bg-white/[0.03]">
+      <CopyButton
+        value={data}
+        label="Copy"
+        ariaLabel="Copy JSON"
+        size="xs"
+        className="absolute right-2 top-2"
+      />
+      <pre className="overflow-x-auto p-4 font-mono text-xs leading-relaxed text-fg-muted">
         {data}
       </pre>
     </div>
@@ -295,6 +293,8 @@ export default function PlaygroundOutput({
   category,
   modelName,
   mockOutputJson,
+  model,
+  lastRunValues,
 }: PlaygroundOutputProps) {
   const [viewMode, setViewMode] = useState<"preview" | "json">("preview");
 
@@ -312,7 +312,7 @@ export default function PlaygroundOutput({
       {/* View mode tabs — always rendered so the layout doesn't shift when a result arrives.
           Disabled (muted + not clickable) until there's a result to switch between. */}
       <div
-        className={`flex items-center gap-0 border-b border-white/[0.06] transition-opacity duration-300 ${
+        className={`flex items-center gap-0 border-b border-hairline transition-opacity duration-300 ${
           state === "result" ? "opacity-100" : "pointer-events-none opacity-40"
         }`}
         aria-disabled={state !== "result"}
@@ -323,7 +323,7 @@ export default function PlaygroundOutput({
           className={`border-b-2 px-3 py-1.5 text-xs font-medium transition-colors focus:outline-none ${
             state === "result" && viewMode === "preview"
               ? "border-green-bright text-white"
-              : "border-transparent text-white/50 hover:text-white/60"
+              : "border-transparent text-fg-faint hover:text-fg-muted"
           }`}
         >
           Preview
@@ -334,7 +334,7 @@ export default function PlaygroundOutput({
           className={`border-b-2 px-3 py-1.5 text-xs font-medium transition-colors focus:outline-none ${
             state === "result" && viewMode === "json"
               ? "border-green-bright text-white"
-              : "border-transparent text-white/50 hover:text-white/60"
+              : "border-transparent text-fg-faint hover:text-fg-muted"
           }`}
         >
           JSON
@@ -373,19 +373,29 @@ export default function PlaygroundOutput({
 
       {/* Metadata */}
       {state === "result" && inferenceTime && (
-        <p className="text-xs text-white/50">
+        <p className="text-xs text-fg-faint">
           Generated in{" "}
-          <span className="font-mono text-white/50">{inferenceTime}s</span>
+          <span className="font-mono text-fg-faint">{inferenceTime}s</span>
         </p>
       )}
 
       {/* Action buttons */}
       {state === "result" && (outputType === "image" || outputType === "audio") && (
         <div className="flex flex-wrap gap-2">
-          <button className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] px-3 py-1.5 text-xs text-white/40 transition-colors hover:bg-white/[0.04] hover:text-white/60 focus:outline-none">
+          <button className="flex items-center gap-1.5 rounded-lg border border-subtle px-3 py-1.5 text-xs text-fg-label transition-colors hover:bg-white/[0.04] hover:text-fg-muted focus:outline-none">
             <Download className="h-3 w-3" />
             Download
           </button>
+        </div>
+      )}
+
+      {/* Copy code for this run — bridges click-to-test to copy-paste production code */}
+      {state === "result" && model && lastRunValues && Object.keys(lastRunValues).length > 0 && (
+        <div className="mt-2">
+          <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-fg-label">
+            Use this in your code
+          </p>
+          <CodeSnippets model={model} runValues={lastRunValues} />
         </div>
       )}
     </div>

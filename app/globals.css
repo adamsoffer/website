@@ -36,13 +36,67 @@
    * Canvas intentionally equals --color-dark (#121212) so the marketing →
    * dashboard transition has no visible seam. Raised is the hover / nested-card
    * tier — one step above elevated popovers. */
-  --color-shell: #0e0e0e;
+  --color-shell: #070707;
   --color-surface-raised: #242424;
   --color-border-hairline: rgba(255, 255, 255, 0.06);
   --color-border-subtle: rgba(255, 255, 255, 0.1);
+  --color-border-strong: rgba(255, 255, 255, 0.15);
+  /* Note on borders: Tailwind v4's @theme only generates `border-border-hairline`-style
+   * classes from the tokens above. We expose cleaner `.border-hairline / .border-subtle /
+   * .border-strong` utilities below in @layer utilities so the dashboard uses semantic
+   * names without the doubled-up prefix. */
+
+  /* ─── Semantic foreground ramp ──────────────────────────────────────────────
+   * Aligned with brand-tokens.md "Text Hierarchy (Opacity)". Use these instead
+   * of arbitrary text-white/N values so dashboard surfaces share one ramp. */
+  --color-fg: rgba(255, 255, 255, 1);
+  --color-fg-strong: rgba(255, 255, 255, 0.7);   /* primary body text */
+  --color-fg-muted: rgba(255, 255, 255, 0.6);    /* secondary body */
+  --color-fg-faint: rgba(255, 255, 255, 0.5);    /* supporting text */
+  --color-fg-label: rgba(255, 255, 255, 0.4);    /* mono labels, metadata */
+  --color-fg-disabled: rgba(255, 255, 255, 0.25);
 
   --font-sans: var(--font-favorit-pro), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-favorit-mono), ui-monospace, monospace;
+
+  /* ─── Motion vocabulary ────────────────────────────────────────────────────
+   * Standardize timing across the dashboard. Pair with framer-motion's
+   * `transition={{ duration, ease }}` props or CSS `transition-duration` /
+   * `transition-timing-function`. */
+  --motion-duration-fast: 150ms;       /* hover, focus, color shifts */
+  --motion-duration-base: 200ms;       /* dropdowns, dialogs, tab switches */
+  --motion-duration-slow: 300ms;       /* drawers, modals */
+  --motion-easing-out: cubic-bezier(0.16, 1, 0.3, 1);   /* entrance */
+  --motion-easing-in: cubic-bezier(0.4, 0, 1, 1);       /* exit */
+  --motion-easing-spring: cubic-bezier(0.32, 0.72, 0, 1);  /* drawer-style spring */
+}
+
+/* ─── Branded text selection + caret (was browser default) ─────────────────── */
+::selection {
+  background-color: rgba(64, 191, 134, 0.25);
+  color: #ffffff;
+}
+
+input,
+textarea,
+[contenteditable] {
+  caret-color: var(--color-green-bright);
+}
+
+/* ─── Kill Chrome/Safari's autofill yellow/white background ────────────────────
+ * Browser autofill overrides our dark input styling with a bright yellow/white
+ * fill. The hack: a giant inset box-shadow holds the dark surface color, and
+ * `-webkit-text-fill-color` keeps the text white. Long transition delay defers
+ * the (still-applied-but-hidden) browser default. Standard cross-browser fix. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill {
+  -webkit-text-fill-color: #ffffff;
+  -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.025) inset !important;
+  caret-color: var(--color-green-bright);
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 html {
@@ -65,12 +119,27 @@ summary {
   cursor: pointer;
 }
 
-/* Tile grid background — subtle, structural */
+/* Tile grid background — subtle, structural.
+ * Per brand-tokens.md: green-tinted at 4% opacity (was incorrectly neutral white at 2%).
+ * Used sparingly on dashboard (login splash only) and prominently on marketing surfaces. */
 .tile-bg {
   background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    linear-gradient(to right, rgba(24, 121, 78, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(24, 121, 78, 0.04) 1px, transparent 1px);
   background-size: 48px 48px;
+}
+
+/* ─── Border utilities ─────────────────────────────────────────────────────
+ * Three semantic tiers consumed by the dashboard. Marketing-side code can keep
+ * using arbitrary opacity values where it's already polished. */
+.border-hairline {
+  border-color: var(--color-border-hairline);
+}
+.border-subtle {
+  border-color: var(--color-border-subtle);
+}
+.border-strong {
+  border-color: var(--color-border-strong);
 }
 
 /* Section divider — off-white gradient line */
@@ -133,6 +202,24 @@ summary {
   50% {
     opacity: 1;
   }
+}
+
+/* Status-dot halo — smoother + slower than Tailwind's `animate-ping`.
+   Pairs with a static center dot to form a "pulsing presence" indicator. */
+@keyframes statusHalo {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+.animate-status-halo {
+  animation: statusHalo 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 /* Starburst node pulse — brightens every ~6s */

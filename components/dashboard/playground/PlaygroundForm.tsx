@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { RotateCcw } from "lucide-react";
 import Select from "@/components/ui/Select";
+import CostTag from "@/components/dashboard/CostTag";
 import type { PlaygroundConfig, PlaygroundField } from "@/lib/dashboard/types";
 
 interface PlaygroundFormProps {
@@ -13,7 +14,7 @@ interface PlaygroundFormProps {
 
 function TypeBadge({ type }: { type: string }) {
   return (
-    <span className="ml-1.5 rounded bg-white/[0.06] px-1.5 py-0.5 text-[10px] font-mono text-white/50">
+    <span className="ml-1.5 rounded bg-white/[0.06] px-1.5 py-0.5 text-[10px] text-fg-faint">
       {type}
     </span>
   );
@@ -35,7 +36,7 @@ function FieldRenderer({
   onChange: (val: unknown) => void;
 }) {
   const inputClass =
-    "w-full rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-white/20 transition-colors";
+    "w-full rounded-lg border border-subtle bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-fg-label focus:outline-none focus:border-strong transition-colors";
 
   switch (field.type) {
     case "textarea":
@@ -98,7 +99,7 @@ function FieldRenderer({
             required={field.required}
             className="flex-1 accent-green-bright"
           />
-          <span className="w-12 text-right font-mono text-xs text-white/50">
+          <span className="w-12 text-right text-xs text-fg-faint">
             {numVal}
           </span>
         </div>
@@ -125,21 +126,21 @@ function FieldRenderer({
             checked={(value as boolean) ?? (field.defaultValue as boolean) ?? false}
             onChange={(e) => onChange(e.target.checked)}
             aria-required={field.required}
-            className="h-4 w-4 rounded border-white/20 bg-white/[0.03] accent-green-bright"
+            className="h-4 w-4 rounded border-strong bg-white/[0.03] accent-green-bright"
           />
-          <span className="text-sm text-white/50">Enabled</span>
+          <span className="text-sm text-fg-faint">Enabled</span>
         </label>
       );
 
     case "file":
       return (
         <div className="relative">
-          <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-white/[0.08] bg-white/[0.02] py-6 transition-colors hover:border-white/15 hover:bg-white/[0.04]">
+          <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-subtle bg-white/[0.02] py-6 transition-colors hover:border-strong hover:bg-white/[0.04]">
             <label className="cursor-pointer text-center">
-              <p className="text-sm text-white/40">
+              <p className="text-sm text-fg-label">
                 {value ? (value as File).name : "Drop a file or click to upload"}
               </p>
-              <p className="mt-1 text-[11px] text-white/40">
+              <p className="mt-1 text-[11px] text-fg-label">
                 {field.description || "Supports common file formats"}
               </p>
               <input
@@ -197,7 +198,7 @@ export default function PlaygroundForm({
         {config.fields.map((field) => (
           <div key={field.name}>
             <div className="mb-1.5 flex items-center">
-              <label htmlFor={`field-${field.name}`} className="text-xs font-medium text-white/50">
+              <label htmlFor={`field-${field.name}`} className="text-xs font-medium text-fg-faint">
                 {field.label}
               </label>
               {field.required && <RequiredBadge />}
@@ -209,7 +210,7 @@ export default function PlaygroundForm({
               onChange={(val) => handleChange(field.name, val)}
             />
             {field.description && field.type !== "file" && (
-              <p className="mt-1 text-[11px] text-white/40">
+              <p className="mt-1 text-[11px] text-fg-label">
                 {field.description}
                 {field.defaultValue !== undefined && (
                   <span>
@@ -223,11 +224,11 @@ export default function PlaygroundForm({
         ))}
       </div>
 
-      <div className="flex items-center gap-2 border-t border-white/[0.06] pt-4">
+      <div className="flex items-center gap-2 border-t border-hairline pt-4">
         <button
           type="button"
           onClick={handleReset}
-          className="flex h-11 items-center gap-1.5 rounded-lg border border-white/[0.08] px-3 text-xs text-white/40 transition-colors hover:bg-white/[0.04] hover:text-white/60 focus:outline-none sm:h-9"
+          className="flex h-11 items-center gap-1.5 rounded-lg border border-subtle px-3 text-xs text-fg-label transition-colors hover:bg-white/[0.04] hover:text-fg-muted focus:outline-none sm:h-9"
         >
           <RotateCcw className="h-3 w-3" />
           Reset to defaults
@@ -235,18 +236,19 @@ export default function PlaygroundForm({
         <button
           type="submit"
           disabled={isRunning}
-          className="flex h-11 min-w-[120px] items-center justify-center gap-2 rounded-lg bg-green px-4 text-sm font-medium text-white transition-all hover:bg-green-light disabled:opacity-50 focus:outline-none sm:h-9"
+          className="flex h-11 min-w-[120px] items-center justify-center gap-2 rounded-lg bg-green px-4 text-sm font-medium text-white transition-colors hover:bg-green-light active:scale-[0.98] disabled:bg-white/[0.06] disabled:text-fg-disabled focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-bright/50 motion-reduce:active:scale-100 sm:h-9"
         >
           {isRunning ? (
             <>
-              <span className="h-3 w-3 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+              <span className="h-3 w-3 animate-spin rounded-full border-2 border-strong border-t-white" />
               Running...
             </>
           ) : (
             "Run"
           )}
         </button>
-        <span className="ml-auto hidden text-[10px] text-white/40 sm:inline">ctrl+enter</span>
+        <CostTag mode="free" />
+        <span className="ml-auto hidden text-[10px] text-fg-label sm:inline">ctrl+enter</span>
       </div>
     </form>
   );

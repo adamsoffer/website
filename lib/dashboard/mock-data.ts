@@ -1537,7 +1537,25 @@ const TOP_APIS = [
   "LivePortrait", "Whisper Large", "Daydream Video",
 ];
 
-const API_COLORS = ["#40bf86", "#25abd0", "#e5a536", "#d94f70", "#8b5cf6", "#06b6d4"];
+// ─── Chart series palette ─────────────────────────────────────────────────────
+// Categorical chart colors anchored on the brand greens/blues with desaturated
+// supporting tones. These read as distinct categories (which is what charts
+// need) without going full rainbow.
+const API_COLORS = [
+  "#40bf86", // green-bright — primary
+  "#25abd0", // blue-bright — secondary
+  "#e5a536", // amber — tertiary
+  "#8b5cf6", // violet — quaternary
+  "#d94f70", // rose
+  "#06b6d4", // cyan
+];
+
+// Optional tonal scale exposed for cases where a single-hue stack reads better
+// (e.g. ranked progress bars). Computed by mixing green-bright with bg-dark.
+export const TONAL_GREEN = [
+  "#40bf86", "#39a979", "#33966c", "#2c8260", "#266e54",
+  "#205b48", "#19473c", "#143830", "#102a25", "#0c1f1c",
+];
 
 function generateApiRequestSeries(): ApiRequestSeries[] {
   const data: ApiRequestSeries[] = [];

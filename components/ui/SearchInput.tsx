@@ -23,10 +23,10 @@ export default function SearchInput({
 }: SearchInputProps) {
   const inputCls =
     size === "lg"
-      ? "w-full rounded-lg border border-white/[0.08] bg-white/[0.03] backdrop-blur-sm h-11 pl-10 pr-10 text-sm text-white placeholder:text-white/40 transition-colors duration-200 focus:bg-white/[0.05] focus:border-white/20 focus:outline-none"
+      ? "w-full rounded-lg border border-white/[0.10] bg-white/[0.04] backdrop-blur-sm h-11 pl-10 pr-10 text-sm text-white placeholder:text-white/35 transition-all duration-150 hover:border-white/20 focus:bg-white/[0.06] focus:border-white/30 focus:ring-1 focus:ring-green-bright/30 focus:outline-none"
       : size === "md"
-        ? "w-full rounded-lg border border-white/[0.08] bg-white/[0.03] backdrop-blur-sm h-9 lg:h-8 pl-9 lg:pl-8 pr-9 text-xs text-white placeholder:text-white/40 transition-colors duration-200 focus:bg-white/[0.05] focus:border-white/20 focus:outline-none"
-        : "w-full rounded-md border border-white/[0.08] bg-white/[0.03] backdrop-blur-sm py-[5px] pl-9 pr-8 text-xs text-white/60 placeholder:text-white/30 transition-colors duration-200 focus:bg-white/[0.05] focus:border-white/20 focus:outline-none select-none";
+        ? "w-full rounded-lg border border-white/[0.10] bg-white/[0.04] backdrop-blur-sm h-9 lg:h-8 pl-9 lg:pl-8 pr-9 text-xs text-white placeholder:text-white/35 transition-all duration-150 hover:border-white/20 focus:bg-white/[0.06] focus:border-white/30 focus:ring-1 focus:ring-green-bright/30 focus:outline-none"
+        : "w-full rounded-md border border-white/[0.10] bg-white/[0.04] backdrop-blur-sm py-[5px] pl-9 pr-8 text-xs text-white/70 placeholder:text-white/30 transition-all duration-150 hover:border-white/20 focus:bg-white/[0.06] focus:border-white/30 focus:ring-1 focus:ring-green-bright/30 focus:outline-none select-none";
   const iconCls =
     size === "sm"
       ? "pointer-events-none absolute left-3 top-1/2 z-10 h-3.5 w-3.5 -translate-y-1/2 text-white/50"

@@ -51,10 +51,21 @@ export const NAV_ITEMS: NavItem[] = [
   },
 ];
 
+// Three-item nav, builder mental model:
+//   Home         = your workspace (last runs, pinned capabilities)
+//   Capabilities = catalog (models, services, pipelines — was "Explore")
+//   Usage        = observability (errors, latency, spend, runs)
+// Account (profile, tokens, billing) routes through the avatar dropdown — no
+// primary nav item needed. Network protocol view lives at /dashboard/network
+// and is reached via the sidebar footer status link.
 export const PORTAL_NAV_ITEMS = [
   { label: "Home", href: "/dashboard", icon: "House" as const },
-  { label: "Explore", href: "/dashboard/explore", icon: "LayoutGrid" as const },
-  { label: "Stats", href: "/dashboard/stats", icon: "BarChart3" as const },
+  {
+    label: "Capabilities",
+    href: "/dashboard/explore",
+    icon: "LayoutGrid" as const,
+  },
+  { label: "Usage", href: "/dashboard/usage", icon: "Activity" as const },
 ] as const;
 
 export const EXTERNAL_LINKS = {

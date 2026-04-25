@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Trash2, RefreshCw, Info } from "lucide-react";
+import { Check, Copy, Trash2, RefreshCw, Info, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { SETTINGS_API_KEYS } from "@/lib/dashboard/mock-data";
 import type { ApiKey, ApiKeyScope } from "@/lib/dashboard/types";
@@ -18,12 +18,12 @@ const SCOPE_OPTIONS: { value: ApiKeyScope; label: string; description: string }[
   {
     value: "any",
     label: "Any provider",
-    description: "Routes to any connected provider, falls back to Free tier.",
+    description: "Uses any connected provider; falls back to Free tier.",
   },
   {
     value: "freeTier",
     label: "Free tier",
-    description: "Community provider only. Rate-limited.",
+    description: "Up to 10,000 requests per month. No billing.",
   },
   {
     value: "paymthouse",
@@ -50,7 +50,7 @@ function scopePillClasses(scope: ApiKeyScope): string {
   if (scope === "freeTier") {
     return "border-green-bright/20 bg-green-bright/[0.08] text-green-bright";
   }
-  return "border-white/[0.10] bg-white/[0.04] text-white/75";
+  return "border-subtle bg-white/[0.04] text-fg-strong";
 }
 
 function ScopeSelect({
@@ -77,6 +77,8 @@ export default function ApiKeysTab() {
   const [keys, setKeys] = useState<ApiKey[]>(SETTINGS_API_KEYS);
   const [newKeyName, setNewKeyName] = useState("");
   const [newKeyScope, setNewKeyScope] = useState<ApiKeyScope>("any");
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [copiedKeyId, setCopiedKeyId] = useState<string | null>(null);
 
   const handleCreate = () => {
     if (!newKeyName.trim()) return;
@@ -95,8 +97,12 @@ export default function ApiKeysTab() {
     setNewKeyScope("any");
   };
 
-  const handleCopy = (prefix: string) => {
+  const handleCopy = (id: string, prefix: string) => {
     navigator.clipboard.writeText(`${prefix}${"•".repeat(24)}`);
+    setCopiedKeyId(id);
+    window.setTimeout(() => {
+      setCopiedKeyId((current) => (current === id ? null : current));
+    }, 1800);
   };
 
   const handleRevoke = (id: string) => {
@@ -121,15 +127,15 @@ export default function ApiKeysTab() {
     <div className="space-y-12 px-5 py-8 lg:px-6">
       <section>
         <h2 className="hidden text-base font-medium text-white lg:block">API tokens</h2>
-        <p className="text-sm text-white/50 lg:mt-1">
-          Each connected provider gets a default token automatically. Need separate keys for staging, production, or per-project scoping? Create a new one below.
+        <p className="text-sm text-fg-faint lg:mt-1">
+          Your default token is auto-created on signup and works out of the box. Create a new one below for separate environments or per-project keys.
         </p>
 
-        {/* Routing model banner */}
-        <div className="mt-4 flex items-start gap-3 rounded-lg border border-white/[0.08] bg-dark-surface px-4 py-3">
-          <Info className="mt-0.5 h-4 w-4 shrink-0 text-white/40" />
-          <p className="text-xs text-white/60">
-            The Free tier runs on a community payment provider with rate limits.{" "}
+        {/* Free tier upgrade hint */}
+        <div className="mt-4 flex items-start gap-3 rounded-lg border border-hairline px-4 py-3">
+          <Info className="mt-0.5 h-4 w-4 shrink-0 text-fg-label" />
+          <p className="text-xs text-fg-muted">
+            The Free tier includes 10,000 requests per month.{" "}
             <Link
               href="/dashboard/settings?tab=billing"
               className="text-green-bright hover:underline"
@@ -148,33 +154,49 @@ export default function ApiKeysTab() {
             onChange={(e) => setNewKeyName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleCreate()}
             placeholder="Enter token name"
-            className="w-full rounded-md border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-white/50 transition-colors focus:border-white/20 focus:bg-white/[0.05] focus:outline-none sm:flex-1 sm:py-2"
+            className="w-full rounded-md border border-subtle bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-fg-faint transition-colors focus:border-strong focus:bg-white/[0.05] focus:outline-none sm:flex-1 sm:py-2"
           />
-          <ScopeSelect value={newKeyScope} onChange={setNewKeyScope} />
+          {showAdvanced && (
+            <ScopeSelect value={newKeyScope} onChange={setNewKeyScope} />
+          )}
           <button
             onClick={handleCreate}
             disabled={!newKeyName.trim()}
-            className="w-full rounded-md border border-white/[0.12] px-4 py-2.5 text-sm font-medium text-white/80 transition-colors hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto sm:shrink-0 sm:py-2"
+            className="w-full rounded-md border border-strong px-4 py-2.5 text-sm font-medium text-fg-strong transition-colors hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto sm:shrink-0 sm:py-2"
           >
             Create token
           </button>
         </div>
 
+        {/* Advanced toggle */}
+        <button
+          type="button"
+          onClick={() => setShowAdvanced((v) => !v)}
+          aria-expanded={showAdvanced}
+          className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium uppercase tracking-wider text-fg-faint transition-colors hover:text-white"
+        >
+          <ChevronDown
+            className={`h-3 w-3 transition-transform ${showAdvanced ? "rotate-180" : ""}`}
+            aria-hidden="true"
+          />
+          {showAdvanced ? "Hide advanced" : "Advanced"}
+        </button>
+
         {/* Token list */}
-        <div className="mt-4 rounded-lg border border-white/[0.06]">
+        <div className="mt-4 rounded-lg border border-hairline">
           {keys.map((key) => {
             const scope: ApiKeyScope = key.scope ?? "any";
             return (
               <div
                 key={key.id}
-                className="group flex items-center gap-4 border-b border-white/[0.06] px-4 py-3.5 transition-colors first:rounded-t-lg last:rounded-b-lg last:border-0 hover:bg-white/[0.02]"
+                className="group flex items-center gap-4 border-b border-hairline px-4 py-3.5 transition-colors first:rounded-t-lg last:rounded-b-lg last:border-0 hover:bg-white/[0.02]"
               >
                 {/* Name + prefix + status */}
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <p className="truncate text-sm font-medium text-white">{key.name}</p>
                     {key.isDefault && (
-                      <span className="rounded-full bg-white/[0.06] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-white/50">
+                      <span className="rounded-full bg-white/[0.06] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-fg-faint">
                         Auto
                       </span>
                     )}
@@ -184,12 +206,20 @@ export default function ApiKeysTab() {
                       </span>
                     )}
                   </div>
-                  <p className="mt-0.5 truncate font-mono text-xs text-white/50">
-                    {key.prefix}
-                    {"•".repeat(24)}
+                  <p className="mt-0.5 flex items-center gap-2 truncate text-xs text-fg-faint">
+                    <span className="truncate">
+                      {key.prefix}
+                      {"•".repeat(24)}
+                    </span>
+                    {copiedKeyId === key.id && (
+                      <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-green-bright/15 px-1.5 py-0.5 text-[10px] font-medium text-green-bright">
+                        <Check className="h-2.5 w-2.5" aria-hidden="true" />
+                        Copied
+                      </span>
+                    )}
                   </p>
-                  <p className="mt-1 text-[12px] text-white/45">
-                    <span className="font-mono text-white/60">
+                  <p className="mt-1 text-xs text-fg-faint">
+                    <span className="text-fg-muted">
                       {formatRequests(key.calls7d)}
                     </span>{" "}
                     requests this week
@@ -211,7 +241,7 @@ export default function ApiKeysTab() {
                       {
                         label: "Copy token",
                         icon: Copy,
-                        onClick: () => handleCopy(key.prefix),
+                        onClick: () => handleCopy(key.id, key.prefix),
                       },
                       {
                         label: "Rotate",

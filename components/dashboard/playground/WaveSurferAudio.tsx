@@ -91,14 +91,14 @@ export default function WaveSurferAudio({ url }: { url: string }) {
         />
         {loadState === "loading" && (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/10 border-t-green-bright" />
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-subtle border-t-green-bright" />
           </div>
         )}
         {loadState === "error" && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-center">
-            <TriangleAlert className="h-4 w-4 text-white/40" aria-hidden="true" />
-            <p className="text-[11px] text-white/50">Couldn&apos;t load audio</p>
-            <p className="text-[10px] text-white/30">
+            <TriangleAlert className="h-4 w-4 text-fg-label" aria-hidden="true" />
+            <p className="text-[11px] text-fg-faint">Couldn&apos;t load audio</p>
+            <p className="text-[10px] text-fg-disabled">
               The host may be blocking cross-origin requests.
             </p>
           </div>
@@ -110,7 +110,7 @@ export default function WaveSurferAudio({ url }: { url: string }) {
           type="button"
           onClick={() => wsRef.current?.playPause()}
           disabled={loadState !== "ready"}
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/[0.08] text-white transition-colors hover:bg-white/[0.12] focus:outline-none disabled:opacity-40"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/[0.08] text-white transition-colors hover:bg-white/[0.12] focus:outline-none disabled:cursor-not-allowed disabled:opacity-40"
           aria-label={playing ? "Pause" : "Play"}
         >
           {playing ? (
@@ -119,11 +119,11 @@ export default function WaveSurferAudio({ url }: { url: string }) {
             <Play className="h-3.5 w-3.5 translate-x-[1px] fill-white" />
           )}
         </button>
-        <span className="font-mono text-[11px] text-white/60">
+        <span className="font-mono text-[11px] text-fg-muted">
           {formatTime(currentTime)}
         </span>
         <div className="flex-1" />
-        <span className="font-mono text-[11px] text-white/60">
+        <span className="font-mono text-[11px] text-fg-muted">
           {formatTime(duration)}
         </span>
       </div>
