@@ -38,7 +38,7 @@ function StepRow({ step, num }: { step: Step; num: number }) {
       {num > 1 && (
         <span
           aria-hidden="true"
-          className="absolute left-[19px] top-[-4px] h-3.5 w-px bg-white/[0.06]"
+          className="absolute left-[19px] top-[-4px] h-3.5 w-px bg-tint"
         />
       )}
       <span
@@ -47,7 +47,7 @@ function StepRow({ step, num }: { step: Step; num: number }) {
             ? "border border-green-light bg-green text-white"
             : isActive
               ? "border border-green-bright text-green-bright"
-              : "border border-white/[0.10] text-fg-faint"
+              : "border border-subtle text-fg-faint"
         }`}
         aria-hidden="true"
       >
@@ -56,7 +56,7 @@ function StepRow({ step, num }: { step: Step; num: number }) {
       <div className="min-w-0">
         <p
           className={`text-[13px] font-medium ${
-            isDone ? "text-fg-strong" : "text-white"
+            isDone ? "text-fg-strong" : "text-fg"
           }`}
         >
           {step.title}
@@ -71,11 +71,15 @@ function buildSnippet(lang: Lang, token: string): React.ReactNode {
   const C = (cls: string, children: React.ReactNode) => (
     <span className={cls}>{children}</span>
   );
+  // Syntax colours route through theme-aware tokens — `text-green-bright` and
+  // `text-blue-bright` already step down in light mode (globals.css), and
+  // `--token-syntax-string` flips from mint (#6dfbb1) on dark to green-600
+  // (#16a34a) on light so strings stay legible on a near-white code panel.
   const comment = "text-fg-disabled";
   const prompt = "text-green-bright";
-  const cmd = "text-white font-medium";
+  const cmd = "text-fg font-medium";
   const flag = "text-blue-bright";
-  const str = "text-[#6dfbb1]";
+  const str = "text-[color:var(--token-syntax-string)]";
   const key = "text-green-bright";
   const url = `https://api.livepeer.org/v1/stream/start`;
   const body = `'{"model":"daydream/video","prompt":"cinematic"}'`;
@@ -189,7 +193,7 @@ export default function FirstRunChecklist({ onDismiss }: Props) {
   return (
     <section
       aria-label="Quickstart"
-      className="grid grid-cols-1 overflow-hidden rounded-md border border-hairline bg-dark-lighter lg:grid-cols-[1fr_1.1fr]"
+      className="grid grid-cols-1 overflow-hidden rounded-md border border-hairline bg-dark-lighter shadow-card lg:grid-cols-[1fr_1.1fr]"
     >
       {/* LEFT — steps. Header handled by the outer <SectionHeader>. */}
       <div className="flex flex-col gap-1 border-b border-hairline p-4 lg:border-b-0 lg:border-r">

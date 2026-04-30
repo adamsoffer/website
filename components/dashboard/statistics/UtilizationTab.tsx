@@ -17,11 +17,11 @@ function UtilBar({ pct }: { pct: number }) {
         ? "bg-green-bright/60"
         : pct >= 20
           ? "bg-blue-bright/60"
-          : "bg-white/20";
+          : "bg-fg-faint";
 
   return (
     <div className="flex items-center gap-2">
-      <div className="h-2 w-24 rounded-full bg-white/[0.06]">
+      <div className="h-2 w-24 rounded-full bg-tint">
         <div
           className={`h-2 rounded-full ${color} transition-all`}
           style={{ width: `${Math.min(pct, 100)}%` }}
@@ -39,13 +39,13 @@ function StatusBadge({ status }: { status: PipelineUtilization["status"] | LiveJ
     active: { bg: "bg-green-bright/10", text: "text-green-bright", label: "Active" },
     online: { bg: "bg-green-bright/10", text: "text-green-bright", label: "online" },
     degraded: { bg: "bg-yellow-400/10", text: "text-yellow-400", label: "degraded" },
-    cold: { bg: "bg-white/[0.06]", text: "text-fg-label", label: "Cold" },
-    completed: { bg: "bg-white/[0.06]", text: "text-fg-label", label: "done" },
+    cold: { bg: "bg-tint", text: "text-fg-label", label: "Cold" },
+    completed: { bg: "bg-tint", text: "text-fg-label", label: "done" },
   };
   const { bg, text, label } = config[status] || config.cold;
   return (
     <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] ${bg} ${text}`}>
-      <span className={`h-1.5 w-1.5 rounded-full ${status === "online" || status === "active" ? "bg-green-bright" : status === "degraded" ? "bg-yellow-400" : "bg-white/30"}`} />
+      <span className={`h-1.5 w-1.5 rounded-full ${status === "online" || status === "active" ? "bg-green-bright" : status === "degraded" ? "bg-yellow-400" : "bg-fg-faint"}`} />
       {label}
     </span>
   );
@@ -72,7 +72,7 @@ function LiveJobFeed() {
         </div>
         {/* Row 2: refresh toggle left, job count right */}
         <div className="mt-2.5 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-1 rounded-lg bg-white/[0.04] p-0.5">
+          <div className="flex items-center gap-1 rounded-lg bg-hover p-0.5">
             <RefreshCw className="ml-1.5 h-3 w-3 shrink-0 text-fg-disabled" />
             {REFRESH_OPTIONS.map((opt) => (
               <button
@@ -80,7 +80,7 @@ function LiveJobFeed() {
                 onClick={() => setRefreshInterval(opt)}
                 className={`shrink-0 rounded-md px-2 py-1 text-[11px] transition-colors ${
                   refreshInterval === opt
-                    ? "bg-white/[0.1] font-medium text-white"
+                    ? "bg-pop font-medium text-fg"
                     : "text-fg-label hover:text-fg-muted"
                 }`}
               >
@@ -107,7 +107,7 @@ function LiveJobFeed() {
 
       {/* Scrollable rows — desktop table, mobile card list */}
       <div className="scrollbar-dark max-h-[360px] overflow-y-auto md:overflow-x-auto">
-        <div className="divide-y divide-white/[0.04]">
+        <div className="divide-y divide-[var(--color-border-hairline)]">
           {LIVE_JOBS.map((job) => {
             const fps =
               job.fpsIn != null
@@ -118,7 +118,7 @@ function LiveJobFeed() {
             return (
               <div key={job.id}>
                 {/* Desktop row */}
-                <div className="hidden md:flex min-w-[600px] items-center gap-4 px-5 py-2.5 transition-colors hover:bg-white/[0.02]">
+                <div className="hidden md:flex min-w-[600px] items-center gap-4 px-5 py-2.5 transition-colors hover:bg-zebra">
                   <span className="flex-1 text-sm text-fg-strong">{job.pipeline}</span>
                   <span className="w-44 truncate text-xs text-fg-faint">{job.model}</span>
                   <span className="w-20 text-right text-xs text-fg-faint">{fps}</span>
@@ -128,7 +128,7 @@ function LiveJobFeed() {
                   </span>
                 </div>
                 {/* Mobile card */}
-                <div className="flex flex-col gap-1.5 px-4 py-3 transition-colors hover:bg-white/[0.02] md:hidden">
+                <div className="flex flex-col gap-1.5 px-4 py-3 transition-colors hover:bg-zebra md:hidden">
                   <div className="flex items-start justify-between gap-3">
                     <span className="min-w-0 flex-1 truncate text-sm text-fg-strong">
                       {job.pipeline}
@@ -189,7 +189,7 @@ export default function UtilizationTab() {
     <div className="flex flex-1 flex-col gap-6 p-5 lg:p-6">
       {/* Header — hidden on mobile (dropdown nav already identifies the section) */}
       <div className="hidden lg:block">
-        <h2 className="text-lg font-semibold text-white">Utilization</h2>
+        <h2 className="text-lg font-semibold text-fg">Utilization</h2>
         <p className="mt-1 text-sm text-fg-muted">
           Real-time network activity and pipeline capacity across the Livepeer AI inference network.
         </p>
@@ -227,7 +227,7 @@ export default function UtilizationTab() {
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPipelinePage(0); }}
               placeholder="Search pipelines..."
-              className="w-full rounded-lg border border-subtle bg-white/[0.03] py-1.5 pl-9 pr-3 text-xs text-white placeholder:text-fg-disabled focus:border-strong focus:outline-none"
+              className="w-full rounded-lg border border-subtle bg-zebra py-1.5 pl-9 pr-3 text-xs text-fg placeholder:text-fg-disabled focus:border-strong focus:outline-none"
             />
           </div>
         </div>
@@ -247,11 +247,11 @@ export default function UtilizationTab() {
 
         {/* Paginated rows — desktop table, mobile card list */}
         <div className="md:overflow-x-auto">
-          <div className="divide-y divide-white/[0.04]">
+          <div className="divide-y divide-[var(--color-border-hairline)]">
             {pipelinePageItems.map((p) => (
               <div key={p.id}>
                 {/* Desktop row */}
-                <div className="hidden md:flex min-w-[700px] items-center gap-4 px-5 py-3 transition-colors hover:bg-white/[0.02]">
+                <div className="hidden md:flex min-w-[700px] items-center gap-4 px-5 py-3 transition-colors hover:bg-zebra">
                   <span className="flex-1 text-sm text-fg-strong">{p.name}</span>
                   <span className="w-16 text-right text-xs text-green-bright">
                     {p.warmOrchestrators}
@@ -273,7 +273,7 @@ export default function UtilizationTab() {
                   </span>
                 </div>
                 {/* Mobile card */}
-                <div className="flex flex-col gap-2 px-4 py-3 transition-colors hover:bg-white/[0.02] md:hidden">
+                <div className="flex flex-col gap-2 px-4 py-3 transition-colors hover:bg-zebra md:hidden">
                   <div className="flex items-start justify-between gap-3">
                     <span className="min-w-0 flex-1 truncate text-sm text-fg-strong">
                       {p.name}
@@ -314,14 +314,14 @@ export default function UtilizationTab() {
               <button
                 onClick={() => setPipelinePage(Math.max(0, pipelinePage - 1))}
                 disabled={pipelinePage === 0}
-                className="rounded-lg border border-subtle bg-white/[0.03] px-3 py-1.5 text-xs text-fg-strong transition-colors hover:border-strong hover:bg-white/[0.05] hover:text-white disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-subtle disabled:hover:bg-white/[0.03]"
+                className="rounded-lg border border-subtle bg-zebra px-3 py-1.5 text-xs text-fg-strong transition-colors hover:border-strong hover:bg-hover hover:text-fg disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-subtle disabled:hover:bg-zebra"
               >
                 Prev
               </button>
               <button
                 onClick={() => setPipelinePage(Math.min(pipelineTotalPages - 1, pipelinePage + 1))}
                 disabled={pipelinePage >= pipelineTotalPages - 1}
-                className="rounded-lg border border-subtle bg-white/[0.03] px-3 py-1.5 text-xs text-fg-strong transition-colors hover:border-strong hover:bg-white/[0.05] hover:text-white disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-subtle disabled:hover:bg-white/[0.03]"
+                className="rounded-lg border border-subtle bg-zebra px-3 py-1.5 text-xs text-fg-strong transition-colors hover:border-strong hover:bg-hover hover:text-fg disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-subtle disabled:hover:bg-zebra"
               >
                 Next
               </button>

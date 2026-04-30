@@ -131,7 +131,7 @@ export default function WebcamPlayground({ model }: { model: Model }) {
         <div
           role="tablist"
           aria-label="Request format"
-          className="scrollbar-none flex shrink-0 items-center overflow-x-auto rounded-lg border border-hairline bg-white/[0.02] p-0.5"
+          className="scrollbar-none flex shrink-0 items-center overflow-x-auto rounded-lg border border-hairline bg-zebra p-0.5"
         >
           {INPUT_MODES.map((m) => {
             const selected = inputMode === m.key;
@@ -143,7 +143,7 @@ export default function WebcamPlayground({ model }: { model: Model }) {
                 onClick={() => setInputMode(m.key)}
                 className={`flex h-9 shrink-0 items-center rounded-md px-2.5 text-xs font-medium transition-colors focus:outline-none sm:h-7 ${
                   selected
-                    ? "bg-white/[0.08] text-white shadow-sm"
+                    ? "bg-pop text-fg shadow-sm"
                     : "text-fg-faint hover:text-fg-strong"
                 }`}
               >
@@ -186,7 +186,7 @@ export default function WebcamPlayground({ model }: { model: Model }) {
                   <button
                     onClick={startCamera}
                     disabled={status === "starting"}
-                    className="mt-1 flex items-center gap-1.5 rounded-lg bg-green px-3 py-1.5 text-xs font-medium text-white hover:bg-green-light disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none"
+                    className="btn-primary mt-1 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none"
                   >
                     {status === "starting" ? (
                       <>
@@ -220,7 +220,7 @@ export default function WebcamPlayground({ model }: { model: Model }) {
                     onChange={(e) => setPrompt(e.target.value)}
                     placeholder={promptField.placeholder}
                     rows={2}
-                    className="w-full resize-y rounded-lg border border-subtle bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-fg-label focus:outline-none focus:border-strong transition-colors"
+                    className="w-full resize-y rounded-lg border border-subtle bg-zebra px-3 py-2.5 text-sm text-fg placeholder:text-fg-label focus:outline-none focus:border-strong transition-colors"
                   />
                 </div>
               )}
@@ -273,7 +273,7 @@ export default function WebcamPlayground({ model }: { model: Model }) {
                   <>
                     <button
                       onClick={toggleEffect}
-                      className="flex items-center gap-2 rounded-lg bg-green px-4 py-2 text-sm font-medium text-white transition-all hover:bg-green-light focus:outline-none"
+                      className="btn-primary flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors focus:outline-none"
                     >
                       {status === "applied" ? (
                         <>
@@ -289,7 +289,7 @@ export default function WebcamPlayground({ model }: { model: Model }) {
                     </button>
                     <button
                       onClick={stopCamera}
-                      className="flex items-center gap-1.5 rounded-lg border border-subtle px-3 py-2 text-xs text-fg-faint transition-colors hover:bg-white/[0.04] hover:text-fg-muted focus:outline-none"
+                      className="flex items-center gap-1.5 rounded-lg border border-subtle px-3 py-2 text-xs text-fg-faint transition-colors hover:bg-hover hover:text-fg-muted focus:outline-none"
                     >
                       <VideoOff className="h-3 w-3" />
                       Stop camera
@@ -313,7 +313,7 @@ export default function WebcamPlayground({ model }: { model: Model }) {
               <h3 className="text-sm font-medium text-fg-faint">Request</h3>
             </div>
             {inputMode === "json" ? (
-              <pre className="scrollbar-dark overflow-x-auto rounded-lg border border-hairline bg-black/40 p-4 font-mono text-xs leading-relaxed text-fg-muted">
+              <pre className="scrollbar-dark overflow-x-auto rounded-lg border border-hairline bg-overlay p-4 font-mono text-xs leading-relaxed text-fg-muted">
                 {payloadJson}
               </pre>
             ) : (

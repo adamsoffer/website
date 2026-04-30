@@ -71,7 +71,7 @@ function ExploreEmptyState({
         <span className="absolute inset-4 rounded-lg border border-strong" />
         <Search className="relative h-5 w-5 text-fg-faint" />
       </div>
-      <h3 className="mt-6 text-xl font-semibold tracking-tight text-white text-balance">
+      <h3 className="mt-6 text-base font-semibold tracking-tight text-fg text-balance">
         No capabilities match your filters
       </h3>
       <p className="mt-2 max-w-sm text-sm text-fg-faint">
@@ -135,7 +135,7 @@ function ModelListItem({ model }: { model: Model }) {
   return (
     <Link
       href={`/dashboard/models/${model.id}`}
-      className={`${LIST_GRID} border-b border-hairline px-2 py-2 text-[12.5px] transition-colors hover:bg-white/[0.04]`}
+      className={`${LIST_GRID} border-b border-hairline px-2 py-2 text-[12.5px] transition-colors hover:bg-hover`}
     >
       {/* Icon thumbnail (24px square, bordered) */}
       <div
@@ -147,10 +147,10 @@ function ModelListItem({ model }: { model: Model }) {
 
       {/* Name + provider + status pill + category */}
       <div className="flex min-w-0 items-center gap-2">
-        <span className="shrink-0 truncate font-medium text-white">
+        <span className="shrink-0 truncate font-semibold text-fg">
           {model.name}
         </span>
-        <span className="shrink-0 text-[11.5px] text-fg-faint">
+        <span className="shrink-0 text-[12.5px] text-fg-faint">
           {model.provider}
         </span>
         <span
@@ -167,7 +167,7 @@ function ModelListItem({ model }: { model: Model }) {
           )}
           {isWarm ? "warm" : "cold"}
         </span>
-        <span className="truncate text-[11.5px] text-fg-faint">
+        <span className="truncate text-[12.5px] text-fg-faint">
           · {model.category}
         </span>
       </div>
@@ -275,14 +275,14 @@ function PriceRangeFilter({
                 height: `${height}%`,
                 backgroundColor: active
                   ? "rgb(64, 191, 134)"
-                  : "rgba(255, 255, 255, 0.12)",
+                  : "var(--color-pop)",
               }}
             />
           );
         })}
       </div>
       <div className="relative mt-1 h-5">
-        <div className="absolute inset-x-0 top-1/2 h-[2px] -translate-y-1/2 rounded-full bg-white/[0.08]" />
+        <div className="absolute inset-x-0 top-1/2 h-[2px] -translate-y-1/2 rounded-full bg-pop" />
         <div
           className="absolute top-1/2 h-[2px] -translate-y-1/2 rounded-full"
           style={{
@@ -345,7 +345,7 @@ function ExploreFilterPill({
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-hairline bg-dark-card px-2 text-[11.5px] text-fg-strong transition-colors hover:bg-dark-lighter"
+      className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-hairline bg-dark-card px-2 text-[12px] text-fg-strong transition-colors hover:bg-dark-lighter"
     >
       <span className="font-mono text-[10.5px] uppercase tracking-[0.05em] text-fg-faint">
         {label}
@@ -357,7 +357,7 @@ function ExploreFilterPill({
             e.stopPropagation();
             onClear();
           }}
-          className="ml-0.5 grid h-3.5 w-3.5 place-items-center border-l border-hairline pl-1 text-fg-faint transition-colors hover:text-white"
+          className="ml-0.5 grid h-3.5 w-3.5 place-items-center border-l border-hairline pl-1 text-fg-faint transition-colors hover:text-fg"
           aria-label={`Clear ${label}`}
         >
           <X className="h-2.5 w-2.5" />
@@ -484,7 +484,7 @@ function ExplorePageInner() {
                 aria-pressed={view === "grid"}
                 className={`flex h-5 w-6 items-center justify-center rounded-[3px] transition-colors ${
                   view === "grid"
-                    ? "bg-white/[0.08] text-white"
+                    ? "bg-pop text-fg"
                     : "text-fg-faint hover:text-fg-strong"
                 }`}
               >
@@ -497,7 +497,7 @@ function ExplorePageInner() {
                 aria-pressed={view === "list"}
                 className={`flex h-5 w-6 items-center justify-center rounded-[3px] transition-colors ${
                   view === "list"
-                    ? "bg-white/[0.08] text-white"
+                    ? "bg-pop text-fg"
                     : "text-fg-faint hover:text-fg-strong"
                 }`}
               >
@@ -507,7 +507,7 @@ function ExplorePageInner() {
             <button
               type="button"
               onClick={() => setFilterDrawerOpen(true)}
-              className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-transparent px-2.5 text-[12.5px] text-fg-strong transition-colors hover:border-hairline hover:bg-white/[0.04] hover:text-white"
+              className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-transparent px-2.5 text-[12.5px] text-fg-strong transition-colors hover:border-hairline hover:bg-hover hover:text-fg"
             >
               <SlidersHorizontal className="h-3 w-3" aria-hidden="true" />
               Display
@@ -535,7 +535,7 @@ function ExplorePageInner() {
               onClick={() => setCategory(tab.key === "all" ? null : tab.key)}
               className={`relative inline-flex shrink-0 items-center gap-1.5 px-3 py-[11px] text-[13px] transition-colors ${
                 isActive
-                  ? "text-white"
+                  ? "font-medium text-fg"
                   : "text-fg-muted hover:text-fg-strong"
               }`}
             >
@@ -607,7 +607,7 @@ function ExplorePageInner() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search capabilities…"
-            className="flex-1 bg-transparent text-[11.5px] text-fg-strong placeholder:text-fg-faint outline-none"
+            className="flex-1 bg-transparent text-[13px] text-fg-strong placeholder:text-fg-faint outline-none"
           />
         </div>
       </div>
@@ -664,7 +664,7 @@ function ExplorePageInner() {
                 className={`flex items-center gap-1.5 rounded-lg px-3 py-2.5 text-sm transition-colors ${
                   availabilityFilter === "warm"
                     ? "bg-warm-subtle font-medium text-warm"
-                    : "text-fg-strong hover:bg-white/[0.06]"
+                    : "text-fg-strong hover:bg-tint"
                 }`}
               >
                 <Flame className="h-3.5 w-3.5" />
@@ -675,7 +675,7 @@ function ExplorePageInner() {
                 className={`flex items-center gap-1.5 rounded-lg px-3 py-2.5 text-sm transition-colors ${
                   availabilityFilter === "cold"
                     ? "bg-blue/10 font-medium text-blue-bright"
-                    : "text-fg-strong hover:bg-white/[0.06]"
+                    : "text-fg-strong hover:bg-tint"
                 }`}
               >
                 <Snowflake className="h-3.5 w-3.5" />
@@ -684,7 +684,7 @@ function ExplorePageInner() {
             </div>
           </div>
 
-          <div className="h-px bg-white/[0.06]" />
+          <div className="h-px bg-tint" />
 
           {/* Starred */}
           <div>
@@ -697,7 +697,7 @@ function ExplorePageInner() {
               className={`flex w-full items-center gap-1.5 rounded-lg px-3 py-2.5 text-sm transition-colors ${
                 favoritesOnly
                   ? "bg-warm-subtle font-medium text-warm"
-                  : "text-fg-strong hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-40"
+                  : "text-fg-strong hover:bg-tint disabled:cursor-not-allowed disabled:opacity-40"
               }`}
             >
               <Star className={`h-3.5 w-3.5 ${favoritesOnly ? "fill-warm" : ""}`} />
@@ -710,7 +710,7 @@ function ExplorePageInner() {
             </button>
           </div>
 
-          <div className="h-px bg-white/[0.06]" />
+          <div className="h-px bg-tint" />
 
           {/* Price range */}
           <PriceRangeFilter
@@ -733,14 +733,14 @@ function ExplorePageInner() {
               setPriceMax(100);
             }}
             disabled={activeFilters.length === 0}
-            className="text-sm text-fg-muted underline decoration-white/30 underline-offset-2 transition-colors hover:text-white disabled:no-underline disabled:text-fg-disabled disabled:cursor-default"
+            className="text-sm text-fg-muted underline decoration-white/30 underline-offset-2 transition-colors hover:text-fg disabled:no-underline disabled:text-fg-disabled disabled:cursor-default"
           >
             Clear all
           </button>
           <button
             type="button"
             onClick={() => setFilterDrawerOpen(false)}
-            className="rounded-lg bg-green px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-light active:bg-green-dark"
+            className="btn-primary rounded-lg px-4 py-2 text-sm font-medium transition-colors"
           >
             Show {filtered.length} {filtered.length === 1 ? "result" : "results"}
           </button>

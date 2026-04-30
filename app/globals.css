@@ -1,6 +1,238 @@
 @import "tailwindcss";
 
+/* ─── Theme tokens — dual-source ─────────────────────────────────────────────
+ *
+ * Tailwind v4's `@theme` block resolves values at build time, so to support
+ * runtime theme switching we keep accents/motion in `@theme` directly (they
+ * don't change per theme) and route surface / foreground / border / state
+ * tokens through `--token-*` variables defined in `[data-theme]` blocks. The
+ * `@theme` entries become `var(--color-X) → var(--token-X)` indirections, so
+ * Tailwind utilities (`bg-dark-lighter`, `text-fg-strong`, `border-hairline`,
+ * `bg-hover`, `bg-overlay`, etc.) flip whenever `data-theme` changes.
+ *
+ * `:root` defaults to the dark values so the marketing site (which never
+ * sets `data-theme`) keeps its current dark presentation. The dashboard sets
+ * `data-theme="dark"` or `data-theme="light"` on `<html>` from a tiny inline
+ * script in the dashboard layout — see `app/(dashboard)/dashboard/layout.tsx`.
+ *
+ * Token names retain the `--token-dark*` prefix in light mode for migration
+ * cost: 200+ existing references to `bg-dark-lighter` etc. would need to be
+ * renamed. Treat them as "surface-1 / surface-2 / surface-3" semantically
+ * regardless of the literal hue. */
+
+:root,
+[data-theme="dark"] {
+  /* Surface hierarchy — 4-tier dark ramp. Shell is darker than dark so a glass
+   * header actually refracts content upward; canvas (--token-dark) equals
+   * #121212 so marketing → dashboard has no visible seam. Raised is the
+   * hover / nested-card tier — one step above elevated popovers. */
+  --token-shell: #070707;
+  --token-dark: #121212;
+  --token-dark-lighter: #181818;
+  --token-dark-surface: #1a1a1a;
+  --token-dark-card: #1e1e1e;
+  --token-dark-border: #2a2a2a;
+  --token-surface-raised: #242424;
+
+  /* Border ramp */
+  --token-border-hairline: rgba(255, 255, 255, 0.06);
+  --token-border-subtle: rgba(255, 255, 255, 0.10);
+  --token-border-strong: rgba(255, 255, 255, 0.15);
+
+  /* Foreground ramp — opacity-based per brand-tokens.md "Text Hierarchy". */
+  --token-fg: rgba(255, 255, 255, 1);
+  --token-fg-strong: rgba(255, 255, 255, 0.7);
+  --token-fg-muted: rgba(255, 255, 255, 0.6);
+  --token-fg-faint: rgba(255, 255, 255, 0.5);
+  --token-fg-label: rgba(255, 255, 255, 0.4);
+  --token-fg-disabled: rgba(255, 255, 255, 0.25);
+
+  /* State tints — replace the literal `bg-white/[0.04]` etc. patterns
+   * scattered across the dashboard. Four rungs (plus overlay):
+   *   zebra  (0.025) — row stripe / sunken-input fill
+   *   hover  (0.04)  — interactive hover tint
+   *   tint   (0.06)  — soft fill / divider band
+   *   active (0.07)  — selected/active row, focused tab
+   *   pop    (0.10)  — pill background, segmented-control selection
+   *   overlay (.50 black) — drawer/dialog scrim */
+  --token-zebra: rgba(255, 255, 255, 0.025);
+  --token-hover: rgba(255, 255, 255, 0.04);
+  --token-tint: rgba(255, 255, 255, 0.06);
+  --token-active: rgba(255, 255, 255, 0.07);
+  --token-pop: rgba(255, 255, 255, 0.10);
+  --token-overlay: rgba(0, 0, 0, 0.5);
+
+  /* Sidebar-card bg — used by the FREE TIER usage card and the logged-out
+   * promo card. On dark these need a visible fill (`#181818`, matching the
+   * design prototype's `--bg-2`) so they elevate off the sidebar shell. In
+   * light mode the same token resolves to `transparent` so they don't paint
+   * as stark-white boxes on the warm cream sidebar. */
+  --token-sidebar-card-bg: #181818;
+  --token-sidebar-card-bg-hover: #1e1e1e;
+
+  /* Pill foregrounds — used by category-tag pills (e.g. model-detail's
+   * purple "Image generation" chip). In dark mode the bright shade reads
+   * cleanly; in light mode we step down to a darker shade for legibility
+   * against the lighter card. */
+  --token-pill-purple-fg: #b794f6;     /* purple-bright */
+  --token-pill-purple-bg: rgba(183, 148, 246, 0.08);
+  --token-pill-purple-border: rgba(183, 148, 246, 0.22);
+
+  /* Tone palette — theme-aware accents for role pills, status chips, and
+   * destructive/warning text. Bright Tailwind defaults (cyan-300, violet-300,
+   * amber-300) read cleanly on dark surfaces but fail contrast in light
+   * (~2:1 against zinc-100 cards). The light overrides below use the same
+   * hue at a darker step (~5:1) for legibility. Tones are referenced via
+   * `var(--token-tone-*)` in inline styles or via the `.tone-*` component
+   * classes defined further below. */
+  --token-tone-cyan-fg: #67e8f9;        /* cyan-300 */
+  --token-tone-cyan-bg: rgba(34, 211, 238, 0.10);
+  --token-tone-cyan-border: rgba(34, 211, 238, 0.30);
+  --token-tone-violet-fg: #c4b5fd;      /* violet-300 */
+  --token-tone-violet-bg: rgba(167, 139, 250, 0.12);
+  --token-tone-violet-border: rgba(167, 139, 250, 0.30);
+  --token-tone-amber-fg: #fcd34d;       /* amber-300 */
+  --token-tone-amber-bg: rgba(251, 191, 36, 0.10);
+  --token-tone-amber-border: rgba(251, 191, 36, 0.30);
+
+  /* Syntax-highlight string colour — mint reads punchy on dark; in light
+   * mode we step down to green-700 so strings stay legible. */
+  --token-syntax-string: #6dfbb1;
+
+  /* Primary CTA recipe — `bg-cta` / `hover:bg-cta-hover` / `text-cta-fg`.
+   * In dark mode this is the brand green; in light mode it flips to a
+   * near-black neutral so primary buttons read as "dashboard CTA" rather
+   * than "marketing CTA," and the green stays available for status/accent
+   * usage where the brand wants it. Pattern mirrors Vercel / Linear /
+   * Stripe / Raycast in light mode. */
+  --token-cta: #18794e;          /* green */
+  --token-cta-hover: #1e9960;    /* green-light */
+  --token-cta-active: #115c3b;   /* green-dark */
+  --token-cta-border: #1e9960;   /* matches hover — gives primary button a subtle edge highlight against the bg, the way the design prototype's `.icon-btn.is-primary` uses `border-color: var(--lp-light)` */
+  --token-cta-fg: #ffffff;
+
+  /* Elevation — `shadow-card` is a no-op in dark (raised cards already
+   * convey elevation via the surface ramp). `shadow-popover` carries a
+   * black shadow so dropdowns / dialogs / command palettes float clearly
+   * off whatever they're over, even when the underlying surface is
+   * already a mid-tier dark. */
+  --token-shadow-card: 0 0 0 0 transparent;
+  --token-shadow-popover: 0 8px 24px -4px rgb(0 0 0 / 0.45), 0 2px 6px -1px rgb(0 0 0 / 0.30);
+}
+
+[data-theme="light"] {
+  /* Light-mode surface ramp — zinc neutral palette (Vercel / Linear /
+   * Stripe family). Switched away from a warm-cream Notion palette
+   * because Livepeer's brand is cool — green `#18794e`, neutral
+   * `#181818` dark. Warm cream sat in an awkward middle zone, neither
+   * editorial-warm nor tech-cool, and clashed slightly with the cool
+   * accent green. Zinc shares the same neutral character as our dark
+   * surfaces (R≈G≈B), so the two themes finally read as one design
+   * system. Foregrounds and tints rebase on `rgb(24, 24, 27)` (zinc-900).
+   *
+   * Surface ramp: sidebar zinc-100 → body zinc-50 → cards white.
+   * Subtle 5-RGB-unit steps — cards pop off the canvas via bg-tint
+   * alone, no shadow needed (Linear's pattern). */
+  --token-shell: #f4f4f5;          /* zinc-100 — sidebar / chrome */
+  --token-dark: #fafafa;           /* zinc-50 — body canvas, ~5 units cooler-step than white */
+  --token-dark-lighter: #ffffff;   /* card / panel — pure white pops off zinc-50 canvas */
+  --token-dark-surface: #f4f4f5;   /* zinc-100 — secondary surface */
+  --token-dark-card: #f4f4f5;      /* zinc-100 — recessed inset within white panel */
+  --token-dark-border: #e4e4e7;    /* zinc-200 — solid border */
+  --token-surface-raised: #ffffff; /* popover/dropdown — white + shadow-popover */
+
+  /* Borders — zinc-900 base. Hairline at 10% reads as a clean 1px line
+   * against the zinc-50 canvas without feeling boxy. */
+  --token-border-hairline: rgba(24, 24, 27, 0.10);
+  --token-border-subtle: rgba(24, 24, 27, 0.14);
+  --token-border-strong: rgba(24, 24, 27, 0.20);
+
+  /* Foreground — zinc-900 base (`#18181b`). Same neutral character as
+   * our dark mode `#181818` shell, so opacity ramps map 1:1 between
+   * themes. Reads crisp on zinc-50 canvas. */
+  --token-fg: rgba(24, 24, 27, 1);
+  --token-fg-strong: rgba(24, 24, 27, 0.85);
+  /* Body / helper text. Zinc reads crisper than warm cream at the same
+   * opacity (more contrast against the cool zinc-50 canvas), so we can
+   * step down to 0.70 here while still feeling committed — Linear's
+   * body-text level. */
+  --token-fg-muted: rgba(24, 24, 27, 0.7);
+  /* Secondary meta — eyebrows, mono numerics meta, low-priority labels. */
+  --token-fg-faint: rgba(24, 24, 27, 0.5);
+  --token-fg-label: rgba(24, 24, 27, 0.4);
+  --token-fg-disabled: rgba(24, 24, 27, 0.25);
+
+  --token-zebra: rgba(24, 24, 27, 0.025);
+  --token-hover: rgba(24, 24, 27, 0.05);
+  --token-tint: rgba(24, 24, 27, 0.06);
+  --token-active: rgba(24, 24, 27, 0.08);
+  --token-pop: rgba(24, 24, 27, 0.10);
+  --token-overlay: rgba(24, 24, 27, 0.32);
+
+  /* Sidebar-card bg — light mode keeps these transparent so cards don't
+   * paint as stark white boxes on the zinc-100 sidebar. Definition comes
+   * from the border alone in light. */
+  --token-sidebar-card-bg: transparent;
+  --token-sidebar-card-bg-hover: rgba(24, 24, 27, 0.05);
+
+  /* Pill foreground — darker purple in light mode for readable contrast
+   * (~6:1 against zinc-100 cards). The bg/border alphas remain similar to
+   * dark mode so the chip keeps its tinted-pill silhouette. */
+  --token-pill-purple-fg: #6d28d9;     /* purple-dark step */
+  --token-pill-purple-bg: rgba(124, 58, 237, 0.10);
+  --token-pill-purple-border: rgba(124, 58, 237, 0.28);
+
+  /* Tone overrides — same hue family as dark mode, stepped to a darker
+   * shade (~5–6:1 against zinc-100). Used by role pills (admin / developer
+   * / paused) and warning text (Revoke, Sign-out-of-all). */
+  --token-tone-cyan-fg: #0e7490;        /* cyan-700 */
+  --token-tone-cyan-bg: rgba(14, 116, 144, 0.08);
+  --token-tone-cyan-border: rgba(14, 116, 144, 0.28);
+  --token-tone-violet-fg: #6d28d9;      /* violet-700 */
+  --token-tone-violet-bg: rgba(109, 40, 217, 0.08);
+  --token-tone-violet-border: rgba(109, 40, 217, 0.28);
+  --token-tone-amber-fg: #b45309;       /* amber-700 */
+  --token-tone-amber-bg: rgba(180, 83, 9, 0.08);
+  --token-tone-amber-border: rgba(180, 83, 9, 0.28);
+
+  /* Syntax string — green-600 reads cleanly on a near-white code panel. */
+  --token-syntax-string: #16a34a;
+
+  /* Primary CTA in light mode flips to neutral zinc-900 so CTAs read like
+   * Vercel / Linear / Stripe in light. Brand green stays for status pills,
+   * accents, links — that's where it carries identity, not on every button. */
+  --token-cta: #18181b;          /* zinc-900 */
+  --token-cta-hover: #27272a;    /* zinc-800 */
+  --token-cta-active: #09090b;   /* zinc-950 */
+  --token-cta-border: #27272a;   /* matches hover — same edge-highlight pattern as dark mode, scaled to the zinc family */
+  --token-cta-fg: #ffffff;
+
+  /* Elevation — no card shadow in light mode. The bg-tint step from the
+   * off-white canvas (#fcfbfa) up to pure-white cards (#ffffff) does all
+   * the elevation work on its own — Linear's pattern. Hairline border +
+   * subtle bg-step is enough; shadows would be additive, not necessary. */
+  --token-shadow-card: 0 0 0 0 transparent;
+  --token-shadow-popover: 0 8px 16px -4px rgb(24 24 27 / 0.12), 0 2px 4px -1px rgb(24 24 27 / 0.06);
+
+  /* Accent overrides for light mode legibility. `--color-green-bright` is
+   * the accent green used as both fill (`bg-green-bright`) and accent text
+   * (`text-green-bright` on warm/realtime/current-plan pills). The lime
+   * #40bf86 reads cleanly on dark but only ~2:1 against zinc cards in
+   * light, so we step down to the same green-light hue (#1e9960) which
+   * keeps the brand identity but lifts contrast to ~5:1. The shift is
+   * subtle on filled buttons (still reads punchy with white text) and
+   * dramatic on tinted-pill text where it most matters. */
+  --color-green-bright: #1e9960;
+
+  /* Blue-bright is the cyan accent used for `text-blue-bright` (flag
+   * highlights in code, link decorations). #25abd0 only hits ~2.5:1 on a
+   * white-ish bg; step down to the same hue at a darker step. */
+  --color-blue-bright: #0e7490;
+}
+
 @theme {
+  /* Accents — same hue across themes; legibility tuned per theme via
+   * subtle/light/dark variants where needed. */
   --color-green: #18794e;
   --color-green-light: #1e9960;
   --color-green-dark: #115c3b;
@@ -19,42 +251,74 @@
   --color-purple-dark: #5b21b6;
   --color-purple-subtle: rgba(124, 58, 237, 0.15);
 
-  /* Semantic accent — reserved for liveness/activity indicators (warm orchestrators, live pipelines). Not decorative. */
+  /* Semantic accent — reserved for liveness/activity indicators (warm
+   * orchestrators, live pipelines). Not decorative. */
   --color-warm: #f59e0b;
   --color-warm-bright: #fbbf24;
   --color-warm-subtle: rgba(245, 158, 11, 0.12);
 
-  --color-dark: #121212;
-  --color-dark-lighter: #181818;
-  --color-dark-surface: #1a1a1a;
-  --color-dark-card: #1e1e1e;
-  --color-dark-border: #2a2a2a;
+  /* Surface ramp — redirects to --token-* so theme switching works. */
+  --color-shell: var(--token-shell);
+  --color-dark: var(--token-dark);
+  --color-dark-lighter: var(--token-dark-lighter);
+  --color-dark-surface: var(--token-dark-surface);
+  --color-dark-card: var(--token-dark-card);
+  --color-dark-border: var(--token-dark-border);
+  --color-surface-raised: var(--token-surface-raised);
 
-  /* ─── Dashboard surface hierarchy ────────────────────────────────────────────
-   * 4-tier dark ramp. Shell is darker than dark so the glass header actually
-   * refracts content upward instead of tinting a background of its own colour.
-   * Canvas intentionally equals --color-dark (#121212) so the marketing →
-   * dashboard transition has no visible seam. Raised is the hover / nested-card
-   * tier — one step above elevated popovers. */
-  --color-shell: #070707;
-  --color-surface-raised: #242424;
-  --color-border-hairline: rgba(255, 255, 255, 0.06);
-  --color-border-subtle: rgba(255, 255, 255, 0.1);
-  --color-border-strong: rgba(255, 255, 255, 0.15);
-  /* Note on borders: Tailwind v4's @theme only generates `border-border-hairline`-style
-   * classes from the tokens above. We expose cleaner `.border-hairline / .border-subtle /
-   * .border-strong` utilities below in @layer utilities so the dashboard uses semantic
-   * names without the doubled-up prefix. */
+  /* Border ramp — redirected. The dashboard uses `.border-hairline /
+   * .border-subtle / .border-strong` utilities defined below as the
+   * idiomatic API; the `border-border-hairline` doubled prefix is
+   * generated automatically by Tailwind v4 but discouraged. */
+  --color-border-hairline: var(--token-border-hairline);
+  --color-border-subtle: var(--token-border-subtle);
+  --color-border-strong: var(--token-border-strong);
 
-  /* ─── Semantic foreground ramp ──────────────────────────────────────────────
-   * Aligned with brand-tokens.md "Text Hierarchy (Opacity)". Use these instead
-   * of arbitrary text-white/N values so dashboard surfaces share one ramp. */
-  --color-fg: rgba(255, 255, 255, 1);
-  --color-fg-strong: rgba(255, 255, 255, 0.7);   /* primary body text */
-  --color-fg-muted: rgba(255, 255, 255, 0.6);    /* secondary body */
-  --color-fg-faint: rgba(255, 255, 255, 0.5);    /* supporting text */
-  --color-fg-label: rgba(255, 255, 255, 0.4);    /* mono labels, metadata */
-  --color-fg-disabled: rgba(255, 255, 255, 0.25);
+  /* Foreground ramp — redirected. Use these instead of `text-white/N`
+   * literals so every surface speaks the same vocabulary. */
+  --color-fg: var(--token-fg);
+  --color-fg-strong: var(--token-fg-strong);
+  --color-fg-muted: var(--token-fg-muted);
+  --color-fg-faint: var(--token-fg-faint);
+  --color-fg-label: var(--token-fg-label);
+  --color-fg-disabled: var(--token-fg-disabled);
+
+  /* State tints — semantic replacements for the various `bg-white/[X]` and
+   * `bg-black/N` patterns. Used as `bg-zebra/hover/tint/active/pop/overlay`
+   * (and `hover:bg-hover` etc.). `bg-pop` is the strongest fill (pill
+   * backgrounds, segmented controls); `bg-overlay` is the drawer/dialog
+   * scrim. */
+  --color-zebra: var(--token-zebra);
+  --color-hover: var(--token-hover);
+  --color-tint: var(--token-tint);
+  --color-active: var(--token-active);
+  --color-pop: var(--token-pop);
+  --color-overlay: var(--token-overlay);
+
+  /* Theme-aware sidebar-card surface — `bg-sidebar-card` on the FREE TIER
+   * usage card and the logged-out promo card. Resolves to `#181818` in dark
+   * (matching the design prototype's `--bg-2` elevation against the sidebar
+   * shell) and to `transparent` in light (so cards don't paint as stark
+   * white boxes on the warm cream chrome). */
+  --color-sidebar-card-bg: var(--token-sidebar-card-bg);
+  --color-sidebar-card-bg-hover: var(--token-sidebar-card-bg-hover);
+
+  /* Primary CTA — `bg-cta`, `hover:bg-cta-hover`, `active:bg-cta-active`,
+   * `text-cta-fg`. Theme-aware: brand green on dark, zinc-900 on light. The
+   * `.btn-primary` recipe (defined below in the layer block) bundles all
+   * three states for components that want one-class primary-button colour. */
+  --color-cta: var(--token-cta);
+  --color-cta-hover: var(--token-cta-hover);
+  --color-cta-active: var(--token-cta-active);
+  --color-cta-border: var(--token-cta-border);
+  --color-cta-fg: var(--token-cta-fg);
+
+  /* Elevation utilities. Generate `shadow-card` / `shadow-popover`
+   * Tailwind classes. No-op in dark, soft slate-toned shadows in light.
+   * Apply to elevated panels (tables, settings cards, callouts) and
+   * popovers (dropdowns, command palettes, dialogs). */
+  --shadow-card: var(--token-shadow-card);
+  --shadow-popover: var(--token-shadow-popover);
 
   --font-sans: var(--font-favorit-pro), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-favorit-mono), ui-monospace, monospace;
@@ -140,6 +404,56 @@ summary {
 }
 .border-strong {
   border-color: var(--color-border-strong);
+}
+
+/* ─── Tone palette utilities ───────────────────────────────────────────────
+ * Theme-aware role-pill / status-chip recipes. Each `.tone-*` class sets fg
+ * + bg + border in one shot from the token palette. Used by `RolePill`
+ * (admin/developer/paused) and any future status indicator that needs a
+ * tinted-pill silhouette in both themes. */
+.tone-cyan {
+  color: var(--token-tone-cyan-fg);
+  background-color: var(--token-tone-cyan-bg);
+  border-color: var(--token-tone-cyan-border);
+}
+.tone-violet {
+  color: var(--token-tone-violet-fg);
+  background-color: var(--token-tone-violet-bg);
+  border-color: var(--token-tone-violet-border);
+}
+.tone-amber {
+  color: var(--token-tone-amber-fg);
+  background-color: var(--token-tone-amber-bg);
+  border-color: var(--token-tone-amber-border);
+}
+/* Text-only variants for inline links (Revoke, Sign out of all sessions). */
+.text-tone-amber {
+  color: var(--token-tone-amber-fg);
+}
+.text-tone-amber:hover {
+  color: color-mix(in srgb, var(--token-tone-amber-fg) 75%, var(--color-fg));
+}
+
+/* ─── Primary CTA recipe ────────────────────────────────────────────────────
+ * Apply `.btn-primary` for the full three-state colour bundle (default /
+ * hover / active) in one class. Pairs with whatever sizing/padding the
+ * specific button needs. Theme-aware via the `--token-cta-*` palette:
+ * brand green on dark, neutral zinc-900 on light — matches the convention
+ * used by Vercel / Linear / Stripe / Raycast. */
+.btn-primary {
+  background-color: var(--color-cta);
+  color: var(--color-cta-fg);
+  /* Subtle edge highlight (one step lighter than the bg) — mirrors the
+   * design prototype's `.icon-btn.is-primary { border-color: var(--lp-light); }`.
+   * On hover the bg lifts to match the border so the button reads as
+   * "lit up" rather than just shaded. */
+  border: 1px solid var(--color-cta-border);
+}
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--color-cta-hover);
+}
+.btn-primary:active:not(:disabled) {
+  background-color: var(--color-cta-active);
 }
 
 /* Section divider — off-white gradient line */

@@ -41,9 +41,9 @@ export default function WaveSurferAudio({ url }: { url: string }) {
 
     const ws = WaveSurfer.create({
       container: containerRef.current,
-      waveColor: "rgba(255, 255, 255, 0.35)",
+      waveColor: "var(--color-fg-label)",
       progressColor: "#40bf86",
-      cursorColor: "rgba(255, 255, 255, 0.6)",
+      cursorColor: "var(--color-fg-muted)",
       cursorWidth: 1,
       barWidth: 2,
       barGap: 3,
@@ -110,7 +110,7 @@ export default function WaveSurferAudio({ url }: { url: string }) {
           type="button"
           onClick={() => wsRef.current?.playPause()}
           disabled={loadState !== "ready"}
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/[0.08] text-white transition-colors hover:bg-white/[0.12] focus:outline-none disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-pop text-fg transition-colors hover:bg-pop focus:outline-none disabled:cursor-not-allowed disabled:opacity-40"
           aria-label={playing ? "Pause" : "Play"}
         >
           {playing ? (

@@ -50,9 +50,9 @@ export default function BillingSection() {
             <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-green-bright">
               Current plan
             </p>
-            <p className="mt-1 text-[16px] font-medium text-white">Free</p>
+            <p className="mt-1 text-[16px] font-medium text-fg">Free</p>
             <p className="mt-1 text-[13px] text-fg-strong">
-              <span className="text-[22px] font-medium tracking-[-0.01em] text-white">
+              <span className="text-[22px] font-medium tracking-[-0.01em] text-fg">
                 $0
               </span>
               <span className="text-fg-faint"> / month</span>
@@ -127,7 +127,7 @@ export default function BillingSection() {
             strokeWidth={1.5}
             aria-hidden="true"
           />
-          <p className="mt-2 text-[13.5px] font-medium text-white">
+          <p className="mt-2 text-[13.5px] font-medium text-fg">
             No payment method
           </p>
           <p className="mt-1 text-[12.5px] text-fg-faint">
@@ -206,22 +206,22 @@ export default function BillingSection() {
         ].map((inv) => (
           <div
             key={inv.id}
-            className={`${ST_COLS_5} border-b border-hairline last:border-b-0 transition-colors hover:bg-white/[0.025]`}
+            className={`${ST_COLS_5} border-b border-hairline last:border-b-0 transition-colors hover:bg-zebra`}
           >
-            <div className="font-mono text-[12.5px] text-white">{inv.id}</div>
+            <div className="font-mono text-[12.5px] text-fg">{inv.id}</div>
             <div className="text-[12.5px] text-fg-faint">{inv.date}</div>
-            <div className="font-mono text-[12.5px] text-white">{inv.amount}</div>
+            <div className="font-mono text-[12.5px] text-fg">{inv.amount}</div>
             <div className="text-[12px] text-fg-faint">{inv.desc}</div>
             <div className="flex justify-end gap-3">
               <button
                 type="button"
-                className="text-[12px] text-fg-strong transition-colors hover:text-white"
+                className="text-[12px] text-fg-strong transition-colors hover:text-fg"
               >
                 View
               </button>
               <button
                 type="button"
-                className="inline-flex items-center gap-1 text-[12px] text-fg-strong transition-colors hover:text-white"
+                className="inline-flex items-center gap-1 text-[12px] text-fg-strong transition-colors hover:text-fg"
               >
                 <Download className="h-3 w-3" aria-hidden="true" />
                 PDF
@@ -257,9 +257,9 @@ function PlanCard({
         isLast ? "border-b-0" : "border-b border-hairline md:border-b-0"
       } ${isLast ? "" : "md:border-r border-hairline"}`}
     >
-      <p className="text-[16px] font-medium text-white">{name}</p>
+      <p className="text-[16px] font-medium text-fg">{name}</p>
       <p className="mt-1 text-[13px] text-fg-strong">
-        <span className="text-[22px] font-medium tracking-[-0.01em] text-white">
+        <span className="text-[22px] font-medium tracking-[-0.01em] text-fg">
           {price}
         </span>
         <span className="text-fg-faint">{priceSub}</span>
@@ -282,8 +282,8 @@ function PlanCard({
         type="button"
         className={`mt-4 inline-flex h-7 items-center gap-1 rounded-[4px] border px-3 text-[12.5px] font-medium transition-colors ${
           ctaOutline
-            ? "border-subtle bg-transparent text-white hover:bg-white/[0.04]"
-            : "border-green/50 bg-green text-white hover:bg-green-light"
+            ? "border-subtle bg-transparent text-fg hover:bg-hover"
+            : "btn-primary"
         }`}
       >
         {cta}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useMemo } from "react";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import Link from "next/link";
 import {
   Flame,
@@ -15,12 +15,12 @@ import {
   RotateCcw,
   Zap,
   LayoutGrid,
-  BookOpen,
   Star,
   Copy,
   Check,
   Activity,
 } from "lucide-react";
+import { useAuth } from "@/components/dashboard/AuthContext";
 import DashboardSubNav from "@/components/dashboard/DashboardSubNav";
 import CostTag from "@/components/dashboard/CostTag";
 import KeyBadge from "@/components/dashboard/KeyBadge";
@@ -180,7 +180,7 @@ function PlaygroundTab({ model }: { model: Model }) {
           <div
             role="tablist"
             aria-label="Request format"
-            className="scrollbar-none flex shrink-0 items-center overflow-x-auto rounded-lg border border-hairline bg-white/[0.02] p-0.5"
+            className="scrollbar-none flex shrink-0 items-center overflow-x-auto rounded-lg border border-hairline bg-zebra p-0.5"
           >
             {INPUT_MODES.map((mode) => {
               const selected = inputMode === mode.key;
@@ -192,7 +192,7 @@ function PlaygroundTab({ model }: { model: Model }) {
                   onClick={() => setInputMode(mode.key)}
                   className={`flex h-9 shrink-0 items-center rounded-md px-2.5 text-xs font-medium transition-colors focus:outline-none sm:h-7 ${
                     selected
-                      ? "bg-white/[0.08] text-white shadow-sm"
+                      ? "bg-pop text-fg shadow-sm"
                       : "text-fg-faint hover:text-fg-strong"
                   }`}
                 >
@@ -227,7 +227,7 @@ function PlaygroundTab({ model }: { model: Model }) {
             <div className="flex items-center gap-2 border-t border-hairline pt-4">
               <button
                 type="button"
-                className="flex items-center gap-1.5 rounded-lg border border-subtle px-3 py-2 text-xs text-fg-label transition-colors hover:bg-white/[0.04] hover:text-fg-muted focus:outline-none"
+                className="flex items-center gap-1.5 rounded-lg border border-subtle px-3 py-2 text-xs text-fg-label transition-colors hover:bg-hover hover:text-fg-muted focus:outline-none"
               >
                 <RotateCcw className="h-3 w-3" />
                 Reset to defaults
@@ -236,7 +236,7 @@ function PlaygroundTab({ model }: { model: Model }) {
                 type="button"
                 onClick={() => handleRun({})}
                 disabled={isRunning}
-                className="flex items-center gap-2 rounded-lg bg-green px-4 py-2 text-sm font-medium text-white transition-all hover:bg-green-light hover:shadow-lg hover:shadow-green-bright/25 active:scale-[0.98] disabled:bg-white/[0.06] disabled:text-fg-disabled disabled:hover:shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-bright/50 motion-reduce:active:scale-100"
+                className="btn-primary flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors active:scale-[0.98] disabled:bg-tint disabled:text-fg-disabled focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-bright/50 motion-reduce:active:scale-100"
               >
                 {isRunning ? (
                   <>
@@ -308,7 +308,7 @@ function ApiTab({ model }: { model: Model }) {
           Drop this into the <code className="text-fg-muted">Authorization</code> header below, or{" "}
           <Link
             href="/dashboard/settings?tab=tokens"
-            className="text-fg-strong underline-offset-2 hover:text-white hover:underline"
+            className="text-fg-strong underline-offset-2 hover:text-fg hover:underline"
           >
             manage your keys
           </Link>
@@ -346,7 +346,7 @@ function ApiTab({ model }: { model: Model }) {
         </span>
         <Link
           href="/dashboard/settings?tab=billing"
-          className="text-fg-strong underline-offset-2 hover:text-white hover:underline"
+          className="text-fg-strong underline-offset-2 hover:text-fg hover:underline"
         >
           Add a payment provider →
         </Link>
@@ -423,7 +423,7 @@ function ReadmeTab({ model }: { model: Model }) {
         elements.push(
           <pre
             key={`code-${i}`}
-            className="scrollbar-dark overflow-x-auto rounded-lg border border-hairline bg-black/40 p-4 text-xs leading-relaxed text-fg-muted"
+            className="scrollbar-dark overflow-x-auto rounded-lg border border-hairline bg-overlay p-4 text-xs leading-relaxed text-fg-muted"
           >
             {codeContent.trim()}
           </pre>,
@@ -457,7 +457,7 @@ function ReadmeTab({ model }: { model: Model }) {
       elements.push(
         <h1
           key={i}
-          className="mt-5 mb-2 text-xl font-semibold text-white first:mt-0"
+          className="mt-5 mb-2 text-xl font-semibold text-fg first:mt-0"
         >
           {line.slice(2)}
         </h1>,
@@ -485,7 +485,7 @@ function ReadmeTab({ model }: { model: Model }) {
       if (match) {
         elements.push(
           <div key={i} className="flex items-start gap-2 pl-4 text-sm text-fg-faint">
-            <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-white/40" aria-hidden="true" />
+            <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-fg-faint" aria-hidden="true" />
             <span>
               <span className="font-medium text-fg-strong">{match[1]}</span>
               <span className="text-fg-disabled"> — </span>
@@ -496,7 +496,7 @@ function ReadmeTab({ model }: { model: Model }) {
       } else {
         elements.push(
           <div key={i} className="flex items-start gap-2 pl-4 text-sm text-fg-faint">
-            <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-white/40" aria-hidden="true" />
+            <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-fg-faint" aria-hidden="true" />
             <span>{line.slice(2).replace(/\*\*/g, "")}</span>
           </div>,
         );
@@ -504,7 +504,7 @@ function ReadmeTab({ model }: { model: Model }) {
     } else if (line.startsWith("- ")) {
       elements.push(
         <div key={i} className="flex items-start gap-2 pl-4 text-sm text-fg-faint">
-          <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-white/40" aria-hidden="true" />
+          <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-fg-faint" aria-hidden="true" />
           <span>{line.slice(2)}</span>
         </div>,
       );
@@ -566,21 +566,30 @@ function RunsTab({
   return <RunsTable rows={runs} showHeader />;
 }
 
-// ─── Chrome bar (44px) — multi-segment breadcrumb + Pin + Docs ──────────────
+// ─── Chrome bar (44px) — multi-segment breadcrumb + Pin + auth CTAs ─────────
 //
 // Mirrors the Livepeer Dashboard v3 `PageHead` for the model detail route.
-// First crumb has the grid icon + "Explore", middle crumb is the category
-// (no link in design), last crumb is the model name in white. Right side
-// carries `Pin` (toggles Star) and an external `Docs` link.
+// First crumb has the grid icon + "Explore", last crumb is the model name in
+// white. Right side carries `Pin` (toggles Star). When the visitor is signed
+// out, a `Sign in` / `Sign up` pair is appended after a vertical divider —
+// same pattern as `DashboardPageHeader`, so an unauthenticated user landing
+// here from a shared model URL has the auth path one click away.
 
 function ModelChromeBar({ model }: { model: Model }) {
   const { isStarred, toggleStar } = useStarredModels();
   const pinned = isStarred(model.id);
+  const { isConnected, isLoading } = useAuth();
+  const pathname = usePathname() ?? "";
+  const isAuthRoute = pathname.startsWith("/dashboard/login");
+  // Hide auth CTAs while auth state is still resolving (one frame on first
+  // paint) to avoid flashing them in for connected users.
+  const showAuthCTAs = !isLoading && !isConnected && !isAuthRoute;
+
   return (
     <div className="flex h-[44px] shrink-0 items-center gap-1 border-b border-hairline bg-dark px-5">
       <Link
         href="/dashboard/explore"
-        className="inline-flex items-center gap-1.5 rounded-[4px] px-1.5 py-1 text-[13px] text-fg-muted transition-colors hover:bg-white/[0.04] hover:text-white"
+        className="inline-flex items-center gap-1.5 rounded-[4px] px-1.5 py-1 text-[13px] text-fg-muted transition-colors hover:bg-hover hover:text-fg"
       >
         <LayoutGrid
           className="h-3.5 w-3.5 shrink-0 text-fg-faint"
@@ -590,7 +599,7 @@ function ModelChromeBar({ model }: { model: Model }) {
         <span>Explore</span>
       </Link>
       <span className="px-1 text-fg-disabled" aria-hidden="true">/</span>
-      <span className="px-1.5 py-1 text-[13px] font-medium text-white truncate">
+      <span className="px-1.5 py-1 text-[13px] font-medium text-fg truncate">
         {model.name}
       </span>
 
@@ -599,10 +608,10 @@ function ModelChromeBar({ model }: { model: Model }) {
           type="button"
           onClick={() => toggleStar(model.id)}
           aria-pressed={pinned}
-          className={`inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-transparent px-2.5 text-[12.5px] transition-colors hover:border-hairline hover:bg-white/[0.04] ${
+          className={`inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-transparent px-2.5 text-[12.5px] transition-colors hover:border-hairline hover:bg-hover ${
             pinned
               ? "text-warm hover:text-warm"
-              : "text-fg-strong hover:text-white"
+              : "text-fg-strong hover:text-fg"
           }`}
         >
           <Star
@@ -611,16 +620,28 @@ function ModelChromeBar({ model }: { model: Model }) {
           />
           {pinned ? "Pinned" : "Pin"}
         </button>
-        <a
-          href="https://docs.livepeer.org"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-transparent px-2.5 text-[12.5px] text-fg-strong transition-colors hover:border-hairline hover:bg-white/[0.04] hover:text-white"
-        >
-          <BookOpen className="h-3 w-3" aria-hidden="true" />
-          Docs
-          <span className="text-fg-faint">↗</span>
-        </a>
+        {showAuthCTAs && (
+          <>
+            {/* Vertical rule separating page actions from auth CTAs.
+                Matches the recipe used in `DashboardPageHeader`. */}
+            <span
+              aria-hidden="true"
+              className="mx-2 h-5 w-px bg-[color:var(--color-border-strong)]"
+            />
+            <Link
+              href="/dashboard/login"
+              className="inline-flex h-[26px] items-center rounded-[4px] px-2.5 text-[12.5px] text-fg-strong transition-colors hover:bg-hover hover:text-fg"
+            >
+              Sign in
+            </Link>
+            <Link
+              href="/dashboard/login?mode=signup"
+              className="btn-primary inline-flex h-[26px] items-center rounded-[4px] px-2.5 text-[12.5px] font-medium transition-colors"
+            >
+              Sign up
+            </Link>
+          </>
+        )}
       </div>
     </div>
   );
@@ -722,9 +743,14 @@ export default function ModelDetailPage() {
                 />
               ) : (
                 <div
+                  // Theme-aware fallback tile: uses the surface ramp tokens so
+                  // the gradient softens to a light-zinc tile in light mode.
+                  // The green halo is a constant brand accent and reads on
+                  // both themes.
                   className="grid h-full w-full place-items-center text-green-bright"
                   style={{
-                    background: "linear-gradient(135deg, #242424, #1e1e1e)",
+                    background:
+                      "linear-gradient(135deg, var(--color-surface-raised), var(--color-dark-card))",
                     boxShadow: "0 0 24px rgba(64,191,134,0.08)",
                   }}
                   aria-hidden="true"
@@ -739,7 +765,7 @@ export default function ModelDetailPage() {
                 {model.provider}
               </p>
               <div className="mt-1 flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
-                <h1 className="text-[28px] font-medium leading-[1.15] tracking-[-0.015em] text-white text-balance break-words">
+                <h1 className="text-[28px] font-medium leading-[1.15] tracking-[-0.015em] text-fg text-balance break-words">
                   {model.name}
                 </h1>
                 {model.precision && (
@@ -785,11 +811,14 @@ export default function ModelDetailPage() {
             )}
             <Link
               href={`/dashboard/explore?category=${encodeURIComponent(model.category)}`}
+              // Theme-aware purple pill: tokens flip to a darker purple in
+              // light mode so it reads ~6:1 against zinc-100 instead of the
+              // washed-out lavender the dark-only literals produced.
               className="inline-flex items-center gap-1.5 rounded-[3px] border px-2 py-0.5 font-mono text-[10.5px] lowercase tracking-[0.02em] transition-colors"
               style={{
-                color: "#b794f6",
-                borderColor: "rgba(183,148,246,0.22)",
-                background: "rgba(183,148,246,0.08)",
+                color: "var(--token-pill-purple-fg)",
+                borderColor: "var(--token-pill-purple-border)",
+                background: "var(--token-pill-purple-bg)",
               }}
             >
               {model.category}
@@ -797,7 +826,7 @@ export default function ModelDetailPage() {
 
             <span
               className="hidden h-3 w-px shrink-0 sm:block"
-              style={{ background: "rgba(255,255,255,0.10)" }}
+              style={{ background: "var(--color-pop)" }}
               aria-hidden="true"
             />
 
@@ -816,14 +845,14 @@ export default function ModelDetailPage() {
               <span className="text-fg-disabled">runs</span>
             </span>
             <span className="inline-flex items-center gap-1.5 font-mono text-[11.5px] text-fg-strong">
-              <b className="font-medium text-white">{formatPrice(model)}</b>
+              <b className="font-medium text-fg">{formatPrice(model)}</b>
             </span>
 
             <span className="ml-auto" />
             <button
               type="button"
               onClick={() => setActiveTab("playground")}
-              className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-subtle bg-dark-card px-2.5 text-[12px] font-medium text-fg-strong whitespace-nowrap transition-colors hover:border-strong hover:bg-white/[0.04] hover:text-white"
+              className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-subtle bg-dark-card px-2.5 text-[12px] font-medium text-fg-strong whitespace-nowrap transition-colors hover:border-strong hover:bg-hover hover:text-fg"
             >
               <Play className="h-3 w-3 text-green-bright" aria-hidden="true" />
               Run sample
@@ -870,7 +899,7 @@ export default function ModelDetailPage() {
                     i === 0 ? "pl-0" : ""
                   } ${
                     selected
-                      ? "border-green-bright text-white"
+                      ? "border-green-bright text-fg"
                       : "border-transparent text-fg-faint hover:text-fg-strong"
                   }`}
                 >
@@ -885,7 +914,7 @@ export default function ModelDetailPage() {
                       className={`ml-0.5 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-[3px] px-1 font-mono text-[10.5px] tabular-nums ${
                         selected
                           ? "bg-green-bright/15 text-green-bright"
-                          : "bg-white/[0.06] text-fg-faint"
+                          : "bg-tint text-fg-faint"
                       }`}
                     >
                       {tab.count}

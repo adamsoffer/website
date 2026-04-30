@@ -104,9 +104,9 @@ function HlsPlayerMock({
       )}
 
       {/* Live badge */}
-      <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-md bg-black/60 px-2 py-1 backdrop-blur-sm">
+      <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-md bg-overlay px-2 py-1 backdrop-blur-sm">
         <StatusDot tone="red" />
-        <span className="text-[10px] font-semibold tracking-wider text-white">LIVE</span>
+        <span className="text-[10px] font-semibold tracking-wider text-fg">LIVE</span>
       </div>
 
       {/* Rendition switcher */}
@@ -114,13 +114,13 @@ function HlsPlayerMock({
         <button
           type="button"
           onClick={() => setMenuOpen((v) => !v)}
-          className="flex items-center gap-1.5 rounded-md bg-black/60 px-2 py-1 text-[10px] font-medium text-white backdrop-blur-sm hover:bg-black/80 focus:outline-none"
+          className="flex items-center gap-1.5 rounded-md bg-overlay px-2 py-1 text-[10px] font-medium text-fg backdrop-blur-sm hover:bg-overlay focus:outline-none"
         >
           <span className="font-mono">{activeRendition.label}</span>
           <span className="text-fg-faint">▾</span>
         </button>
         {menuOpen && (
-          <div className="absolute right-0 mt-1 min-w-[120px] rounded-lg border border-hairline bg-dark-card p-1 backdrop-blur-sm">
+          <div className="absolute right-0 mt-1 min-w-[120px] rounded-lg border border-hairline bg-dark-card p-1 shadow-popover backdrop-blur-sm">
             {DEFAULT_LADDER.map((r) => (
               <button
                 key={r.label}
@@ -129,8 +129,8 @@ function HlsPlayerMock({
                   onRenditionChange(r);
                   setMenuOpen(false);
                 }}
-                className={`flex w-full items-center justify-between gap-3 rounded-md px-2 py-1.5 text-left text-[11px] transition-colors hover:bg-white/[0.06] focus:outline-none ${
-                  r.label === activeRendition.label ? "text-white" : "text-fg-muted"
+                className={`flex w-full items-center justify-between gap-3 rounded-md px-2 py-1.5 text-left text-[11px] transition-colors hover:bg-tint focus:outline-none ${
+                  r.label === activeRendition.label ? "text-fg" : "text-fg-muted"
                 }`}
               >
                 <span className="font-mono">{r.label}</span>
@@ -143,13 +143,13 @@ function HlsPlayerMock({
 
       {/* Play affordance — centered, purely ornamental (no real playback). */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm ring-1 ring-white/20">
-          <Play className="h-5 w-5 translate-x-0.5 fill-white text-white" />
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm ring-1 ring-[var(--color-border-strong)]">
+          <Play className="h-5 w-5 translate-x-0.5 fill-white text-fg" />
         </div>
       </div>
 
       {/* Resolution stamp */}
-      <div className="absolute bottom-3 right-3 rounded-md bg-black/60 px-2 py-1 font-mono text-[10px] text-fg-strong backdrop-blur-sm">
+      <div className="absolute bottom-3 right-3 rounded-md bg-overlay px-2 py-1 font-mono text-[10px] text-fg-strong backdrop-blur-sm">
         {activeRendition.width}×{activeRendition.height} · {activeRendition.fps}fps
       </div>
     </PlayerFrame>
@@ -160,7 +160,7 @@ function TranscodingEmpty({ modelName }: { modelName?: string }) {
   return (
     <PlayerFrame>
       <div className="relative flex h-full w-full flex-col items-center justify-center gap-3 p-6 text-center">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/[0.04]">
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-hover">
           <Radio className="h-6 w-6 text-fg-muted" strokeWidth={2} aria-hidden="true" />
         </div>
         <p className="text-sm text-fg-faint">Ready to create a stream</p>
@@ -260,7 +260,7 @@ export default function TranscodingOutput({
           disabled={state !== "result"}
           className={`border-b-2 px-3 py-1.5 text-xs font-medium transition-colors focus:outline-none ${
             state === "result" && viewMode === "preview"
-              ? "border-green-bright text-white"
+              ? "border-green-bright text-fg"
               : "border-transparent text-fg-faint hover:text-fg-muted"
           }`}
         >
@@ -271,7 +271,7 @@ export default function TranscodingOutput({
           disabled={state !== "result"}
           className={`border-b-2 px-3 py-1.5 text-xs font-medium transition-colors focus:outline-none ${
             state === "result" && viewMode === "json"
-              ? "border-green-bright text-white"
+              ? "border-green-bright text-fg"
               : "border-transparent text-fg-faint hover:text-fg-muted"
           }`}
         >
@@ -283,7 +283,7 @@ export default function TranscodingOutput({
       {state === "empty" && <TranscodingEmpty modelName={modelName} />}
 
       {state === "result" && viewMode === "json" && (
-        <div className="relative rounded-lg border border-subtle bg-white/[0.03]">
+        <div className="relative rounded-lg border border-subtle bg-zebra">
           <pre className="overflow-x-auto p-4 font-mono text-xs leading-relaxed text-fg-muted">
             {responseJson}
           </pre>
@@ -315,12 +315,12 @@ export default function TranscodingOutput({
                   <div
                     key={r.label}
                     className={`col-span-4 grid grid-cols-subgrid items-center py-1.5 transition-colors ${
-                      active ? "text-white" : "text-fg-faint"
+                      active ? "text-fg" : "text-fg-faint"
                     }`}
                   >
                     <span
                       className={`h-1.5 w-1.5 rounded-full ${
-                        active ? "bg-green-bright" : "bg-white/20"
+                        active ? "bg-green-bright" : "bg-fg-faint"
                       }`}
                       aria-hidden="true"
                     />

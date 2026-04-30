@@ -78,10 +78,10 @@ export default function CopyButton({
     variant === "bordered"
       ? copied
         ? "border border-green-bright/30 bg-green-bright/15 text-green-bright"
-        : "border border-subtle text-fg-strong hover:border-strong hover:bg-white/[0.04] hover:text-white"
+        : "border border-subtle text-fg-strong hover:border-strong hover:bg-hover hover:text-fg"
       : copied
         ? "bg-green-bright/15 text-green-bright"
-        : "text-fg-muted hover:bg-white/[0.06] hover:text-white";
+        : "text-fg-muted hover:bg-tint hover:text-fg";
 
   const finalLabel = copied ? "Copied" : label;
   const showLabel = !iconOnly;

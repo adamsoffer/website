@@ -112,7 +112,7 @@ export default function ModelAnalytics({ model }: { model: Model }) {
             <BarChart data={stats.requests} barCategoryGap="15%">
               <XAxis
                 dataKey="label"
-                tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 10 }}
+                tick={{ fill: "var(--color-fg-label)", fontSize: 10 }}
                 tickLine={false}
                 axisLine={false}
                 ticks={requestsTicks}
@@ -120,7 +120,7 @@ export default function ModelAnalytics({ model }: { model: Model }) {
                 padding={{ right: 8 }}
               />
               <YAxis
-                tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }}
+                tick={{ fill: "var(--color-fg-faint)", fontSize: 10 }}
                 tickLine={false}
                 axisLine={false}
                 width={44}
@@ -132,7 +132,7 @@ export default function ModelAnalytics({ model }: { model: Model }) {
                     formatValue={(v) => `${v.toLocaleString()} req`}
                   />
                 }
-                cursor={{ fill: "rgba(255,255,255,0.03)" }}
+                cursor={{ fill: "var(--color-zebra)" }}
               />
               <Bar dataKey="value" fill="#40bf86" radius={[2, 2, 0, 0]} />
             </BarChart>
@@ -166,7 +166,7 @@ export default function ModelAnalytics({ model }: { model: Model }) {
             <LineChart data={stats.latency}>
               <XAxis
                 dataKey="label"
-                tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 10 }}
+                tick={{ fill: "var(--color-fg-label)", fontSize: 10 }}
                 tickLine={false}
                 axisLine={false}
                 ticks={latencyTicks}
@@ -174,7 +174,7 @@ export default function ModelAnalytics({ model }: { model: Model }) {
                 padding={{ right: 8 }}
               />
               <YAxis
-                tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }}
+                tick={{ fill: "var(--color-fg-faint)", fontSize: 10 }}
                 tickLine={false}
                 axisLine={false}
                 width={44}
@@ -182,7 +182,7 @@ export default function ModelAnalytics({ model }: { model: Model }) {
               />
               <Tooltip
                 content={<StackedChartTooltip />}
-                cursor={{ stroke: "rgba(255,255,255,0.08)" }}
+                cursor={{ stroke: "var(--color-pop)" }}
               />
               <Line
                 type="monotone"
@@ -234,7 +234,7 @@ export default function ModelAnalytics({ model }: { model: Model }) {
                   </span>
                 </div>
               </div>
-              <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/[0.04]">
+              <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-hover">
                 <div
                   className="h-full rounded-full bg-green-bright/60"
                   style={{ width: `${region.share * 100}%` }}

@@ -51,7 +51,7 @@ export default function JsonInput({ config, onRun, isRunning }: JsonInputProps) 
           onChange={(e) => setText(e.target.value)}
           spellCheck={false}
           rows={16}
-          className="w-full resize-y rounded-md border border-subtle bg-white/[0.03] px-4 py-3 font-mono text-xs leading-relaxed text-fg-strong placeholder:text-fg-label focus:border-strong focus:bg-white/[0.05] focus:outline-none"
+          className="w-full resize-y rounded-md border border-subtle bg-zebra px-4 py-3 font-mono text-xs leading-relaxed text-fg-strong placeholder:text-fg-label focus:border-strong focus:bg-hover focus:outline-none"
         />
         {error && (
           <p className="mt-2 text-[11px] text-red-400">{error}</p>
@@ -62,7 +62,7 @@ export default function JsonInput({ config, onRun, isRunning }: JsonInputProps) 
         <button
           type="button"
           onClick={handleReset}
-          className="flex items-center gap-1.5 rounded-lg border border-subtle px-3 py-2 text-xs text-fg-label transition-colors hover:bg-white/[0.04] hover:text-fg-muted focus:outline-none"
+          className="flex items-center gap-1.5 rounded-lg border border-subtle px-3 py-2 text-xs text-fg-label transition-colors hover:bg-hover hover:text-fg-muted focus:outline-none"
         >
           <RotateCcw className="h-3 w-3" />
           Reset to defaults
@@ -70,7 +70,7 @@ export default function JsonInput({ config, onRun, isRunning }: JsonInputProps) 
         <button
           type="submit"
           disabled={isRunning}
-          className="flex items-center gap-2 rounded-lg bg-green px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-light active:scale-[0.98] disabled:bg-white/[0.06] disabled:text-fg-disabled focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-bright/50 motion-reduce:active:scale-100"
+          className="btn-primary flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors active:scale-[0.98] disabled:bg-tint disabled:text-fg-disabled focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-bright/50 motion-reduce:active:scale-100"
         >
           {isRunning ? (
             <>

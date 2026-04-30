@@ -13,15 +13,30 @@ function formatLatency(ms: number): string {
   return `${Math.round(ms)}ms`;
 }
 
+// Map verbose mock-data units ("Minute", "Request", etc.) to the short
+// forms used in the design prototype's `cap-card-stat-val` (`/min`, `/req`,
+// `/sec`, `/img`, `/tok`). Keeps the price cell narrow enough to fit
+// alongside p50 + 7d-runs in the 3-column stats footer.
+function shortUnit(unit: string): string {
+  const map: Record<string, string> = {
+    Minute: "min",
+    Second: "sec",
+    Request: "req",
+    Step: "step",
+    Image: "img",
+    "M Tokens": "M tok",
+  };
+  return map[unit] ?? unit.toLowerCase();
+}
+
 function formatUnitPrice(model: Model): {
   amount: string;
   unit: string;
 } {
   const p = model.pricing.amount;
-  const decimals = p < 0.01 ? 4 : 3;
   return {
-    amount: `$${p.toFixed(decimals)}`,
-    unit: `/${model.pricing.unit}`,
+    amount: `$${p.toFixed(3)}`,
+    unit: `/${shortUnit(model.pricing.unit)}`,
   };
 }
 
@@ -54,7 +69,7 @@ export default function ModelCard({
   return (
     <Link
       href={`/dashboard/models/${model.id}`}
-      className="group flex flex-col overflow-hidden rounded-md border border-hairline bg-dark-lighter transition-colors duration-150 hover:border-strong"
+      className="group flex flex-col overflow-hidden rounded-md border border-hairline bg-dark-lighter shadow-card transition-[colors,transform] duration-150 ease-out hover:-translate-y-[1px] hover:border-strong"
     >
       {/* Thumbnail */}
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-dark-card">
@@ -80,7 +95,7 @@ export default function ModelCard({
 
         {/* NEW badge — top-left, only when the model is fresh */}
         {isNew && (
-          <span className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-md bg-green-bright px-1.5 py-0.5 text-[10.5px] font-medium text-dark">
+          <span className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-md bg-green-bright px-1.5 py-0.5 text-[10.5px] font-medium text-zinc-950">
             <Sparkles className="h-2.5 w-2.5" strokeWidth={2.25} />
             new
           </span>
@@ -106,7 +121,7 @@ export default function ModelCard({
       {/* Body */}
       <div className="flex flex-1 flex-col gap-2 px-3.5 pt-3 pb-3.5">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-white">
+          <span className="min-w-0 flex-1 truncate text-[15px] font-semibold tracking-[-0.005em] text-fg">
             {model.name}
           </span>
           <Pill tone={isWarm ? "warm" : "cold"} dot>
@@ -114,22 +129,31 @@ export default function ModelCard({
           </Pill>
         </div>
 
-        <p className="-mt-1 text-[11.5px] text-fg-faint">{model.provider}</p>
+        <p className="-mt-1 text-[12.5px] text-fg-faint">{model.provider}</p>
 
         <p
-          className="text-[12px] leading-[1.45] text-fg-muted"
+          className="text-[13px] leading-[1.45] text-fg-muted"
           style={{
             display: "-webkit-box",
-            WebkitLineClamp: 2,
+            WebkitLineClamp: 3,
             WebkitBoxOrient: "vertical",
             overflow: "hidden",
-            minHeight: 34,
+            // Reserved height = 3 × 13px × 1.45 ≈ 57px so cards line up
+            // even when descriptions are short (1- or 2-line copy still
+            // takes the full 3-line slot, keeping stats footers aligned
+            // across the grid).
+            minHeight: 57,
           }}
         >
           {model.description}
         </p>
 
-        {/* Stats footer — 3 columns, hairline divider above */}
+        {/* Stats footer — 3 columns, hairline divider above. Matches the
+         *  design prototype's `.cap-card-stat-val` pattern: label is the
+         *  plain noun ("Price"), value pairs the amount with a dimmed
+         *  unit shorthand (`$0.005/min`). Keeping the unit short (3-letter
+         *  abbreviations via `shortUnit`) lets `$0.005/min` fit cleanly in
+         *  1/3 column width without truncating. */}
         <div className="mt-[2px] grid grid-cols-3 gap-2 border-t border-hairline pt-2.5">
           <Stat label="p50" value={formatLatency(model.latency)} />
           <Stat
@@ -137,7 +161,7 @@ export default function ModelCard({
             value={
               <>
                 {price.amount}
-                <span className="text-fg-disabled">{price.unit}</span>
+                <span className="text-fg-faint">{price.unit}</span>
               </>
             }
           />
@@ -160,7 +184,9 @@ function Stat({
       <span className="font-mono text-[10px] uppercase tracking-[0.05em] text-fg-faint">
         {label}
       </span>
-      <span className="truncate text-[12px] text-fg-strong">{value}</span>
+      <span className="truncate font-mono text-[12px] tabular-nums text-fg-strong">
+        {value}
+      </span>
     </div>
   );
 }

@@ -147,8 +147,8 @@ export default function DashboardSearch({ mobile = false }: DashboardSearchProps
         aria-label="Search"
         className={
           mobile
-            ? "flex h-9 w-full items-center gap-2.5 rounded-lg border border-subtle bg-white/[0.03] px-3 text-sm text-fg-label transition-colors hover:border-strong hover:bg-white/[0.05] select-none"
-            : "flex items-center gap-2.5 rounded-lg border border-strong bg-white/[0.03] px-3.5 py-1.5 text-sm text-fg-label transition-colors hover:border-strong hover:bg-white/[0.05] select-none min-w-[200px]"
+            ? "flex h-9 w-full items-center gap-2.5 rounded-lg border border-subtle bg-zebra px-3 text-sm text-fg-label transition-colors hover:border-strong hover:bg-hover select-none"
+            : "flex items-center gap-2.5 rounded-lg border border-strong bg-zebra px-3.5 py-1.5 text-sm text-fg-label transition-colors hover:border-strong hover:bg-hover select-none min-w-[200px]"
         }
       >
         <Search className="h-4 w-4 shrink-0" aria-hidden="true" />
@@ -162,7 +162,7 @@ export default function DashboardSearch({ mobile = false }: DashboardSearchProps
           {mobile ? "Search…" : "Search..."}
         </span>
         {!mobile && (
-          <kbd className="ml-auto rounded border border-subtle bg-white/[0.04] px-1.5 py-0.5 text-[10px] text-fg-label">
+          <kbd className="ml-auto rounded border border-subtle bg-hover px-1.5 py-0.5 text-[10px] text-fg-label">
             ⌘K
           </kbd>
         )}
@@ -184,19 +184,19 @@ export default function DashboardSearch({ mobile = false }: DashboardSearchProps
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="flex-1 bg-transparent text-base text-white placeholder:text-fg-label outline-none"
+            className="flex-1 bg-transparent text-base text-fg placeholder:text-fg-label outline-none"
           />
           <button
             type="button"
             onClick={closeDialog}
             aria-label="Close search"
-            className="shrink-0 rounded-md border border-subtle bg-white/[0.06] px-2.5 py-1 text-[11px] text-fg-muted transition-colors hover:border-strong hover:bg-white/[0.1] hover:text-white"
+            className="shrink-0 rounded-md border border-subtle bg-tint px-2.5 py-1 text-[11px] text-fg-muted transition-colors hover:border-strong hover:bg-pop hover:text-fg"
           >
             ESC
           </button>
         </div>
 
-        <div className="h-px bg-white/[0.06]" />
+        <div className="h-px bg-tint" />
 
         {/* Results */}
         <div ref={listRef} className="max-h-[360px] overflow-y-auto py-3">
@@ -214,7 +214,7 @@ export default function DashboardSearch({ mobile = false }: DashboardSearchProps
               <p className="text-xs text-fg-disabled">
                 Try a capability name or keyword
               </p>
-              <Link href="/dashboard/explore" onClick={closeDialog} className="mt-1 text-xs text-green-bright/60 hover:text-white transition-colors">
+              <Link href="/dashboard/explore" onClick={closeDialog} className="mt-1 text-xs text-green-bright/60 hover:text-fg transition-colors">
                 Browse all capabilities →
               </Link>
             </div>
@@ -227,18 +227,18 @@ export default function DashboardSearch({ mobile = false }: DashboardSearchProps
                 onClick={() => navigate(result.href)}
                 onMouseEnter={() => setHighlightedIndex(i)}
                 className={`flex w-full items-center gap-4 px-6 py-3.5 text-left transition-colors cursor-pointer ${
-                  i === highlightedIndex ? "bg-white/[0.05]" : ""
+                  i === highlightedIndex ? "bg-hover" : ""
                 }`}
               >
                 <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${
                   i === highlightedIndex
-                    ? "border-subtle bg-white/[0.06]"
-                    : "border-hairline bg-white/[0.02]"
+                    ? "border-subtle bg-tint"
+                    : "border-hairline bg-zebra"
                 }`}>
                   <ArrowRight className={`h-4 w-4 ${i === highlightedIndex ? "text-fg-muted" : "text-fg-disabled"}`} aria-hidden="true" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <span className="block truncate text-[15px] font-medium text-white">{result.title}</span>
+                  <span className="block truncate text-[15px] font-medium text-fg">{result.title}</span>
                   <span className="block truncate text-sm text-fg-label">{result.subtitle}</span>
                 </div>
               </button>
@@ -246,7 +246,7 @@ export default function DashboardSearch({ mobile = false }: DashboardSearchProps
           )}
         </div>
 
-        <div className="h-px bg-white/[0.06]" />
+        <div className="h-px bg-tint" />
 
         {/* Footer */}
         <div className="px-6 py-4 text-center text-xs text-fg-disabled">

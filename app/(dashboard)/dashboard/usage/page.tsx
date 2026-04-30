@@ -2,7 +2,7 @@
 
 import { Suspense } from "react";
 import Link from "next/link";
-import { BarChart3, Box, ChevronDown, Download } from "lucide-react";
+import { BarChart3, Box, ChevronDown } from "lucide-react";
 import { useAuth } from "@/components/dashboard/AuthContext";
 import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
 import DashboardPageSkeleton from "@/components/dashboard/DashboardPageSkeleton";
@@ -41,22 +41,15 @@ function UsageContent() {
           <>
             <button
               type="button"
-              className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-transparent px-2.5 text-[12.5px] text-fg-strong transition-colors hover:border-hairline hover:bg-white/[0.04] hover:text-white"
+              className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-transparent px-2.5 text-[12.5px] text-fg-strong transition-colors hover:border-hairline hover:bg-hover hover:text-fg"
             >
               <span className="text-fg-faint">Period</span>
               <span>30 days</span>
               <ChevronDown className="h-3 w-3" aria-hidden="true" />
             </button>
-            <button
-              type="button"
-              className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-transparent px-2.5 text-[12.5px] text-fg-strong transition-colors hover:border-hairline hover:bg-white/[0.04] hover:text-white"
-            >
-              <Download className="h-3 w-3" aria-hidden="true" />
-              Export CSV
-            </button>
             <Link
               href="/dashboard/settings?tab=billing"
-              className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-green-light bg-green px-2.5 text-[12.5px] font-medium text-white transition-colors hover:bg-green-light"
+              className="btn-primary inline-flex h-[26px] items-center gap-1.5 rounded-[4px] px-2.5 text-[12.5px] font-medium transition-colors"
             >
               <Box className="h-3 w-3" aria-hidden="true" />
               Manage plan

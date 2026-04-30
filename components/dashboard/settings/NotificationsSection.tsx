@@ -50,10 +50,10 @@ export default function NotificationsSection() {
         {ROWS.map((row) => (
           <div
             key={row.name}
-            className={`${NOTIF_COLS} border-b border-hairline last:border-b-0 transition-colors hover:bg-white/[0.025]`}
+            className={`${NOTIF_COLS} border-b border-hairline last:border-b-0 transition-colors hover:bg-zebra`}
           >
             <div>
-              <p className="text-[13px] text-white">{row.name}</p>
+              <p className="text-[13px] text-fg">{row.name}</p>
               <p className="mt-0.5 text-[11.5px] text-fg-faint">{row.desc}</p>
             </div>
             <div className="justify-self-end">

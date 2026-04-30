@@ -55,7 +55,7 @@ export default function RunsTable({
 
   const wrapperClass = [
     bordered
-      ? "overflow-hidden rounded-md border border-hairline bg-dark-lighter"
+      ? "overflow-hidden rounded-md border border-hairline bg-dark-lighter shadow-card"
       : "",
     className ?? "",
   ]
@@ -91,7 +91,7 @@ export default function RunsTable({
           <Link
             key={row.id}
             href={`/dashboard/usage?request=${row.id}`}
-            className={`${cols} ${rowPadY} text-[12.5px] transition-colors hover:bg-white/[0.04] ${
+            className={`${cols} ${rowPadY} text-[12.5px] transition-colors hover:bg-hover ${
               i > 0 || showHeader ? "border-t border-hairline" : ""
             }`}
           >

@@ -69,7 +69,7 @@ export default function TabStrip<T extends string = string>({
             onClick={() => onChange(key)}
             className={`relative flex h-10 shrink-0 items-center gap-2 px-3 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-green-bright/40 ${
               isActive
-                ? "font-medium text-white"
+                ? "font-medium text-fg"
                 : "text-fg-faint hover:text-fg-strong"
             }`}
           >

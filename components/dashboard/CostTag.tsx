@@ -17,8 +17,8 @@ interface CostTagProps {
 
 const STYLES: Record<CostMode, string> = {
   free: "bg-green-bright/15 text-green-bright ring-green-bright/25",
-  cost: "bg-white/[0.06] text-fg-strong ring-white/15",
-  test: "bg-white/[0.06] text-fg-muted ring-white/10",
+  cost: "bg-tint text-fg-strong ring-[var(--color-border-subtle)]",
+  test: "bg-tint text-fg-muted ring-[var(--color-border-hairline)]",
 };
 
 const LABELS: Record<CostMode, string> = {

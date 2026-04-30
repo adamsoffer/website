@@ -98,7 +98,7 @@ export default function SignInWall({ route }: { route: SignInWallRoute }) {
         </p>
 
         {/* Title — large, tight tracking */}
-        <h1 className="mb-3 max-w-[28ch] text-[26px] font-medium leading-[1.2] tracking-[-0.02em] text-white text-balance">
+        <h1 className="mb-3 max-w-[28ch] text-[26px] font-medium leading-[1.2] tracking-[-0.02em] text-fg text-balance">
           {title}
         </h1>
 
@@ -107,18 +107,18 @@ export default function SignInWall({ route }: { route: SignInWallRoute }) {
           {description}
         </p>
 
-        {/* CTA pair — primary green Sign in + bordered Create workspace */}
+        {/* CTA pair — theme-aware primary Sign in + bordered Create workspace */}
         <div className="mb-6 flex flex-wrap items-center justify-center gap-2">
           <Link
             href="/dashboard/login"
-            className="inline-flex h-9 min-w-[140px] items-center justify-center gap-1.5 rounded-[6px] bg-green px-4 text-[13px] font-medium text-white transition-colors hover:bg-green-light active:bg-green-dark"
+            className="btn-primary inline-flex h-9 min-w-[140px] items-center justify-center gap-1.5 rounded-[6px] px-4 text-[13px] font-medium transition-colors"
           >
             Sign in
             <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
           </Link>
           <Link
             href="/dashboard/login?mode=signup"
-            className="inline-flex h-9 items-center justify-center rounded-[6px] border border-hairline bg-dark-card px-4 text-[13px] text-fg-strong transition-colors hover:border-subtle hover:bg-white/[0.04] hover:text-white"
+            className="inline-flex h-9 items-center justify-center rounded-[6px] border border-hairline bg-dark-card px-4 text-[13px] text-fg-strong transition-colors hover:border-subtle hover:bg-hover hover:text-fg"
           >
             Create workspace
           </Link>
@@ -129,15 +129,15 @@ export default function SignInWall({ route }: { route: SignInWallRoute }) {
           className="mb-3 flex w-full items-center gap-3 text-[11px] uppercase tracking-[0.06em] text-fg-disabled"
           aria-hidden="true"
         >
-          <span className="h-px flex-1 bg-white/[0.06]" />
+          <span className="h-px flex-1 bg-tint" />
           <span className="font-mono">or browse without an account</span>
-          <span className="h-px flex-1 bg-white/[0.06]" />
+          <span className="h-px flex-1 bg-tint" />
         </div>
 
         {/* Escape hatch — Explore capabilities */}
         <Link
           href="/dashboard/explore"
-          className="inline-flex items-center gap-1.5 text-[13px] text-fg-muted transition-colors hover:text-white"
+          className="inline-flex items-center gap-1.5 text-[13px] text-fg-muted transition-colors hover:text-fg"
         >
           Explore capabilities
           <ArrowRight className="h-3 w-3" aria-hidden="true" />

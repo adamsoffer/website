@@ -80,7 +80,7 @@ function NetworkContent() {
             href="https://status.livepeer.org"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-transparent px-2.5 text-[12.5px] font-medium text-fg-strong transition-colors hover:border-hairline hover:bg-white/[0.04] hover:text-white"
+            className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-transparent px-2.5 text-[12.5px] font-medium text-fg-strong transition-colors hover:border-hairline hover:bg-hover hover:text-fg"
           >
             Status page
             <ArrowUpRight className="h-3 w-3" aria-hidden="true" />

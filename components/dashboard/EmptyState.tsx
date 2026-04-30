@@ -63,11 +63,11 @@ export default function EmptyState({
 
       <div className="relative flex max-w-md flex-col items-center">
         {icon && (
-          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-white/[0.04] text-fg-faint ring-1 ring-hairline">
+          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-hover text-fg-faint ring-1 ring-hairline">
             {icon}
           </div>
         )}
-        <p className="text-sm font-medium text-white text-balance">{title}</p>
+        <p className="text-sm font-medium text-fg text-balance">{title}</p>
         {description && (
           <p className="mt-1 text-xs text-fg-faint text-balance">{description}</p>
         )}
@@ -90,8 +90,8 @@ function ActionLink({
 }) {
   const styles =
     variant === "guided"
-      ? "rounded-full bg-green px-3.5 py-1.5 text-[13px] font-medium text-white hover:bg-green-light"
-      : "text-xs font-medium text-fg-strong underline-offset-2 hover:text-white hover:underline";
+      ? "btn-primary rounded-full px-3.5 py-1.5 text-[13px] font-medium"
+      : "text-xs font-medium text-fg-strong underline-offset-2 hover:text-fg hover:underline";
 
   const inner = (
     <>

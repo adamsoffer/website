@@ -23,7 +23,7 @@ export default function RequestIdChip({ id, className = "" }: RequestIdChipProps
 
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-md border border-hairline bg-white/[0.02] py-0.5 pl-2 pr-1 ${className}`}
+      className={`inline-flex items-center gap-1 rounded-md border border-hairline bg-zebra py-0.5 pl-2 pr-1 ${className}`}
     >
       <span className="font-mono text-[11px] text-fg-muted">
         <span className="hidden sm:inline">{id}</span>

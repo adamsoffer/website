@@ -57,38 +57,55 @@ export default function StackedAreaChart({
   ];
 
   return (
-    <svg
-      viewBox={`0 0 ${w} ${h}`}
-      width="100%"
-      height={h}
-      preserveAspectRatio="none"
-      aria-hidden="true"
-    >
-      <line
-        x1={padX}
-        x2={w - padX}
-        y1={h - padBot}
-        y2={h - padBot}
-        stroke="rgba(255,255,255,0.06)"
-      />
-      {layers.map((l, i) => (
-        <path key={i} d={l.d} fill={l.color} fillOpacity={0.45} />
-      ))}
-      <path d={topStroke} fill="none" stroke="#40BF86" strokeWidth="1.25" />
-      {ticks.map((i) => (
-        <text
-          key={i}
-          x={xAt(i)}
-          y={h - 6}
-          textAnchor="middle"
-          fontFamily="var(--font-mono)"
-          fontSize="9"
-          fill="rgba(255,255,255,0.3)"
-        >
-          {i === days - 1 ? "Today" : `${days - 1 - i}d`}
-        </text>
-      ))}
-    </svg>
+    // Two-layer composition: the bottom SVG stretches to fill the container
+    // (preserveAspectRatio="none") so the area paths span the full width,
+    // and an HTML label overlay sits on top with no stretch — `<text>`
+    // glyphs inside the stretched SVG were getting horizontally skewed
+    // whenever the container exceeded the 720px viewBox width.
+    <div className="relative" style={{ height: h }}>
+      <svg
+        viewBox={`0 0 ${w} ${h}`}
+        width="100%"
+        height={h}
+        preserveAspectRatio="none"
+        aria-hidden="true"
+        className="block"
+      >
+        <line
+          x1={padX}
+          x2={w - padX}
+          y1={h - padBot}
+          y2={h - padBot}
+          stroke="var(--color-tint)"
+        />
+        {layers.map((l, i) => (
+          <path key={i} d={l.d} fill={l.color} fillOpacity={0.45} />
+        ))}
+        <path d={topStroke} fill="none" stroke="#40BF86" strokeWidth="1.25" />
+      </svg>
+      {/* Tick labels — HTML overlay so they don't inherit the SVG's
+          horizontal stretch. Each label centers on its tick's x position
+          expressed as a percentage of the viewBox width. */}
+      <div
+        className="pointer-events-none absolute inset-x-0 font-mono text-[9px] text-fg-faint"
+        style={{ bottom: 4 }}
+        aria-hidden="true"
+      >
+        {ticks.map((i) => (
+          <span
+            key={i}
+            className="absolute"
+            style={{
+              left: `${(xAt(i) / w) * 100}%`,
+              transform: "translateX(-50%)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {i === days - 1 ? "Today" : `${days - 1 - i}d`}
+          </span>
+        ))}
+      </div>
+    </div>
   );
 }
 

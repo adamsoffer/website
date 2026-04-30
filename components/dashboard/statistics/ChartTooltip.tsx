@@ -20,7 +20,7 @@ export function StackedChartTooltip({
   const sorted = [...payload].sort((a, b) => (b.value || 0) - (a.value || 0));
   const total = sorted.reduce((sum, p) => sum + (p.value || 0), 0);
   return (
-    <div className="rounded-lg border border-hairline bg-dark-card/90 px-3 py-2 backdrop-blur-md">
+    <div className="rounded-lg border border-hairline bg-dark-card/90 px-3 py-2 shadow-popover backdrop-blur-md">
       <p className="mb-1 text-[10px] uppercase tracking-wider text-fg-label">
         {label}
       </p>
@@ -37,7 +37,7 @@ export function StackedChartTooltip({
         </div>
       ))}
       {payload.length > 1 && (
-        <div className="mt-1 border-t border-hairline pt-1 text-right tabular-nums text-xs text-white">
+        <div className="mt-1 border-t border-hairline pt-1 text-right tabular-nums text-xs text-fg">
           {total.toLocaleString()}
         </div>
       )}
@@ -62,11 +62,11 @@ export function SimpleChartTooltip({
     ? formatValue(payload[0].value)
     : `$${payload[0].value.toLocaleString()}`;
   return (
-    <div className="rounded-lg border border-hairline bg-dark-card/90 px-3 py-2 backdrop-blur-md">
+    <div className="rounded-lg border border-hairline bg-dark-card/90 px-3 py-2 shadow-popover backdrop-blur-md">
       <p className="text-[10px] uppercase tracking-wider text-fg-label">
         {label}
       </p>
-      <p className="tabular-nums text-sm text-white">{formatted}</p>
+      <p className="tabular-nums text-sm text-fg">{formatted}</p>
     </div>
   );
 }

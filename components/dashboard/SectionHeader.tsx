@@ -60,8 +60,8 @@ export default function SectionHeader({
   const effectiveSize = size ?? (variant === "lg" ? "lg" : "default");
   const titleClass =
     effectiveSize === "lg"
-      ? "text-lg font-medium text-white text-balance"
-      : "text-base font-medium text-white text-balance";
+      ? "text-lg font-medium text-fg text-balance"
+      : "text-base font-medium text-fg text-balance";
 
   return (
     <div className={className ?? "mb-4"}>

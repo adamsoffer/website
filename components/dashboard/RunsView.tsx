@@ -38,7 +38,7 @@ function FilterPill({
             e.stopPropagation();
             onClear();
           }}
-          className="ml-0.5 grid h-3.5 w-3.5 place-items-center border-l border-hairline pl-1 text-fg-faint hover:text-white"
+          className="ml-0.5 grid h-3.5 w-3.5 place-items-center border-l border-hairline pl-1 text-fg-faint hover:text-fg"
           aria-label={`Clear ${label} filter`}
         >
           <X className="h-2.5 w-2.5" />
@@ -82,7 +82,7 @@ export default function RunsView() {
         actions={
           <button
             type="button"
-            className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-transparent px-2.5 text-[12.5px] text-fg-strong transition-colors hover:border-hairline hover:bg-white/[0.04] hover:text-white"
+            className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-transparent px-2.5 text-[12.5px] text-fg-strong transition-colors hover:border-hairline hover:bg-hover hover:text-fg"
           >
             <Filter className="h-3 w-3" aria-hidden="true" />
             Display

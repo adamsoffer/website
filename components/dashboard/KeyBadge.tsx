@@ -49,7 +49,7 @@ export default function KeyBadge({
         </span>
       )}
       <div
-        className={`inline-flex items-center gap-2 rounded-md border border-subtle bg-white/[0.03] ${padding}`}
+        className={`inline-flex items-center gap-2 rounded-md border border-subtle bg-zebra ${padding}`}
       >
         <code
           className={`min-w-0 flex-1 truncate font-mono ${textSize} text-fg-strong`}
@@ -63,7 +63,7 @@ export default function KeyBadge({
           className={`inline-flex h-7 shrink-0 items-center gap-1.5 rounded-md px-2 text-[11px] font-medium transition-colors ${
             copied
               ? "bg-green-bright/15 text-green-bright"
-              : "text-fg-muted hover:bg-white/[0.06] hover:text-white"
+              : "text-fg-muted hover:bg-tint hover:text-fg"
           }`}
         >
           {copied ? (

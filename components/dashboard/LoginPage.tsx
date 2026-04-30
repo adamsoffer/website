@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth, type AuthProvider } from "@/components/dashboard/AuthContext";
 import { LivepeerWordmark } from "@/components/icons/LivepeerLogo";
@@ -57,7 +57,13 @@ function GoogleIcon({ className }: { className?: string }) {
 }
 
 export default function LoginPage() {
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  // `?mode=signup` lands here from the sidebar promo's "Get an API key", the
+  // header's "Sign up" CTA, and the sign-in walls. Without this the toggle
+  // would always start on Sign in and the user would have to flip it.
+  const searchParams = useSearchParams();
+  const initialMode: "signin" | "signup" =
+    searchParams?.get("mode") === "signup" ? "signup" : "signin";
+  const [mode, setMode] = useState<"signin" | "signup">(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -99,10 +105,10 @@ export default function LoginPage() {
   //  • Submit — saturated brand color (green-bright) with white text, no shadow
   // Anchored ~28% from top so it doesn't drown in the viewport.
   const inputClass =
-    "h-10 w-full rounded-md border border-hairline bg-white/[0.015] px-3 text-[13px] text-white placeholder:text-fg-disabled transition-colors hover:border-subtle hover:bg-white/[0.025] focus:border-strong focus:bg-white/[0.03] focus:outline-none";
+    "h-10 w-full rounded-md border border-hairline bg-zebra px-3 text-[13px] text-fg placeholder:text-fg-disabled transition-colors hover:border-subtle hover:bg-zebra focus:border-strong focus:bg-zebra focus:outline-none";
 
   const oauthButtonClass =
-    "inline-flex h-10 w-full items-center justify-center gap-2.5 rounded-full border border-hairline bg-transparent px-4 text-[13px] font-medium text-fg-strong transition-colors hover:border-subtle hover:bg-white/[0.04] hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-strong";
+    "inline-flex h-10 w-full items-center justify-center gap-2.5 rounded-full border border-hairline bg-transparent px-4 text-[13px] font-medium text-fg-strong transition-colors hover:border-subtle hover:bg-hover hover:text-fg focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-strong";
 
   return (
     <div className="flex min-h-screen flex-col bg-dark">
@@ -117,7 +123,7 @@ export default function LoginPage() {
               heading reads as supporting subtitle below. */}
           <div className="mb-5 flex justify-center">
             <LivepeerWordmark
-              className="h-6 w-auto text-white"
+              className="h-6 w-auto text-fg"
               aria-label="Livepeer"
             />
           </div>
@@ -220,18 +226,18 @@ export default function LoginPage() {
               className={inputClass}
             />
 
-            {/* Submit — saturated brand color (green-bright #40bf86) instead of muted
-                green so it carries the same energy as Linear's purple. White text,
-                no shadow. The kbd chip is sized & weighted to read as a hint, not a
-                label — same pattern Linear uses for "C" on Create new issue. */}
+            {/* Submit — theme-aware primary CTA. On dark this carries the same
+                energy as the original green-bright (Linear-purple analog); on
+                light it flips to neutral zinc-900 so the sign-in surface reads
+                as a refined dashboard CTA, not a marketing CTA. */}
             <button
               type="submit"
-              className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full bg-green-bright text-[13px] font-medium text-white transition-colors hover:bg-green-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-bright/40"
+              className="btn-primary inline-flex h-10 w-full items-center justify-center gap-2 rounded-full text-[13px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-bright/40"
             >
               <span>{mode === "signin" ? "Log in with email" : "Create account"}</span>
               <kbd
                 aria-hidden="true"
-                className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-[4px] bg-black/15 px-1 text-[11px] font-medium leading-none text-white/85"
+                className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-[4px] bg-overlay px-1 text-[11px] font-medium leading-none text-white/85"
               >
                 ↵
               </kbd>
@@ -247,7 +253,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setMode("signup")}
-                  className="text-fg-strong underline decoration-fg-disabled underline-offset-2 transition-colors hover:text-white hover:decoration-fg-strong"
+                  className="text-fg-strong underline decoration-fg-disabled underline-offset-2 transition-colors hover:text-fg hover:decoration-fg-strong"
                 >
                   Sign up
                 </button>
@@ -258,7 +264,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setMode("signin")}
-                  className="text-fg-strong underline decoration-fg-disabled underline-offset-2 transition-colors hover:text-white hover:decoration-fg-strong"
+                  className="text-fg-strong underline decoration-fg-disabled underline-offset-2 transition-colors hover:text-fg hover:decoration-fg-strong"
                 >
                   Log in
                 </button>

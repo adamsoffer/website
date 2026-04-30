@@ -199,7 +199,7 @@ export default function CapabilityLeaderboardPanel() {
     const Arrow = up ? ArrowUp : ArrowDown;
     return (
       <div
-        className={`${cols} cursor-default border-t border-hairline py-2.5 transition-colors hover:bg-white/[0.025]`}
+        className={`${cols} cursor-default border-t border-hairline py-2.5 transition-colors hover:bg-zebra`}
       >
         <span
           className="h-2 w-2 rounded-[2px]"
@@ -207,7 +207,7 @@ export default function CapabilityLeaderboardPanel() {
           aria-hidden="true"
         />
         <div className="flex min-w-0 flex-col gap-px">
-          <span className="truncate text-[13px] font-medium text-white">
+          <span className="truncate text-[13px] font-medium text-fg">
             {c.name}
           </span>
           <span className="font-mono text-[10.5px] text-fg-faint">
@@ -237,7 +237,7 @@ export default function CapabilityLeaderboardPanel() {
           <span className="font-mono text-[12.5px] tabular-nums text-fg-strong">
             ${c.spend.toFixed(0)}
           </span>
-          <span className="block h-1 w-full max-w-[140px] overflow-hidden rounded-[2px] bg-white/[0.06]">
+          <span className="block h-1 w-full max-w-[140px] overflow-hidden rounded-[2px] bg-tint">
             <span
               className="block h-full rounded-[2px] opacity-80"
               style={{
@@ -252,20 +252,20 @@ export default function CapabilityLeaderboardPanel() {
   };
 
   return (
-    <section className="overflow-hidden rounded-md border border-hairline bg-dark-lighter">
+    <section className="overflow-hidden rounded-md border border-hairline bg-dark-lighter shadow-card">
       {/* Panel head — title + sub on the left, "View usage" link on the right. */}
       <div className="flex items-start justify-between gap-3 border-b border-hairline px-4 py-3.5">
         <div>
-          <p className="text-[13.5px] font-medium text-white">
+          <p className="text-[17px] font-bold text-fg">
             Usage by capability
           </p>
-          <p className="mt-0.5 text-[11.5px] text-fg-faint">
+          <p className="mt-0.5 text-[12px] text-fg-muted">
             Last 30 days · sorted by volume
           </p>
         </div>
         <Link
           href="/dashboard/usage"
-          className="inline-flex items-center gap-1 text-[12px] text-fg-faint transition-colors hover:text-white"
+          className="inline-flex items-center gap-1 text-[12px] text-fg-faint transition-colors hover:text-fg"
         >
           View usage <ArrowRight className="h-3 w-3" aria-hidden="true" />
         </Link>

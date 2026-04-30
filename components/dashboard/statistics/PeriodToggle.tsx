@@ -15,14 +15,14 @@ export default function PeriodToggle<T extends string>({
   options: PeriodOption<T>[];
 }) {
   return (
-    <div className="flex rounded-lg bg-white/[0.04]">
+    <div className="flex rounded-lg bg-hover">
       {options.map(({ key, label }, i) => (
         <button
           key={key}
           onClick={() => onChange(key)}
           className={`flex h-9 items-center px-3 text-xs transition-colors sm:h-7 ${
             value === key
-              ? "bg-white/[0.08] font-medium text-white"
+              ? "bg-pop font-medium text-fg"
               : "text-fg-faint hover:text-fg-muted"
           } ${i === 0 ? "rounded-l-lg" : i === options.length - 1 ? "rounded-r-lg" : ""}`}
         >

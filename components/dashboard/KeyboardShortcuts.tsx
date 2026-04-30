@@ -116,7 +116,7 @@ export default function KeyboardShortcuts() {
           type="button"
           onClick={close}
           aria-label="Close shortcuts"
-          className="shrink-0 rounded-md border border-subtle bg-white/[0.06] px-2.5 py-1 text-[11px] text-fg-muted transition-colors hover:border-strong hover:bg-white/[0.1] hover:text-white"
+          className="shrink-0 rounded-md border border-subtle bg-tint px-2.5 py-1 text-[11px] text-fg-muted transition-colors hover:border-strong hover:bg-pop hover:text-fg"
         >
           ESC
         </button>
@@ -153,7 +153,7 @@ export default function KeyboardShortcuts() {
                       ) : (
                         <kbd
                           key={j}
-                          className="rounded border border-subtle bg-white/[0.06] px-1.5 py-0.5 font-mono text-[10.5px] text-fg-muted"
+                          className="rounded border border-subtle bg-tint px-1.5 py-0.5 font-mono text-[10.5px] text-fg-muted"
                         >
                           {k}
                         </kbd>
@@ -168,10 +168,10 @@ export default function KeyboardShortcuts() {
       </div>
 
       {/* Footer */}
-      <div className="flex items-center gap-3 border-t border-hairline bg-white/[0.02] px-4 py-2 font-mono text-[11px] text-fg-faint">
+      <div className="flex items-center gap-3 border-t border-hairline bg-zebra px-4 py-2 font-mono text-[11px] text-fg-faint">
         <span>
           Press{" "}
-          <kbd className="rounded border border-subtle bg-white/[0.06] px-1.5 py-0.5 text-[10.5px] text-fg-muted">
+          <kbd className="rounded border border-subtle bg-tint px-1.5 py-0.5 text-[10.5px] text-fg-muted">
             ?
           </kbd>{" "}
           any time

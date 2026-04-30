@@ -31,7 +31,7 @@ export default function WaveformStatic({ dimmed = false }: WaveformStaticProps) 
     if (!containerRef.current) return;
     const ws = WaveSurfer.create({
       container: containerRef.current,
-      waveColor: "rgba(255, 255, 255, 0.18)",
+      waveColor: "var(--color-fg-faint)",
       progressColor: "transparent",
       cursorColor: "transparent",
       cursorWidth: 0,

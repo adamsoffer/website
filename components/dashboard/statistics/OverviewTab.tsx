@@ -85,7 +85,7 @@ function TopPipelinesGrid() {
         <span className="w-16 shrink-0 text-right text-[11px] font-medium uppercase tracking-wider text-fg-disabled">Requests</span>
       </div>
 
-      <div className="divide-y divide-white/[0.04]">
+      <div className="divide-y divide-[var(--color-border-hairline)]">
         {sorted.map((model, i) => {
           const Icon = getModelIcon(model.category);
           const color = API_COLORS[i % API_COLORS.length];
@@ -94,7 +94,7 @@ function TopPipelinesGrid() {
             <Link
               key={model.id}
               href={`/dashboard/models/${model.id}`}
-              className="group flex items-center gap-3 px-5 py-3 transition-colors hover:bg-white/[0.03]"
+              className="group flex items-center gap-3 px-5 py-3 transition-colors hover:bg-zebra"
             >
               <span className="w-5 text-right text-[11px] text-fg-disabled">
                 {i + 1}
@@ -120,7 +120,7 @@ function TopPipelinesGrid() {
         {othersRuns > 0 && (
           <div className="flex items-center gap-3 px-5 py-3">
             <span className="w-5 text-right text-[11px] text-fg-label">+</span>
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white/[0.04]">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-hover">
               <span className="text-xs text-fg-label">...</span>
             </div>
             <p className="min-w-0 flex-1 text-sm text-fg-muted">Others</p>
@@ -159,7 +159,7 @@ export default function OverviewTab() {
     <div className="flex flex-1 flex-col gap-6 p-5 lg:p-6">
       {/* Header — hidden on mobile (dropdown nav already identifies the section) */}
       <div className="hidden lg:block">
-        <h2 className="text-lg font-semibold text-white">Network Stats</h2>
+        <h2 className="text-lg font-semibold text-fg">Network Stats</h2>
         <p className="mt-1 text-sm text-fg-muted">
           Network-wide request volumes, top APIs, and growth metrics for the Livepeer AI inference network.
         </p>
@@ -182,7 +182,7 @@ export default function OverviewTab() {
             <p className="text-[11px] font-medium uppercase tracking-wider text-fg-label">
               Total Requests
             </p>
-            <p className="mt-1 text-3xl font-semibold text-white">
+            <p className="mt-1 text-3xl font-semibold text-fg">
               {(totalRequests / 1_000_000).toFixed(1)}M
             </p>
           </div>
@@ -197,7 +197,7 @@ export default function OverviewTab() {
             <BarChart data={chartData} barCategoryGap="15%">
               <XAxis
                 dataKey="date"
-                tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 10 }}
+                tick={{ fill: "var(--color-fg-label)", fontSize: 10 }}
                 tickLine={false}
                 axisLine={false}
                 tickFormatter={(v: string) => v.slice(5)}
@@ -206,7 +206,7 @@ export default function OverviewTab() {
                 padding={{ left: 8, right: 8 }}
               />
               <YAxis hide />
-              <Tooltip content={<StackedChartTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
+              <Tooltip content={<StackedChartTooltip />} cursor={{ fill: "var(--color-zebra)" }} />
               {TOP_APIS.map((api, i) => (
                 <Bar
                   key={api}

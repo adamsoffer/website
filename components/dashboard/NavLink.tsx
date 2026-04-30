@@ -60,11 +60,11 @@ export default function NavLink({
   const base =
     "group relative flex h-[26px] items-center rounded-[4px] text-[13px] font-medium transition-colors";
   const state = active
-    ? "bg-white/[0.07] text-white"
+    ? "bg-active text-fg"
     : locked
-      ? "text-fg-faint hover:bg-white/[0.04] hover:text-fg-strong"
-      : "text-fg-strong hover:bg-white/[0.04] hover:text-white";
-  const layout = collapsed ? "w-[26px] justify-center" : "w-full gap-2 px-2.5";
+      ? "text-fg-faint hover:bg-hover hover:text-fg-strong"
+      : "text-fg-strong hover:bg-hover hover:text-fg";
+  const layout = collapsed ? "mx-auto w-[26px] justify-center" : "w-full gap-2 px-2.5";
   const className = `${base} ${state} ${layout}`;
 
   const content = (
@@ -72,7 +72,7 @@ export default function NavLink({
       <Icon
         className={`h-3.5 w-3.5 shrink-0 ${
           active
-            ? "text-white"
+            ? "text-fg"
             : locked
               ? "text-fg-disabled"
               : "text-fg-label"
@@ -141,10 +141,16 @@ export default function NavLink({
   );
 
   if (collapsed) {
+    // Tooltip wraps its trigger in an inline-flex span that sizes to the
+    // child — `mx-auto` on the link has no slack to consume inside it. Wrap
+    // the whole tooltip in a flex container so the 26px button centers
+    // within the sidebar's padded inner width.
     return (
-      <Tooltip content={label} side="right">
-        {linkEl}
-      </Tooltip>
+      <div className="flex justify-center">
+        <Tooltip content={label} side="right">
+          {linkEl}
+        </Tooltip>
+      </div>
     );
   }
 

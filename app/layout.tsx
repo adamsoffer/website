@@ -35,9 +35,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
+    // `suppressHydrationWarning` covers the inline theme-init script that
+    // sets `<html data-theme="…">` before React hydrates. The SSR HTML has
+    // no `data-theme` attribute, the script adds one, and we don't want
+    // React to revert it on hydration. Scope is the `<html>` element only —
+    // children still hydrate with full warnings. See
+    // app/(dashboard)/dashboard/layout.tsx for the script and
+    // components/dashboard/ThemeContext.tsx for the provider that takes
+    // over post-hydration.
     <html
       lang="en"
       className={`${favoritPro.variable} ${favoritMono.variable}`}
+      suppressHydrationWarning
     >
       <head>
         {process.env.NEXT_PUBLIC_VERCEL_ENV === "production" && (
@@ -73,7 +82,7 @@ export default function RootLayout({
           </>
         )}
       </head>
-      <body className="min-h-screen bg-dark font-sans text-white antialiased">
+      <body className="min-h-screen bg-dark font-sans text-fg antialiased">
         {children}
       </body>
     </html>

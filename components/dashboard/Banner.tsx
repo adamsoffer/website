@@ -21,7 +21,7 @@ interface BannerProps {
  */
 export default function Banner({ icon, children, action }: BannerProps) {
   return (
-    <div className="flex items-center gap-2.5 rounded-md border border-hairline bg-dark-lighter px-3.5 py-2.5 text-[12.5px] text-fg-strong">
+    <div className="flex items-center gap-2.5 rounded-md border border-hairline bg-dark-lighter shadow-card px-3.5 py-2.5 text-[12.5px] text-fg-strong">
       {icon && <span className="shrink-0 text-green-bright">{icon}</span>}
       <span className="min-w-0 flex-1">{children}</span>
       {action && (

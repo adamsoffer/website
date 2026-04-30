@@ -62,7 +62,7 @@ function PlaceholderFrame({
   const shape = placeholderShape(outputType);
   return (
     <div
-      className={`flex w-full flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-subtle bg-white/[0.02] p-6 text-center ${shape}`}
+      className={`flex w-full flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-subtle bg-zebra p-6 text-center ${shape}`}
     >
       {children}
     </div>
@@ -148,12 +148,12 @@ function EmptyState({
   // Chat-like empty state for LLM outputs — matches Replicate/Chutes convention
   if (outputType === "text") {
     return (
-      <div className="flex min-h-[320px] w-full flex-col justify-end gap-3 rounded-xl border border-hairline bg-white/[0.02] p-4">
+      <div className="flex min-h-[320px] w-full flex-col justify-end gap-3 rounded-xl border border-hairline bg-zebra p-4">
         <div className="flex items-start gap-2">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/[0.04]">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-hover">
             {Icon && <Icon className="h-3.5 w-3.5 text-fg-muted" strokeWidth={2} />}
           </div>
-          <div className="flex min-h-[48px] flex-1 items-center rounded-lg bg-white/[0.03] px-3 py-2 text-xs text-fg-label">
+          <div className="flex min-h-[48px] flex-1 items-center rounded-lg bg-zebra px-3 py-2 text-xs text-fg-label">
             {label}
           </div>
         </div>
@@ -169,7 +169,7 @@ function EmptyState({
   return (
     <PlaceholderFrame outputType={outputType}>
       {Icon && (
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/[0.04]">
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-hover">
           <Icon className="h-6 w-6 text-fg-muted" strokeWidth={2} aria-hidden="true" />
         </div>
       )}
@@ -204,14 +204,14 @@ function ImageOutput({ url }: { url: string }) {
 
   return (
     <div
-      className="relative overflow-hidden rounded-xl border border-hairline bg-white/[0.02] transition-[aspect-ratio] duration-500 ease-out"
+      className="relative overflow-hidden rounded-xl border border-hairline bg-zebra transition-[aspect-ratio] duration-500 ease-out"
       style={{ aspectRatio: aspect }}
     >
       {/* Full-frame pulse — soft opacity breath while the image bytes decode.
           Paired with the aspect-ratio transition above: container finds its
           shape, pulse covers the download wait, image fades in on top. */}
       <div
-        className={`absolute inset-0 animate-pulse bg-white/[0.04] transition-opacity duration-700 ${
+        className={`absolute inset-0 animate-pulse bg-hover transition-opacity duration-700 ${
           loaded ? "opacity-0" : "opacity-100"
         }`}
       />
@@ -261,7 +261,7 @@ function StreamingTextOutput({ text }: { text: string }) {
   const isStreaming = displayed.length < text.length;
 
   return (
-    <div className="min-h-[320px] rounded-lg border border-subtle bg-white/[0.03] p-4 font-mono text-sm leading-relaxed text-fg-strong">
+    <div className="min-h-[320px] rounded-lg border border-subtle bg-zebra p-4 font-mono text-sm leading-relaxed text-fg-strong">
       <pre className="whitespace-pre-wrap">{displayed}</pre>
       {isStreaming && (
         <span className="inline-block h-4 w-0.5 animate-pulse bg-green-bright" />
@@ -276,7 +276,7 @@ function AudioOutput({ modelName, url }: { modelName?: string; url?: string }) {
 
 function JsonOutput({ data }: { data: string }) {
   return (
-    <div className="relative rounded-lg border border-subtle bg-white/[0.03]">
+    <div className="relative rounded-lg border border-subtle bg-zebra">
       <CopyButton
         value={data}
         label="Copy"
@@ -342,7 +342,7 @@ export default function PlaygroundOutput({
           disabled={state !== "result"}
           className={`border-b-2 px-3 py-1.5 text-xs font-medium transition-colors focus:outline-none ${
             state === "result" && viewMode === "preview"
-              ? "border-green-bright text-white"
+              ? "border-green-bright text-fg"
               : "border-transparent text-fg-faint hover:text-fg-muted"
           }`}
         >
@@ -353,7 +353,7 @@ export default function PlaygroundOutput({
           disabled={state !== "result"}
           className={`border-b-2 px-3 py-1.5 text-xs font-medium transition-colors focus:outline-none ${
             state === "result" && viewMode === "json"
-              ? "border-green-bright text-white"
+              ? "border-green-bright text-fg"
               : "border-transparent text-fg-faint hover:text-fg-muted"
           }`}
         >
@@ -410,7 +410,7 @@ export default function PlaygroundOutput({
       {/* Action buttons */}
       {state === "result" && (outputType === "image" || outputType === "audio") && (
         <div className="flex flex-wrap gap-2">
-          <button className="flex items-center gap-1.5 rounded-lg border border-subtle px-3 py-1.5 text-xs text-fg-label transition-colors hover:bg-white/[0.04] hover:text-fg-muted focus:outline-none">
+          <button className="flex items-center gap-1.5 rounded-lg border border-subtle px-3 py-1.5 text-xs text-fg-label transition-colors hover:bg-hover hover:text-fg-muted focus:outline-none">
             <Download className="h-3 w-3" />
             Download
           </button>

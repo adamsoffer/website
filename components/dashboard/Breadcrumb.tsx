@@ -47,13 +47,13 @@ export default function Breadcrumb({
               {item.href && !isLast ? (
                 <Link
                   href={item.href}
-                  className="truncate transition-colors hover:text-white"
+                  className="truncate transition-colors hover:text-fg"
                 >
                   {item.label}
                 </Link>
               ) : (
                 <span
-                  className={`truncate ${isLast ? "text-white" : ""}`}
+                  className={`truncate ${isLast ? "text-fg" : ""}`}
                   aria-current={isLast ? "page" : undefined}
                 >
                   {item.label}

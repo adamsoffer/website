@@ -3,8 +3,25 @@ import type { CSSProperties } from "react";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { AuthProvider } from "@/components/dashboard/AuthContext";
+import { ThemeProvider } from "@/components/dashboard/ThemeContext";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import KeyboardShortcuts from "@/components/dashboard/KeyboardShortcuts";
+
+// FOUT prevention — runs synchronously in the document, before the dashboard
+// subtree paints. Reads the stored theme preference from localStorage (or
+// falls back to "dark" for first-time visitors) and applies
+// `<html data-theme="...">` so dual-source CSS variables resolve to the right
+// theme on first paint. The ThemeProvider takes over after hydration; this is
+// just the bootstrap.
+//
+// Default is "dark" — the dashboard's design language (saturated brand green
+// + Geist on dark Geist-zinc surfaces) is its native presentation; light is
+// an opt-in. Users can switch via Settings → Appearance.
+//
+// On the marketing site, a complementary script in `app/(marketing)/layout.tsx`
+// resets the attribute to "dark" so a user who picked light in the dashboard
+// doesn't see the marketing site flash light when they click a marketing link.
+const THEME_INIT_SCRIPT = `(function(){try{var s=localStorage.getItem('livepeer.dashboard.theme')||'dark';var d=s==='dark'||(s==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=d?'dark':'light';}catch(e){document.documentElement.dataset.theme='dark';}})();`;
 
 export const metadata: Metadata = {
   title: "Developer Dashboard — Livepeer",
@@ -39,17 +56,24 @@ export default function DashboardLayout({
   // against the left edge with a hairline border on the right; main content
   // fills the remaining width.
   return (
-    <AuthProvider>
-      <div
-        className={`flex min-h-screen flex-col bg-dark font-sans md:h-screen md:min-h-0 md:flex-row md:overflow-hidden ${GeistSans.variable} ${GeistMono.variable}`}
-        style={dashboardOverrides}
-      >
-        <DashboardSidebar />
-        <div className="flex min-w-0 flex-1 flex-col bg-dark border-l border-hairline md:overflow-y-auto">
-          {children}
-        </div>
-        <KeyboardShortcuts />
-      </div>
-    </AuthProvider>
+    <>
+      {/* Inline theme bootstrap — must run before the dashboard subtree
+          paints. ThemeProvider below takes over post-hydration. */}
+      <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      <ThemeProvider>
+        <AuthProvider>
+          <div
+            className={`flex min-h-screen flex-col bg-dark font-sans md:h-screen md:min-h-0 md:flex-row md:overflow-hidden ${GeistSans.variable} ${GeistMono.variable}`}
+            style={dashboardOverrides}
+          >
+            <DashboardSidebar />
+            <div className="flex min-w-0 flex-1 flex-col bg-dark border-l border-hairline md:overflow-y-auto">
+              {children}
+            </div>
+            <KeyboardShortcuts />
+          </div>
+        </AuthProvider>
+      </ThemeProvider>
+    </>
   );
 }

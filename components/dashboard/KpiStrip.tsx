@@ -32,7 +32,7 @@ export default function KpiStrip({
 }: KpiStripProps) {
   return (
     <div
-      className={`${COL_CLASSES[cols]} overflow-hidden rounded-md border border-hairline bg-dark-lighter divide-y divide-white/[0.06] sm:divide-y-0 sm:divide-x ${className ?? ""}`}
+      className={`${COL_CLASSES[cols]} overflow-hidden rounded-md border border-hairline bg-dark-lighter shadow-card divide-y divide-[var(--color-border-hairline)] sm:divide-y-0 sm:divide-x ${className ?? ""}`}
     >
       {children}
     </div>

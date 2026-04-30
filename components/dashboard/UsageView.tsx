@@ -73,13 +73,13 @@ function UsageStrip({
   const forecastPct = Math.min(100, (forecast / FREE_LIMIT) * 100);
 
   return (
-    <div className="flex flex-col gap-3 rounded-md border border-hairline bg-dark-lighter px-5 py-4">
+    <div className="flex flex-col gap-3 rounded-md border border-hairline bg-dark-lighter shadow-card px-5 py-4">
       <p className="font-mono text-[10.5px] font-medium uppercase tracking-[0.06em] text-fg-faint">
         Free tier
       </p>
       <div className="flex flex-wrap items-baseline gap-3">
         <span className="font-mono text-[15px] tabular-nums leading-none text-fg-muted">
-          <b className="mr-0.5 text-[24px] font-medium tracking-[-0.01em] text-white">
+          <b className="mr-0.5 text-[24px] font-medium tracking-[-0.01em] text-fg">
             {fmt(FREE_USED)}
           </b>
           <span className="text-fg-faint"> / {fmt(FREE_LIMIT)} runs</span>
@@ -120,13 +120,13 @@ function UsageStrip({
         {willExceed ? (
           <span className="font-mono">
             Forecast{" "}
-            <b className="font-medium text-white">{fmt(forecast)}</b>
+            <b className="font-medium text-fg">{fmt(forecast)}</b>
             {" "}by {RESETS_AT} · over limit in{" "}
             <b className="font-medium text-warm">~{daysToLimit}d</b>
           </span>
         ) : (
           <span className="font-mono">
-            <b className="font-medium text-white">{fmt(left)}</b> runs left ·
+            <b className="font-medium text-fg">{fmt(left)}</b> runs left ·
             pace looks fine.
           </span>
         )}
@@ -234,7 +234,7 @@ export default function UsageView() {
         <p className="font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-fg-disabled">
           Workspace · Flipbook
         </p>
-        <h1 className="mt-1 text-[22px] font-semibold tracking-[-0.02em] text-white">
+        <h1 className="mt-1 text-[22px] font-semibold tracking-[-0.02em] text-fg">
           Usage
         </h1>
       </div>
@@ -249,13 +249,13 @@ export default function UsageView() {
       />
 
       {/* Runs by capability — stacked area */}
-      <div className="mt-4 overflow-hidden rounded-md border border-hairline bg-dark-lighter">
+      <div className="mt-4 overflow-hidden rounded-md border border-hairline bg-dark-lighter shadow-card">
         <div className="flex flex-wrap items-start justify-between gap-3 border-b border-hairline px-4 py-3.5">
           <div>
-            <p className="text-[13.5px] font-medium text-white">
+            <p className="text-[17px] font-bold text-fg">
               Runs by capability
             </p>
-            <p className="mt-0.5 text-[11.5px] text-fg-faint">
+            <p className="mt-0.5 text-[12px] text-fg-muted">
               Last {PERIOD_LABEL.toLowerCase()} · {fmt(grandReq)} runs
             </p>
           </div>
@@ -299,17 +299,17 @@ export default function UsageView() {
       />
 
       {/* Limits */}
-      <div className="mt-4 overflow-hidden rounded-md border border-hairline bg-dark-lighter">
+      <div className="mt-4 overflow-hidden rounded-md border border-hairline bg-dark-lighter shadow-card">
         <div className="flex flex-wrap items-start justify-between gap-3 border-b border-hairline px-4 py-3.5">
           <div>
-            <p className="text-[13.5px] font-medium text-white">Limits</p>
-            <p className="mt-0.5 text-[11.5px] text-fg-faint">
+            <p className="text-[17px] font-bold text-fg">Limits</p>
+            <p className="mt-0.5 text-[12px] text-fg-muted">
               Free tier defaults · raise after adding payment
             </p>
           </div>
           <Link
             href="/dashboard/settings?tab=billing"
-            className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-hairline bg-dark-card px-2.5 text-[12px] text-fg-strong transition-colors hover:border-subtle hover:text-white"
+            className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-hairline bg-dark-card px-2.5 text-[12px] text-fg-strong transition-colors hover:border-subtle hover:text-fg"
           >
             Compare plans
           </Link>
@@ -326,7 +326,7 @@ export default function UsageView() {
                 <div className="mb-1.5 flex items-baseline justify-between gap-2">
                   <span className="text-[13px] text-fg-strong">{l.label}</span>
                   <span className="font-mono text-[12px] tabular-nums text-fg-faint">
-                    <b className="font-medium text-white">{l.fmt(l.used)}</b>
+                    <b className="font-medium text-fg">{l.fmt(l.used)}</b>
                     <span className="text-fg-disabled"> / {l.fmt(l.max)}</span>
                   </span>
                 </div>
@@ -376,7 +376,7 @@ function BreakdownTable({
   };
 
   return (
-    <div className="overflow-hidden rounded-md border border-hairline bg-dark-lighter">
+    <div className="overflow-hidden rounded-md border border-hairline bg-dark-lighter shadow-card">
       {/* Head */}
       <div
         className={`${cols} border-b border-hairline bg-dark py-2.5 font-mono text-[10.5px] uppercase tracking-[0.06em] text-fg-disabled`}
@@ -396,7 +396,7 @@ function BreakdownTable({
         return (
           <div
             key={c.id}
-            className={`${cols} border-b border-hairline py-2.5 text-[13px] text-fg-strong transition-colors last:border-b-0 hover:bg-white/[0.02]`}
+            className={`${cols} border-b border-hairline py-2.5 text-[13px] text-fg-strong transition-colors last:border-b-0 hover:bg-zebra`}
           >
             {/* Capability */}
             <div className="flex min-w-0 items-center gap-2">
@@ -407,7 +407,7 @@ function BreakdownTable({
               />
               <Link
                 href={`/dashboard/runs?capability=${c.id}`}
-                className="truncate text-white underline decoration-transparent decoration-1 underline-offset-[3px] transition-colors hover:text-green-bright hover:decoration-current"
+                className="truncate text-fg underline decoration-transparent decoration-1 underline-offset-[3px] transition-colors hover:text-green-bright hover:decoration-current"
               >
                 {c.name}
               </Link>
@@ -449,7 +449,7 @@ function BreakdownTable({
             </div>
 
             {/* Spend */}
-            <div className="justify-self-end font-mono tabular-nums text-white">
+            <div className="justify-self-end font-mono tabular-nums text-fg">
               {fmtSpend(c.spend)}
             </div>
           </div>
@@ -466,13 +466,13 @@ function BreakdownTable({
             · this period
           </span>
         </div>
-        <div className="justify-self-end font-mono tabular-nums text-white">
+        <div className="justify-self-end font-mono tabular-nums text-fg">
           {fmt(grandReq)}
         </div>
         <div />
         <div />
         <div />
-        <div className="justify-self-end font-mono tabular-nums text-white">
+        <div className="justify-self-end font-mono tabular-nums text-fg">
           {fmtSpend(grandSpend)}
         </div>
       </div>

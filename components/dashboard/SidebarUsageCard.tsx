@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { ACCOUNT_USAGE_SUMMARY } from "@/lib/dashboard/mock-data";
 
 /**
@@ -21,9 +20,6 @@ import { ACCOUNT_USAGE_SUMMARY } from "@/lib/dashboard/mock-data";
  *   - Bottom row: "{pct}% used" left · mono "resets {window}" right
  */
 export default function SidebarUsageCard() {
-  const pathname = usePathname();
-  const isActive = pathname?.startsWith("/dashboard/usage") ?? false;
-
   const used = ACCOUNT_USAGE_SUMMARY.freeTierUsed;
   const limit = ACCOUNT_USAGE_SUMMARY.freeTierLimit;
   const pct = Math.min(100, (used / limit) * 100);
@@ -36,9 +32,14 @@ export default function SidebarUsageCard() {
 
   const baseClass =
     "block mt-2 mx-1 rounded-md border px-2.5 py-2 transition-colors";
-  const stateClass = isActive
-    ? "border-green bg-green/[0.18] hover:border-green"
-    : "border-hairline bg-dark-lighter hover:border-subtle hover:bg-dark-card";
+  // The card stays visually stable across routes. The original design
+  // prototype had an active-state (green tint) when on /dashboard/usage,
+  // but in practice the green competes with the in-card progress bar
+  // and duplicates the main-nav active highlight. Cleaner to keep this
+  // a stable usage widget; route-active feedback lives on the Usage nav
+  // item in the primary rail.
+  const stateClass =
+    "border-subtle bg-sidebar-card-bg hover:bg-sidebar-card-bg-hover";
 
   return (
     <Link
@@ -51,12 +52,12 @@ export default function SidebarUsageCard() {
           Free tier
         </span>
         <span className="font-mono text-[12px] tabular-nums text-fg-strong">
-          <b className="font-medium text-white">{fmt(used)}</b>
+          <b className="font-medium text-fg">{fmt(used)}</b>
           <span className="text-fg-faint"> / {fmt(limit)}</span>
         </span>
       </div>
       <div
-        className="my-1.5 h-1 overflow-hidden rounded-[2px] bg-white/[0.06]"
+        className="my-1.5 h-1 overflow-hidden rounded-[2px] bg-tint"
         aria-hidden="true"
       >
         <div

@@ -95,14 +95,14 @@ export default function LimitsSection() {
             strokeWidth={1.5}
             aria-hidden="true"
           />
-          <p className="mt-2 text-[13.5px] font-medium text-white">
+          <p className="mt-2 text-[13.5px] font-medium text-fg">
             Manage alerts in Usage
           </p>
           <p className="mt-1 text-[12.5px] text-fg-faint">
             Alerts live next to the data they describe.{" "}
             <Link
               href="/dashboard/usage"
-              className="inline-flex items-center gap-1 text-fg-strong transition-colors hover:text-white"
+              className="inline-flex items-center gap-1 text-fg-strong transition-colors hover:text-fg"
             >
               Go to Usage <ArrowRight className="h-3 w-3" aria-hidden="true" />
             </Link>

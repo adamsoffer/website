@@ -64,7 +64,7 @@ export default function SecuritySection() {
             Recovery codes generated 4mo ago ·{" "}
             <button
               type="button"
-              className="text-fg-strong underline-offset-2 transition-colors hover:text-white hover:underline"
+              className="text-fg-strong underline-offset-2 transition-colors hover:text-fg hover:underline"
             >
               Regenerate
             </button>
@@ -101,10 +101,10 @@ export default function SecuritySection() {
         {SESSIONS.map((s, i) => (
           <div
             key={i}
-            className={`${ST_COLS_4} border-b border-hairline last:border-b-0 transition-colors hover:bg-white/[0.025]`}
+            className={`${ST_COLS_4} border-b border-hairline last:border-b-0 transition-colors hover:bg-zebra`}
           >
             <div className="flex min-w-0 items-center gap-2">
-              <span className="truncate text-[13px] text-white">
+              <span className="truncate text-[13px] text-fg">
                 {s.device}
               </span>
               {s.current && <RolePill tone="active">this device</RolePill>}
@@ -115,7 +115,7 @@ export default function SecuritySection() {
               {!s.current && (
                 <button
                   type="button"
-                  className="text-[12px] text-amber-300 transition-colors hover:text-amber-200"
+                  className="text-[12px] text-tone-amber transition-colors"
                 >
                   Revoke
                 </button>
@@ -126,7 +126,7 @@ export default function SecuritySection() {
         <div className="px-[18px] py-3">
           <button
             type="button"
-            className="text-[12.5px] text-amber-300 transition-colors hover:text-amber-200"
+            className="text-[12.5px] text-tone-amber transition-colors"
           >
             Sign out of all other sessions
           </button>

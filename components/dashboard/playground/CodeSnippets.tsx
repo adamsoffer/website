@@ -204,7 +204,7 @@ export default function CodeSnippets({
 
   return (
     <div className="overflow-hidden rounded-lg border border-hairline">
-      <div className="flex items-center justify-between border-b border-hairline bg-white/[0.02]">
+      <div className="flex items-center justify-between border-b border-hairline bg-zebra">
         {fixedLang ? (
           <span className="px-3 py-2 text-xs font-medium text-fg-faint">
             {LANGS.find((l) => l.key === fixedLang)?.label}
@@ -217,7 +217,7 @@ export default function CodeSnippets({
                 onClick={() => setLang(l.key)}
                 className={`border-b-2 px-3 py-2 text-xs font-medium transition-colors ${
                   lang === l.key
-                    ? "border-green-bright text-white"
+                    ? "border-green-bright text-fg"
                     : "border-transparent text-fg-faint hover:text-fg-muted"
                 }`}
               >
@@ -233,8 +233,8 @@ export default function CodeSnippets({
               onClick={() => setAuthOverride(!useToken)}
               className={`hidden h-7 items-center rounded-md px-2 text-[11px] font-medium transition-colors sm:inline-flex ${
                 useToken
-                  ? "text-fg-muted hover:bg-white/[0.04] hover:text-white"
-                  : "bg-white/[0.06] text-fg-strong hover:bg-white/[0.09]"
+                  ? "text-fg-muted hover:bg-hover hover:text-fg"
+                  : "bg-tint text-fg-strong hover:bg-pop"
               }`}
               title={
                 useToken
@@ -252,7 +252,7 @@ export default function CodeSnippets({
           />
         </div>
       </div>
-      <pre className="scrollbar-dark overflow-x-auto bg-black/40 p-4 font-mono text-xs leading-relaxed text-fg-muted">
+      <pre className="scrollbar-dark overflow-x-auto bg-overlay p-4 font-mono text-xs leading-relaxed text-fg-muted">
         {snippets[activeLang]}
       </pre>
     </div>

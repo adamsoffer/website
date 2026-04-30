@@ -25,7 +25,7 @@ interface KpiCardProps {
 const TREND_CLASS: Record<Trend, string> = {
   up: "text-green-bright bg-green/15",
   down: "text-green-bright bg-green/15",
-  flat: "text-fg-faint bg-white/[0.04]",
+  flat: "text-fg-faint bg-hover",
 };
 
 function Sparkline({ data, color = "#40bf86" }: { data: number[]; color?: string }) {
@@ -82,11 +82,11 @@ export default function KpiCard({
 }: KpiCardProps) {
   return (
     <div className="flex flex-col gap-1.5 px-4 py-3.5">
-      <p className="flex items-center gap-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.06em] text-fg-disabled">
-        {icon && <span className="text-fg-disabled">{icon}</span>}
+      <p className="flex items-center gap-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.06em] text-fg-faint">
+        {icon && <span className="text-fg-faint">{icon}</span>}
         {label}
       </p>
-      <p className="flex items-baseline gap-1 text-[24px] font-medium leading-normal tabular-nums tracking-[-0.02em] text-white">
+      <p className="flex items-baseline gap-1 text-[26px] font-semibold leading-normal tabular-nums tracking-[-0.02em] text-fg">
         <span>{value}</span>
         {unit && <span className="text-[12px] font-normal text-fg-faint">{unit}</span>}
       </p>

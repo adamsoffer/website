@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   BarChart3,
@@ -28,7 +29,6 @@ import KpiCard from "@/components/dashboard/KpiCard";
 import KpiStrip from "@/components/dashboard/KpiStrip";
 import RunsTable from "@/components/dashboard/RunsTable";
 import SectionHeader from "@/components/dashboard/SectionHeader";
-import SignInWall from "@/components/dashboard/SignInWall";
 import type { ModelCategory } from "@/lib/dashboard/types";
 
 // ─── Mock data ───
@@ -120,7 +120,7 @@ function LastRunHero() {
           </div>
           <div className="min-w-0">
             <p className="flex items-baseline gap-2.5">
-              <span className="font-mono text-base text-white">{last.model}</span>
+              <span className="font-mono text-base text-fg">{last.model}</span>
               <span className="text-[11px] tabular-nums text-fg-faint">
                 {formatLatency(last.latencyMs)}
               </span>
@@ -150,18 +150,18 @@ function LastRunHero() {
         <div className="flex shrink-0 items-center gap-3">
           <Link
             href={`/dashboard/settings?tab=usage&request=${last.id}`}
-            className="text-[13px] text-fg-muted transition-colors hover:text-white"
+            className="text-[13px] text-fg-muted transition-colors hover:text-fg"
           >
             Inspect
           </Link>
           <Link
             href={playgroundHref}
-            className="inline-flex h-9 items-center gap-2 rounded-md bg-green px-4 text-[13px] font-medium text-white transition-colors hover:bg-green-light active:bg-green-dark"
+            className="btn-primary inline-flex h-9 items-center gap-2 rounded-md px-4 text-[13px] font-medium transition-colors"
           >
             Open in playground
             <kbd
               aria-hidden="true"
-              className="inline-flex h-[16px] min-w-[16px] items-center justify-center rounded-[3px] bg-black/20 px-1 text-[10px] font-medium leading-none text-white/85"
+              className="inline-flex h-[16px] min-w-[16px] items-center justify-center rounded-[3px] bg-overlay px-1 text-[10px] font-medium leading-none text-white/85"
             >
               R
             </kbd>
@@ -202,7 +202,7 @@ function PinnedCapabilities() {
         action={
           <Link
             href="/dashboard/explore"
-            className="text-xs text-fg-muted transition-colors hover:text-white"
+            className="text-xs text-fg-muted transition-colors hover:text-fg"
           >
             See all capabilities →
           </Link>
@@ -216,16 +216,16 @@ function PinnedCapabilities() {
             <li key={model.id}>
               <Link
                 href={`/dashboard/models/${model.id}?tab=playground`}
-                className="group flex h-full items-center gap-3 rounded-md border border-hairline px-3 py-3 transition-colors hover:border-subtle hover:bg-white/[0.015]"
+                className="group flex h-full items-center gap-3 rounded-md border border-hairline px-3 py-3 transition-colors hover:border-subtle hover:bg-zebra"
               >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white/[0.03]">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-zebra">
                   <Icon className="h-4 w-4 text-fg-strong" strokeWidth={1.75} aria-hidden="true" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-[10px] uppercase tracking-wider text-fg-label">
                     {model.provider.toLowerCase().replace(/\s+/g, "-")}
                   </p>
-                  <p className="truncate text-sm text-white">{model.name}</p>
+                  <p className="truncate text-sm text-fg">{model.name}</p>
                 </div>
               </Link>
             </li>
@@ -260,17 +260,17 @@ function RecentRunsPanel() {
   }
 
   return (
-    <section className="overflow-hidden rounded-md border border-hairline bg-dark-lighter">
+    <section className="overflow-hidden rounded-md border border-hairline bg-dark-lighter shadow-card">
       <div className="flex items-start justify-between gap-3 border-b border-hairline px-4 py-3.5">
         <div>
-          <p className="text-[13.5px] font-medium text-white">Recent runs</p>
-          <p className="mt-0.5 text-[11.5px] text-fg-faint">
+          <p className="text-[17px] font-bold text-fg">Recent runs</p>
+          <p className="mt-0.5 text-[12px] text-fg-muted">
             Across all capabilities
           </p>
         </div>
         <Link
           href="/dashboard/runs"
-          className="inline-flex items-center gap-1 text-[12px] text-fg-faint transition-colors hover:text-white"
+          className="inline-flex items-center gap-1 text-[12px] text-fg-faint transition-colors hover:text-fg"
         >
           View all <ArrowRight className="h-3 w-3" aria-hidden="true" />
         </Link>
@@ -294,7 +294,7 @@ function HomePageHeader() {
         <>
           <button
             type="button"
-            className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-transparent px-2.5 text-[12.5px] text-fg-strong transition-colors hover:border-hairline hover:bg-white/[0.04] hover:text-white"
+            className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-transparent px-2.5 text-[12.5px] text-fg-strong transition-colors hover:border-hairline hover:bg-hover hover:text-fg"
           >
             <span className="text-fg-faint">Period</span>
             <span>7d</span>
@@ -302,7 +302,7 @@ function HomePageHeader() {
           </button>
           <Link
             href="/dashboard/usage"
-            className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-transparent px-2.5 text-[12.5px] text-fg-strong transition-colors hover:border-hairline hover:bg-white/[0.04] hover:text-white"
+            className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-transparent px-2.5 text-[12.5px] text-fg-strong transition-colors hover:border-hairline hover:bg-hover hover:text-fg"
           >
             <BarChart3 className="h-3 w-3" aria-hidden="true" />
             View usage
@@ -328,10 +328,10 @@ function Greeting({
   return (
     <div className="flex items-baseline justify-between gap-3">
       <div>
-        <p className="font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-fg-disabled">
+        <p className="font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-fg-faint">
           Workspace · {workspace}
         </p>
-        <h1 className="mt-1 text-[22px] font-semibold tracking-[-0.02em] text-white">
+        <h1 className="mt-1.5 text-[28px] font-bold tracking-[-0.02em] text-fg">
           {greeting}, {firstName}
         </h1>
       </div>
@@ -422,7 +422,7 @@ function CapacityBanner() {
       }
       action={{ label: "Add a payment provider", href: "/dashboard/settings?tab=billing" }}
     >
-      <span className="font-medium text-white">You&apos;re on the free tier</span>
+      <span className="font-medium text-fg">You&apos;re on the free tier</span>
       <span className="text-fg-faint"> · {remaining.toLocaleString()} requests left this month · resets in {ACCOUNT_USAGE_SUMMARY.freeTierResetIn}</span>
     </Banner>
   );
@@ -443,6 +443,19 @@ function CapacityBanner() {
 
 export default function HomePage() {
   const { isConnected, isLoading, user } = useAuth();
+  const router = useRouter();
+
+  // Signed-out users redirect to /dashboard/explore — the public landing.
+  // The Home view is workspace-only (KPIs, recent runs, capability
+  // leaderboard), and a SignInWall on the root /dashboard URL was the
+  // wrong default: visitors arrived at a sign-in gate before they'd had a
+  // chance to see what's on the platform. Explore is the discovery surface
+  // and the right entry point for unauthenticated visitors.
+  useEffect(() => {
+    if (!isLoading && (!isConnected || !user)) {
+      router.replace("/dashboard/explore");
+    }
+  }, [isLoading, isConnected, user, router]);
 
   // Signed-in users get the inline first-run checklist unless they've
   // dismissed it (via Skip, "I've made my first call", or by clicking through
@@ -490,13 +503,11 @@ export default function HomePage() {
   const workspace = "Flipbook";
   const firstName = (user?.name?.split(" ")[0] ?? "there");
 
-  // Signed-out users see the workspace sign-in wall — Home is workspace-only.
-  // The logged-out sidebar variant (rendered by `DashboardSidebar` itself when
-  // `!isConnected`) provides the "Explore capabilities" escape hatch alongside
-  // the wall's `→ Explore capabilities` link, so users always have a way out
-  // of the gate without an account. Per the v4 prototype's `SignInWall`.
+  // Signed-out users are redirected to /dashboard/explore via the useEffect
+  // above; render nothing in the meantime (one frame max) so they don't see
+  // a flash of workspace-mock data before the redirect lands.
   if (!isConnected || !user) {
-    return <SignInWall route="home" />;
+    return null;
   }
 
   // Hold off rendering signed-in content for one frame while we read the
@@ -512,12 +523,25 @@ export default function HomePage() {
     <main id="main-content" className="flex flex-1 flex-col bg-dark">
       <HomePageHeader />
       <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto w-full max-w-[1200px] px-7 pt-7 pb-20 space-y-4">
+        {/* Per-section margins instead of uniform `space-y-N` — the home
+         *  rhythm has three different gaps depending on adjacency:
+         *    Greeting→KPIs / KPIs→Banner: 16px (tight cluster of context)
+         *    Banner→{section group}: 28px (proper section break)
+         *    SectionHeader→panel: 10px (built into SectionHeader's pb-2.5)
+         *    panel→panel: 28px (proper section break)
+         *  See the design prototype `views.jsx` HomeView for the source rhythm. */}
+        <div className="mx-auto w-full max-w-[1200px] px-7 pt-7 pb-20">
           <Greeting workspace={workspace} firstName={firstName} />
-          <HomeKpis />
-          <CapacityBanner />
+          <div className="mt-4">
+            <HomeKpis />
+          </div>
+          <div className="mt-4">
+            <CapacityBanner />
+          </div>
 
           {!showFirstRun ? null : (
+            // SectionHeader contributes its own pt-7 (28px above) + pb-2.5
+            // (10px below) — no wrapper margin needed.
             <>
               <SectionHeader
                 title="Quickstart"
@@ -537,15 +561,19 @@ export default function HomePage() {
           )}
 
           {/* Recent runs — panel-with-head (no external SectionHeader above
-              it) per the v5 prototype. */}
-          <RecentRunsPanel />
+              it) per the v5 prototype. 28px gap matches design's marginTop. */}
+          <div className="mt-7">
+            <RecentRunsPanel />
+          </div>
 
           {/* Capability leaderboard — replaces the previous 2-column
               "stacked-area chart + Pinned capabilities" grid. The home view
               now has a single full-width "Usage by capability" panel that
               answers what's growing / costing / failing, not just "look at
               this chart of run counts." */}
-          <CapabilityLeaderboardPanel />
+          <div className="mt-7">
+            <CapabilityLeaderboardPanel />
+          </div>
         </div>
       </div>
     </main>

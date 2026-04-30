@@ -74,6 +74,9 @@ function WsAvatar({
 }) {
   return (
     <span
+      // `text-white` constant — the avatar background is always a saturated
+      // accent (green, purple, etc.), so the initials want a constant
+      // white in both themes regardless of `text-fg` flipping.
       className="grid shrink-0 place-items-center rounded-[5px] font-semibold tracking-[0.02em] text-white"
       style={{
         width: size,
@@ -147,17 +150,17 @@ export default function WorkspaceMenu({
         className={
           collapsed
             ? `flex h-9 w-9 items-center justify-center rounded-md transition-colors ${
-                open ? "bg-white/[0.06]" : "hover:bg-white/[0.04]"
+                open ? "bg-tint" : "hover:bg-hover"
               }`
             : `flex w-full items-center gap-2 rounded-md px-1.5 py-1 transition-colors ${
-                open ? "bg-white/[0.06]" : "hover:bg-white/[0.04]"
+                open ? "bg-tint" : "hover:bg-hover"
               }`
         }
       >
         <WsAvatar initials={active.initials} color={active.avatarColor} />
         {!collapsed && (
           <>
-            <span className="min-w-0 flex-1 truncate text-left text-[13.5px] font-medium text-white">
+            <span className="min-w-0 flex-1 truncate text-left text-[13.5px] font-medium text-fg">
               {active.name}
             </span>
             <ChevronDown
@@ -180,7 +183,7 @@ export default function WorkspaceMenu({
             animate="visible"
             exit="exit"
             transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className={`absolute z-[100] min-w-[260px] overflow-hidden rounded-xl border border-subtle bg-dark-card shadow-2xl shadow-black/50 ${
+            className={`absolute z-[100] min-w-[260px] overflow-hidden rounded-xl border border-subtle bg-dark-card shadow-popover ${
               collapsed
                 ? "left-full top-0 ml-2 origin-top-left"
                 : "left-0 top-full mt-1 origin-top-left"
@@ -202,8 +205,8 @@ export default function WorkspaceMenu({
                   }}
                   className={`flex items-center gap-2.5 rounded-[4px] px-2 py-1.5 text-left transition-colors ${
                     ws.id === activeId
-                      ? "bg-white/[0.04]"
-                      : "hover:bg-white/[0.04]"
+                      ? "bg-hover"
+                      : "hover:bg-hover"
                   }`}
                 >
                   <WsAvatar
@@ -211,7 +214,7 @@ export default function WorkspaceMenu({
                     color={ws.avatarColor}
                   />
                   <span className="flex min-w-0 flex-1 flex-col leading-tight">
-                    <span className="truncate text-[13px] font-medium text-white">
+                    <span className="truncate text-[13px] font-medium text-fg">
                       {ws.name}
                     </span>
                     <span className="mt-px truncate text-[11px] text-fg-faint">
@@ -230,7 +233,7 @@ export default function WorkspaceMenu({
                 type="button"
                 role="menuitem"
                 onClick={() => setOpen(false)}
-                className="mt-px flex items-center gap-2.5 rounded-[4px] px-2 py-1.5 text-[13px] text-fg-strong transition-colors hover:bg-white/[0.04] hover:text-white"
+                className="mt-px flex items-center gap-2.5 rounded-[4px] px-2 py-1.5 text-[13px] text-fg-strong transition-colors hover:bg-hover hover:text-fg"
               >
                 <Plus className="h-3.5 w-3.5 text-fg-faint" aria-hidden="true" />
                 <span>Create workspace</span>
@@ -245,7 +248,7 @@ export default function WorkspaceMenu({
                 href="/dashboard/settings"
                 role="menuitem"
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-2.5 rounded-[4px] px-2 py-1.5 text-[13px] text-fg-strong transition-colors hover:bg-white/[0.04] hover:text-white"
+                className="flex items-center gap-2.5 rounded-[4px] px-2 py-1.5 text-[13px] text-fg-strong transition-colors hover:bg-hover hover:text-fg"
               >
                 <Settings
                   className="h-3.5 w-3.5 text-fg-faint"
@@ -257,7 +260,7 @@ export default function WorkspaceMenu({
                 type="button"
                 role="menuitem"
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-2.5 rounded-[4px] px-2 py-1.5 text-left text-[13px] text-fg-strong transition-colors hover:bg-white/[0.04] hover:text-white"
+                className="flex items-center gap-2.5 rounded-[4px] px-2 py-1.5 text-left text-[13px] text-fg-strong transition-colors hover:bg-hover hover:text-fg"
               >
                 <UserPlus
                   className="h-3.5 w-3.5 text-fg-faint"
@@ -269,7 +272,7 @@ export default function WorkspaceMenu({
                 href="/dashboard/settings?tab=billing"
                 role="menuitem"
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-2.5 rounded-[4px] px-2 py-1.5 text-[13px] text-fg-strong transition-colors hover:bg-white/[0.04] hover:text-white"
+                className="flex items-center gap-2.5 rounded-[4px] px-2 py-1.5 text-[13px] text-fg-strong transition-colors hover:bg-hover hover:text-fg"
               >
                 <CreditCard
                   className="h-3.5 w-3.5 text-fg-faint"

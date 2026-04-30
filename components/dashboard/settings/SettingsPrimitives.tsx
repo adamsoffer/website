@@ -16,7 +16,7 @@ import { useState, type ReactNode } from "react";
 // ─── Inputs ─────────────────────────────────────────────────────────────────
 
 const INPUT_BASE =
-  "h-9 w-full rounded-[6px] border border-hairline bg-dark px-3 text-[13.5px] text-white placeholder:text-fg-disabled transition-colors focus:border-green focus:outline-none disabled:opacity-60";
+  "h-9 w-full rounded-[6px] border border-hairline bg-dark px-3 text-[13.5px] text-fg placeholder:text-fg-disabled transition-colors focus:border-green focus:outline-none disabled:opacity-60";
 
 export function SettingsInput({
   className = "",
@@ -33,7 +33,7 @@ export function SettingsTextarea({
   return (
     <textarea
       rows={rows}
-      className={`min-h-[56px] w-full resize-y rounded-[6px] border border-hairline bg-dark px-3 py-2 text-[13.5px] leading-[1.5] text-white placeholder:text-fg-disabled transition-colors focus:border-green focus:outline-none ${className}`}
+      className={`min-h-[56px] w-full resize-y rounded-[6px] border border-hairline bg-dark px-3 py-2 text-[13.5px] leading-[1.5] text-fg placeholder:text-fg-disabled transition-colors focus:border-green focus:outline-none ${className}`}
       {...props}
     />
   );
@@ -96,7 +96,7 @@ export function GroupInput({
 }: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
-      className={`min-w-0 flex-1 bg-transparent px-3 text-[13.5px] text-white placeholder:text-fg-disabled outline-none ${className}`}
+      className={`min-w-0 flex-1 bg-transparent px-3 text-[13.5px] text-fg placeholder:text-fg-disabled outline-none ${className}`}
       {...props}
     />
   );
@@ -121,7 +121,7 @@ export function SettingsHeader({
   return (
     <div className="mt-7 mb-3 flex items-end justify-between gap-3 first:mt-0">
       <div>
-        <h2 className="text-[17px] font-medium leading-tight tracking-[-0.01em] text-white">
+        <h2 className="text-[17px] font-medium leading-tight tracking-[-0.01em] text-fg">
           {title}
         </h2>
         {sub && (
@@ -153,7 +153,11 @@ export function SettingsCard({
   const border = danger ? "border-red-400/20" : "border-hairline";
   return (
     <div
-      className={`overflow-hidden rounded-md border ${border} bg-dark-lighter ${
+      // `shadow-card` is theme-aware: a no-op `0 0 0 transparent` in dark
+      // (cards there are defined by their bg-dark-lighter elevation alone),
+      // and a faint warm 1–2px shadow in light so panels read as real
+      // surfaces instead of wireframe outlines on near-white canvas.
+      className={`overflow-hidden rounded-md border ${border} bg-dark-lighter shadow-card ${
         padded ? "p-0" : ""
       } ${className}`}
     >
@@ -182,7 +186,7 @@ export function SettingsField({
     <div className="border-b border-hairline px-[18px] py-4 last:border-b-0">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-[13.5px] font-medium text-white">{label}</p>
+          <p className="text-[13.5px] font-medium text-fg">{label}</p>
           {hint && (
             <p className="mt-0.5 max-w-[60ch] text-[12px] text-fg-faint">
               {hint}
@@ -218,14 +222,17 @@ export function IconButton({
   dim?: boolean;
 }) {
   const tone = primary
-    ? "border-green/50 bg-green text-white hover:bg-green-light"
+    // `.btn-primary` is the theme-aware CTA recipe — green in dark, neutral
+    // zinc-900 in light. Recipe paints its own edge-highlight border
+    // (`--color-cta-border` = one step lighter than the bg).
+    ? "btn-primary"
     : danger
       ? "border-red-400/30 bg-transparent text-red-400 hover:bg-red-400/[0.08]"
       : ghost
-        ? "border-transparent bg-transparent text-fg-faint hover:bg-white/[0.04] hover:text-fg-strong"
+        ? "border-transparent bg-transparent text-fg-faint hover:bg-hover hover:text-fg-strong"
         : dim
-          ? "border-transparent bg-transparent text-fg-faint hover:bg-white/[0.04] hover:text-fg-muted"
-          : "border-hairline bg-dark-card text-fg-strong hover:border-subtle hover:bg-white/[0.04] hover:text-white";
+          ? "border-transparent bg-transparent text-fg-faint hover:bg-hover hover:text-fg-muted"
+          : "border-hairline bg-dark-card text-fg-strong hover:border-subtle hover:bg-hover hover:text-fg";
   return (
     <button
       type="button"
@@ -247,19 +254,21 @@ export type RolePillTone =
   | "active"
   | "paused";
 
+// Tone classes (`tone-cyan` / `tone-violet` / `tone-amber`) are theme-aware
+// recipes defined in `app/globals.css` — each sets fg + bg + border in one
+// shot. The `owner` / `active` greens and the `viewer` neutral don't need
+// theme overrides because `text-green-bright` already steps down in light
+// mode (see globals.css `[data-theme="light"]` accent override).
 const ROLE_PILL_STYLES: Record<RolePillTone, string> = {
   owner:
     "border-green/30 bg-green/15 text-green-bright",
-  admin:
-    "border-violet-400/30 bg-violet-400/[0.12] text-violet-300",
-  developer:
-    "border-cyan-400/30 bg-cyan-400/[0.10] text-cyan-300",
+  admin: "tone-violet",
+  developer: "tone-cyan",
   viewer:
     "border-transparent text-fg-faint",
   active:
     "border-green/30 bg-green/15 text-green-bright",
-  paused:
-    "border-amber-400/30 bg-amber-400/[0.10] text-amber-300",
+  paused: "tone-amber",
 };
 
 export function RolePill({
@@ -298,6 +307,9 @@ export function SettingsAvatar({
 }) {
   return (
     <span
+      // `text-white` constant — avatars always sit on a saturated background
+      // (green, blue, amber, etc.) and want white initials in both themes,
+      // regardless of `text-fg` flipping with the theme.
       className="grid shrink-0 place-items-center rounded-[7px] font-semibold tracking-[0.02em] text-white"
       style={{
         width: size,
@@ -339,11 +351,15 @@ export function MiniToggle({
         });
       }}
       className={`relative h-4 w-7 rounded-full transition-colors ${
-        on ? "bg-green-bright" : "bg-white/[0.10]"
+        on ? "bg-green-bright" : "bg-pop"
       }`}
     >
       <span
-        className="absolute top-0.5 left-0.5 block h-3 w-3 rounded-full bg-white transition-[left] duration-150"
+        // White thumb with a thin tinted shadow so the thumb stays visible on
+        // light mode where the OFF track (`bg-pop` ≈ rgba(9,9,11,0.08)) is
+        // very faint against the page. The shadow is essentially invisible on
+        // dark and provides a soft outline on light.
+        className="absolute top-0.5 left-0.5 block h-3 w-3 rounded-full bg-white shadow-[0_1px_2px_rgba(0,0,0,0.18)] transition-[left] duration-150"
         style={{ left: on ? 14 : 2 }}
       />
     </button>

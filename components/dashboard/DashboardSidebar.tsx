@@ -19,6 +19,7 @@ import {
   Key,
   Lock,
   Menu,
+  Palette,
   PanelLeftClose,
   PanelLeftOpen,
   Settings as SettingsIcon,
@@ -123,10 +124,10 @@ function SignedOutSidebarContent({
     pathname.startsWith("/dashboard/models/");
 
   return (
-    <div className="flex h-full flex-col bg-dark">
+    <div className="flex h-full flex-col bg-shell">
       {/* Brand row — wordmark links to /dashboard/explore (the public landing) */}
       <div
-        className={`flex shrink-0 items-center gap-1 pt-2 pb-2 ${padX} ${collapsed ? "flex-col" : ""}`}
+        className={`flex shrink-0 items-center pt-2 pb-2 ${padX} ${collapsed ? "flex-col gap-2.5" : "gap-1"}`}
       >
         <Link
           href="/dashboard/explore"
@@ -139,10 +140,10 @@ function SignedOutSidebarContent({
           onClick={onNavigate}
         >
           {collapsed ? (
-            <LivepeerSymbol className="h-5 w-5 text-white" aria-hidden="true" />
+            <LivepeerSymbol className="h-5 w-5 text-fg" aria-hidden="true" />
           ) : (
             <LivepeerWordmark
-              className="h-3.5 w-auto text-white"
+              className="h-3.5 w-auto text-fg"
               aria-hidden="true"
             />
           )}
@@ -153,7 +154,7 @@ function SignedOutSidebarContent({
             type="button"
             onClick={onToggleCollapsed}
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-[4px] text-fg-faint transition-colors hover:bg-white/[0.04] hover:text-white"
+            className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-[4px] text-fg-faint transition-colors hover:bg-hover hover:text-fg"
           >
             {collapsed ? (
               <PanelLeftOpen className="h-4 w-4" aria-hidden="true" />
@@ -183,7 +184,7 @@ function SignedOutSidebarContent({
                 }),
               );
             }}
-            className="flex h-9 w-9 items-center justify-center rounded-md text-fg-muted transition-colors hover:bg-white/[0.06] hover:text-white"
+            className="mx-auto flex h-[26px] w-[26px] items-center justify-center rounded-[4px] text-fg-muted transition-colors hover:bg-hover hover:text-fg"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -193,7 +194,7 @@ function SignedOutSidebarContent({
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="h-4 w-4"
+              className="h-3.5 w-3.5"
               aria-hidden="true"
             >
               <circle cx="11" cy="11" r="8" />
@@ -214,7 +215,7 @@ function SignedOutSidebarContent({
                 }),
               );
             }}
-            className="flex w-full items-center gap-2 rounded-[6px] border border-hairline bg-dark-lighter px-2.5 py-1.5 text-[12.5px] text-fg-faint transition-colors hover:border-subtle hover:text-fg-strong"
+            className="flex w-full items-center gap-2 rounded-[8px] border border-hairline bg-dark-lighter px-2.5 py-1.5 text-[12.5px] text-fg-faint transition-colors hover:border-subtle hover:text-fg-strong"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -230,8 +231,8 @@ function SignedOutSidebarContent({
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.3-4.3" />
             </svg>
-            <span className="flex-1 text-left">Search capabilities…</span>
-            <kbd className="font-mono text-[10.5px] tracking-wider text-fg-disabled">
+            <span className="flex-1 text-left">Search</span>
+            <kbd className="font-mono text-[10.5px] tracking-wider text-fg-faint">
               ⌘K
             </kbd>
           </button>
@@ -275,31 +276,36 @@ function SignedOutSidebarContent({
       {/* Spacer pushes promo + footer to the bottom */}
       <div className="flex-1" />
 
-      {/* Free-tier promo card — replaces the workspace usage strip. Hidden
-          when collapsed (no useful 26px representation). */}
+      {/* Free-tier promo card — design spec `.side-promo` (yLXs… export).
+       *  - 14/14/12 asymmetric padding (a touch more breathing room at top)
+       *  - Radial glow anchored TOP-RIGHT using `--lp-soft` (green at 18%
+       *    alpha) at 70% opacity — gives the card a soft brand tint that
+       *    reads as "you can light this up by signing up"
+       *  - Eyebrow uses `--lp-bright` (green-bright) for accent identity
+       *  - Sub text is `--fg-4` (50% in dark) — dimmer than helper text
+       *  - Sign-in link is `--fg-3` (65%), font-medium with hover tint
+       *  Hidden when sidebar is collapsed (no useful 26px representation). */}
       {!collapsed && (
         <div className={`shrink-0 ${padX} pb-2`}>
-          <div className="relative overflow-hidden rounded-md border border-hairline bg-dark-lighter px-3.5 py-3">
-            {/* Subtle accent glow — bottom-left, mirroring the prototype's
-                ::before with the green accent at low opacity. */}
+          <div className="relative overflow-hidden rounded-md border border-subtle bg-sidebar-card-bg pt-[14px] pr-[14px] pb-[12px] pl-[14px]">
             <div
-              className="pointer-events-none absolute inset-0"
+              className="pointer-events-none absolute inset-0 opacity-70"
               style={{
                 background:
-                  "radial-gradient(120% 80% at 0% 100%, rgba(64,191,134,0.08), transparent 60%)",
+                  "radial-gradient(120% 80% at 100% 0%, var(--color-green-subtle), transparent 60%)",
               }}
               aria-hidden="true"
             />
             <div className="relative">
-              <p className="font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-green-bright">
+              <p className="mb-1.5 font-mono text-[10.5px] font-medium uppercase tracking-[0.06em] text-green-bright">
                 Free tier
               </p>
-              <p className="mt-2 text-[14.5px] font-semibold leading-[1.25] text-white">
+              <p className="mb-1.5 text-[14.5px] font-semibold leading-[1.25] tracking-[-0.01em] text-fg">
                 5 demo runs
                 <br />
                 per capability
               </p>
-              <p className="mt-1.5 mb-2.5 text-[11.5px] leading-[1.45] text-fg-muted">
+              <p className="mb-2.5 text-[11.5px] leading-[1.45] text-fg-faint">
                 No credit card. Spin up in 30 seconds with an API key.
               </p>
               <div className="flex flex-col gap-1">
@@ -309,7 +315,7 @@ function SignedOutSidebarContent({
                     router.push("/dashboard/login?mode=signup");
                     onNavigate?.();
                   }}
-                  className="flex h-7 items-center justify-center rounded-[4px] bg-green px-2.5 text-[12.5px] font-medium text-white transition-colors hover:bg-green-light active:bg-green-dark"
+                  className="btn-primary flex h-7 w-full items-center justify-center rounded-[4px] px-2.5 text-[12.5px] font-medium tracking-[-0.005em] transition-colors"
                 >
                   Get an API key
                 </button>
@@ -319,7 +325,7 @@ function SignedOutSidebarContent({
                     router.push("/dashboard/login");
                     onNavigate?.();
                   }}
-                  className="flex h-[26px] items-center justify-center rounded-[4px] text-[12.5px] text-fg-strong transition-colors hover:bg-white/[0.04] hover:text-white"
+                  className="flex h-[26px] w-full items-center justify-center rounded-[4px] text-[12px] font-medium tracking-[-0.005em] text-fg-muted transition-colors hover:bg-hover hover:text-fg"
                 >
                   Sign in
                 </button>
@@ -343,24 +349,29 @@ function SignedOutSidebarContent({
 
       <div className={`shrink-0 border-t border-hairline ${padX} py-2`}>
         {collapsed ? (
-          <Tooltip content="All services operational" side="right">
-            <a
-              href="https://status.livepeer.org"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Status: all services operational (opens in new tab)"
-              className="flex h-7 w-9 items-center justify-center rounded-md transition-colors hover:bg-white/[0.025]"
-            >
-              <StatusDot tone="green" size="md" />
-            </a>
-          </Tooltip>
+          // Tooltip's inline-flex wrapper would left-align the link inside
+          // the padded `<div>` parent. Centering wrapper here matches the
+          // recipe used inside `NavLink` for the same reason.
+          <div className="flex justify-center">
+            <Tooltip content="All services operational" side="right">
+              <a
+                href="https://status.livepeer.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Status: all services operational (opens in new tab)"
+                className="flex h-[26px] w-[26px] items-center justify-center rounded-[4px] transition-colors hover:bg-hover"
+              >
+                <StatusDot tone="green" size="md" />
+              </a>
+            </Tooltip>
+          </div>
         ) : (
           <a
             href="https://status.livepeer.org"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Status: all services operational (opens in new tab)"
-            className="flex h-7 w-full items-center gap-2 rounded-md px-2 font-mono text-[11px] tracking-[0.02em] text-fg-faint transition-colors hover:bg-white/[0.025] hover:text-fg-muted"
+            className="flex h-7 w-full items-center gap-2 rounded-md px-2 font-mono text-[11px] tracking-[0.02em] text-fg-faint transition-colors hover:bg-zebra hover:text-fg-muted"
           >
             <StatusDot tone="green" />
             <span className="min-w-0 flex-1 truncate">All systems operational</span>
@@ -405,6 +416,7 @@ const SETTINGS_RAIL_GROUPS: {
       { id: "profile", label: "Profile", icon: UserIcon },
       { id: "notifications", label: "Notifications", icon: Bell },
       { id: "security", label: "Security", icon: Lock },
+      { id: "appearance", label: "Appearance", icon: Palette },
     ],
   },
 ];
@@ -441,7 +453,7 @@ function SettingsRail({
           router.push("/dashboard");
           onNavigate?.();
         }}
-        className="mb-1 flex h-[26px] items-center gap-1.5 rounded-[4px] px-2 text-[13px] text-fg-strong transition-colors hover:bg-white/[0.04] hover:text-white"
+        className="mb-1 flex h-[26px] items-center gap-1.5 rounded-[4px] px-2 text-[13px] text-fg-strong transition-colors hover:bg-hover hover:text-fg"
       >
         <ChevronLeft className="h-3.5 w-3.5 text-fg-faint" aria-hidden="true" />
         <span className="font-medium">Settings</span>
@@ -510,12 +522,12 @@ function SidebarContent({
   }
 
   return (
-    <div className="flex h-full flex-col bg-dark">
+    <div className="flex h-full flex-col bg-shell">
       {/* Top: workspace switcher (FB Flipbook ▾). Per the v6 prototype, the
           row is *just* the switcher — no "+ New" button, no collapse toggle.
           Workspace-scoped actions live inside the dropdown instead. */}
       <div
-        className={`flex shrink-0 items-center gap-1 pt-2 pb-2 ${padX} ${collapsed ? "flex-col" : ""}`}
+        className={`flex shrink-0 items-center pt-2 pb-2 ${padX} ${collapsed ? "flex-col gap-2.5" : "gap-1"}`}
       >
         <div className={collapsed ? "" : "min-w-0 flex-1"}>
           {isConnected && user ? (
@@ -528,9 +540,9 @@ function SidebarContent({
               onClick={onNavigate}
             >
               {collapsed ? (
-                <LivepeerSymbol className="h-5 w-5 text-white" aria-hidden="true" />
+                <LivepeerSymbol className="h-5 w-5 text-fg" aria-hidden="true" />
               ) : (
-                <LivepeerWordmark className="h-3.5 w-auto text-white" aria-hidden="true" />
+                <LivepeerWordmark className="h-3.5 w-auto text-fg" aria-hidden="true" />
               )}
             </Link>
           )}
@@ -549,7 +561,7 @@ function SidebarContent({
                 new KeyboardEvent("keydown", { key: "k", [isMac ? "metaKey" : "ctrlKey"]: true }),
               );
             }}
-            className="flex h-9 w-9 items-center justify-center rounded-md text-fg-muted transition-colors hover:bg-white/[0.06] hover:text-white"
+            className="mx-auto flex h-[26px] w-[26px] items-center justify-center rounded-[4px] text-fg-muted transition-colors hover:bg-hover hover:text-fg"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -559,7 +571,7 @@ function SidebarContent({
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="h-4 w-4"
+              className="h-3.5 w-3.5"
               aria-hidden="true"
             >
               <circle cx="11" cy="11" r="8" />
@@ -580,7 +592,7 @@ function SidebarContent({
                 }),
               );
             }}
-            className="flex w-full items-center gap-2 rounded-[6px] border border-hairline bg-dark-lighter px-2.5 py-1.5 text-[12.5px] text-fg-faint transition-colors hover:border-subtle hover:text-fg-strong"
+            className="flex w-full items-center gap-2 rounded-[8px] border border-hairline bg-dark-lighter px-2.5 py-1.5 text-[12.5px] text-fg-faint transition-colors hover:border-subtle hover:text-fg-strong"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -596,8 +608,8 @@ function SidebarContent({
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.3-4.3" />
             </svg>
-            <span className="flex-1 text-left">Search &amp; jump…</span>
-            <kbd className="font-mono text-[10.5px] tracking-wider text-fg-disabled">
+            <span className="flex-1 text-left">Search</span>
+            <kbd className="font-mono text-[10.5px] tracking-wider text-fg-faint">
               ⌘K
             </kbd>
           </button>
@@ -670,7 +682,7 @@ function SidebarContent({
                   type="button"
                   aria-label="Manage pins"
                   title="Manage pins"
-                  className="grid h-[18px] w-[18px] place-items-center rounded-[3px] text-fg-faint transition-colors hover:bg-white/[0.04] hover:text-fg-strong"
+                  className="grid h-[18px] w-[18px] place-items-center rounded-[3px] text-fg-faint transition-colors hover:bg-hover hover:text-fg-strong"
                 >
                   <Plus className="h-3 w-3" aria-hidden="true" />
                 </button>
@@ -744,24 +756,29 @@ function SidebarContent({
       {/* Statuspage row — operational health, external link. */}
       <div className={`shrink-0 border-t border-hairline ${padX} py-2`}>
         {collapsed ? (
-          <Tooltip content="All services operational" side="right">
-            <a
-              href="https://status.livepeer.org"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Status: all services operational (opens in new tab)"
-              className="flex h-7 w-9 items-center justify-center rounded-md transition-colors hover:bg-white/[0.025]"
-            >
-              <StatusDot tone="green" size="md" />
-            </a>
-          </Tooltip>
+          // Tooltip's inline-flex wrapper would left-align the link inside
+          // the padded `<div>` parent. Centering wrapper here matches the
+          // recipe used inside `NavLink` for the same reason.
+          <div className="flex justify-center">
+            <Tooltip content="All services operational" side="right">
+              <a
+                href="https://status.livepeer.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Status: all services operational (opens in new tab)"
+                className="flex h-[26px] w-[26px] items-center justify-center rounded-[4px] transition-colors hover:bg-hover"
+              >
+                <StatusDot tone="green" size="md" />
+              </a>
+            </Tooltip>
+          </div>
         ) : (
           <a
             href="https://status.livepeer.org"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Status: all services operational (opens in new tab)"
-            className="flex h-7 w-full items-center gap-2 rounded-md px-2 font-mono text-[11px] tracking-[0.02em] text-fg-faint transition-colors hover:bg-white/[0.025] hover:text-fg-muted"
+            className="flex h-7 w-full items-center gap-2 rounded-md px-2 font-mono text-[11px] tracking-[0.02em] text-fg-faint transition-colors hover:bg-zebra hover:text-fg-muted"
           >
             <StatusDot tone="green" />
             <span className="min-w-0 flex-1 truncate">All systems operational</span>
@@ -819,9 +836,14 @@ export default function DashboardSidebar() {
         Skip to main content
       </a>
 
-      {/* Desktop sidebar */}
+      {/* Desktop sidebar
+       *  z-30 establishes a stacking context above the main content area
+       *  (which has its own implicit context via `overflow-y-auto`). Without
+       *  this, absolutely-positioned children that escape the sidebar's
+       *  bounds — e.g. the WorkspaceMenu dropdown — paint *under* main-area
+       *  content (model thumbnails) because main comes later in DOM order. */}
       <aside
-        className={`hidden md:flex sticky top-0 h-screen shrink-0 flex-col ${desktopWidth} ${transition}`}
+        className={`hidden md:flex sticky top-0 z-30 h-screen shrink-0 flex-col ${desktopWidth} ${transition}`}
       >
         <SidebarContent collapsed={collapsed} onToggleCollapsed={toggleCollapsed} />
       </aside>
@@ -834,7 +856,7 @@ export default function DashboardSidebar() {
           aria-expanded={drawerOpen}
           aria-controls="dashboard-sidebar-drawer"
           onClick={() => setDrawerOpen(true)}
-          className="flex h-10 w-10 items-center justify-center rounded-md text-fg-strong transition-colors hover:bg-white/[0.06] hover:text-white"
+          className="flex h-10 w-10 items-center justify-center rounded-md text-fg-strong transition-colors hover:bg-tint hover:text-fg"
         >
           <Menu className="h-5 w-5" aria-hidden="true" />
         </button>

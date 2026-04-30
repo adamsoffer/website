@@ -145,7 +145,7 @@ function CopyField({ value }: { value: string }) {
       }`}
     >
       <span
-        className="flex-1 overflow-x-auto whitespace-nowrap font-mono text-[13px] text-white select-all"
+        className="flex-1 overflow-x-auto whitespace-nowrap font-mono text-[13px] text-fg select-all"
         style={{ scrollbarWidth: "none" }}
       >
         {value}
@@ -211,7 +211,7 @@ export default function KeysView() {
               href="https://docs.livepeer.org"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-transparent px-2.5 text-[12.5px] text-fg-strong transition-colors hover:border-hairline hover:bg-white/[0.04] hover:text-white"
+              className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-transparent px-2.5 text-[12.5px] text-fg-strong transition-colors hover:border-hairline hover:bg-hover hover:text-fg"
             >
               <BookOpen className="h-3 w-3" aria-hidden="true" />
               Docs
@@ -219,7 +219,7 @@ export default function KeysView() {
             <button
               type="button"
               onClick={onCreate}
-              className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-green-light bg-green px-2.5 text-[12.5px] font-medium text-white transition-colors hover:bg-green-light"
+              className="btn-primary inline-flex h-[26px] items-center gap-1.5 rounded-[4px] px-2.5 text-[12.5px] font-medium transition-colors"
             >
               <Plus className="h-3 w-3" aria-hidden="true" />
               Create key
@@ -234,7 +234,7 @@ export default function KeysView() {
           <p className="font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-fg-disabled">
             Workspace · Flipbook · Authentication
           </p>
-          <h1 className="mt-1 text-[22px] font-semibold tracking-[-0.02em] text-white">
+          <h1 className="mt-1 text-[22px] font-semibold tracking-[-0.02em] text-fg">
             API keys
           </h1>
           <p className="mt-2.5 max-w-[640px] text-[13.5px] leading-[1.55] text-fg-muted">
@@ -273,7 +273,7 @@ export default function KeysView() {
                   <p className="font-mono text-[10.5px] font-medium uppercase tracking-[0.06em] text-green-bright">
                     New key created · copy it now
                   </p>
-                  <p className="mt-1 text-[14px] font-medium text-white">
+                  <p className="mt-1 text-[14px] font-medium text-fg">
                     This is the only time you&apos;ll see the full key.
                   </p>
                 </div>
@@ -281,7 +281,7 @@ export default function KeysView() {
                   type="button"
                   onClick={() => setRevealedKey(null)}
                   aria-label="Dismiss"
-                  className="grid h-6 w-6 place-items-center rounded text-fg-faint transition-colors hover:bg-white/[0.04] hover:text-white"
+                  className="grid h-6 w-6 place-items-center rounded text-fg-faint transition-colors hover:bg-hover hover:text-fg"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -310,7 +310,7 @@ export default function KeysView() {
               <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="text-[13.5px] font-medium text-white">
+              <p className="text-[13.5px] font-medium text-fg">
                 {staleKeys.length === 1
                   ? "1 key hasn't been rotated in over 90 days."
                   : `${staleKeys.length} keys haven't been rotated in over 90 days.`}
@@ -324,7 +324,7 @@ export default function KeysView() {
               type="button"
               onClick={() => setAlertDismissed(true)}
               aria-label="Dismiss"
-              className="grid h-6 w-6 shrink-0 place-items-center rounded text-fg-faint transition-colors hover:bg-white/[0.04] hover:text-white"
+              className="grid h-6 w-6 shrink-0 place-items-center rounded text-fg-faint transition-colors hover:bg-hover hover:text-fg"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -332,7 +332,7 @@ export default function KeysView() {
         )}
 
         {/* Keys table */}
-        <div className="overflow-hidden rounded-md border border-hairline bg-dark-lighter">
+        <div className="overflow-hidden rounded-md border border-hairline bg-dark-lighter shadow-card">
           <div className="grid grid-cols-[2.4fr_1.1fr_1.1fr_1.1fr_1.2fr_36px] items-center gap-3 border-b border-hairline bg-dark px-4 py-2.5 font-mono text-[10.5px] uppercase tracking-[0.06em] text-fg-disabled">
             <div>Key</div>
             <div>Scope</div>
@@ -347,20 +347,18 @@ export default function KeysView() {
             return (
               <div
                 key={k.id}
-                className="relative grid grid-cols-[2.4fr_1.1fr_1.1fr_1.1fr_1.2fr_36px] items-center gap-3 border-b border-hairline px-4 py-3.5 last:border-b-0 hover:bg-white/[0.02]"
+                className="relative grid grid-cols-[2.4fr_1.1fr_1.1fr_1.1fr_1.2fr_36px] items-center gap-3 border-b border-hairline px-4 py-3.5 last:border-b-0 hover:bg-zebra"
               >
                 {/* Key (name + masked token) */}
                 <div className="min-w-0">
-                  <div className="text-[13.5px] font-medium text-white">
+                  <div className="text-[13.5px] font-medium text-fg">
                     {k.name}
                     {stale && (
                       <span
-                        className="ml-2 inline-flex items-center gap-1 rounded-full border px-1.5 py-px font-mono text-[10.5px] font-medium align-[2px]"
-                        style={{
-                          color: "#fbbf24",
-                          background: "rgba(251,191,36,0.1)",
-                          borderColor: "rgba(251,191,36,0.22)",
-                        }}
+                        // `tone-amber` is theme-aware: amber-300 in dark,
+                        // amber-700 in light. Same hue, contrast-tuned per
+                        // theme. See globals.css `--token-tone-amber-*`.
+                        className="tone-amber ml-2 inline-flex items-center gap-1 rounded-full border px-1.5 py-px font-mono text-[10.5px] font-medium align-[2px]"
                         title={`Last rotated ${k.daysSinceRotation} days ago`}
                       >
                         <AlertTriangle className="h-[9px] w-[9px]" aria-hidden="true" />
@@ -397,7 +395,7 @@ export default function KeysView() {
                 <div className="text-right">
                   <a
                     href={`/dashboard/runs?key=${k.id}`}
-                    className="font-mono text-[13px] text-white underline decoration-transparent decoration-1 underline-offset-[3px] transition-colors hover:text-green-bright hover:decoration-current"
+                    className="font-mono text-[13px] text-fg underline decoration-transparent decoration-1 underline-offset-[3px] transition-colors hover:text-green-bright hover:decoration-current"
                   >
                     {k.runs7d.toLocaleString()}
                   </a>
@@ -408,6 +406,10 @@ export default function KeysView() {
                   <div className="text-[12.5px] text-fg-strong">{k.created}</div>
                   <div className="mt-0.5 flex items-center gap-1.5 text-[11.5px] text-fg-faint">
                     <span
+                      // `text-white` constant — these monogram tiles sit on
+                      // a saturated brand fill (green / purple / etc.) and
+                      // need white initials in BOTH themes; `text-fg` would
+                      // render near-black on the colored bg in light mode.
                       className="grid h-4 w-4 place-items-center rounded text-[8.5px] font-semibold tracking-[0.02em] text-white"
                       style={{ background: k.createdBy.color }}
                       aria-hidden="true"
@@ -428,7 +430,7 @@ export default function KeysView() {
                     }}
                     aria-label="More actions"
                     title="More"
-                    className="grid h-[26px] w-7 place-items-center rounded text-fg-faint transition-colors hover:bg-white/[0.04] hover:text-white"
+                    className="grid h-[26px] w-7 place-items-center rounded text-fg-faint transition-colors hover:bg-hover hover:text-fg"
                   >
                     <MoreVertical className="h-3.5 w-3.5" aria-hidden="true" />
                   </button>
@@ -436,12 +438,12 @@ export default function KeysView() {
                     <div
                       ref={menuRef}
                       onClick={(e) => e.stopPropagation()}
-                      className="absolute right-0 top-full z-30 mt-1 min-w-[168px] rounded-md border border-subtle bg-dark p-1 shadow-2xl shadow-black/50"
+                      className="absolute right-0 top-full z-30 mt-1 min-w-[168px] rounded-md border border-subtle bg-dark p-1 shadow-popover"
                     >
                       <button
                         type="button"
                         onClick={() => setOpenMenu(null)}
-                        className="flex w-full items-center gap-2.5 rounded-[4px] px-2.5 py-1.5 text-left text-[12.5px] text-fg-strong transition-colors hover:bg-white/[0.04] hover:text-white"
+                        className="flex w-full items-center gap-2.5 rounded-[4px] px-2.5 py-1.5 text-left text-[12.5px] text-fg-strong transition-colors hover:bg-hover hover:text-fg"
                       >
                         <Edit2 className="h-3 w-3 text-fg-faint" />
                         Rename
@@ -449,7 +451,7 @@ export default function KeysView() {
                       <button
                         type="button"
                         onClick={() => setOpenMenu(null)}
-                        className="flex w-full items-center gap-2.5 rounded-[4px] px-2.5 py-1.5 text-left text-[12.5px] text-fg-strong transition-colors hover:bg-white/[0.04] hover:text-white"
+                        className="flex w-full items-center gap-2.5 rounded-[4px] px-2.5 py-1.5 text-left text-[12.5px] text-fg-strong transition-colors hover:bg-hover hover:text-fg"
                       >
                         <SettingsIcon className="h-3 w-3 text-fg-faint" />
                         Edit scope
@@ -457,7 +459,7 @@ export default function KeysView() {
                       <button
                         type="button"
                         onClick={() => setOpenMenu(null)}
-                        className="flex w-full items-center gap-2.5 rounded-[4px] px-2.5 py-1.5 text-left text-[12.5px] text-fg-strong transition-colors hover:bg-white/[0.04] hover:text-white"
+                        className="flex w-full items-center gap-2.5 rounded-[4px] px-2.5 py-1.5 text-left text-[12.5px] text-fg-strong transition-colors hover:bg-hover hover:text-fg"
                       >
                         <RotateCw className="h-3 w-3 text-fg-faint" />
                         Rotate key
@@ -483,9 +485,9 @@ export default function KeysView() {
         <details
           open={scopesOpen}
           onToggle={(e) => setScopesOpen(e.currentTarget.open)}
-          className="mt-4 overflow-hidden rounded-md border border-hairline bg-dark-lighter"
+          className="mt-4 overflow-hidden rounded-md border border-hairline bg-dark-lighter shadow-card"
         >
-          <summary className="flex cursor-pointer list-none items-center gap-2 px-3.5 py-3 text-[13px] text-fg-strong transition-colors hover:text-white [&::-webkit-details-marker]:hidden">
+          <summary className="flex cursor-pointer list-none items-center gap-2 px-3.5 py-3 text-[13px] text-fg-strong transition-colors hover:text-fg [&::-webkit-details-marker]:hidden">
             <ChevronDown
               className={`h-3.5 w-3.5 text-fg-faint transition-transform ${
                 scopesOpen ? "" : "-rotate-90"
@@ -509,7 +511,7 @@ export default function KeysView() {
                   aria-hidden="true"
                 />
                 <div>
-                  <p className="text-[13px] font-medium text-white">{s.label}</p>
+                  <p className="text-[13px] font-medium text-fg">{s.label}</p>
                   <p className="mt-0.5 text-[11.5px] text-fg-faint">{s.desc}</p>
                 </div>
                 <p className="text-right font-mono text-[10.5px] text-fg-disabled">

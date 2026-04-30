@@ -105,7 +105,7 @@ export default function DashboardSubNav({
               onClick={() => onChange(key)}
               className={`-mb-px flex h-11 shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-3 text-sm transition-colors sm:px-0 ${
                 active
-                  ? "border-green-bright font-semibold text-white"
+                  ? "border-green-bright font-semibold text-fg"
                   : "border-transparent font-medium text-fg-faint hover:text-fg"
               }`}
             >

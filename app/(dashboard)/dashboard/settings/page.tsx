@@ -14,11 +14,13 @@ import LimitsSection from "@/components/dashboard/settings/LimitsSection";
 import ProfileSection from "@/components/dashboard/settings/ProfileSection";
 import NotificationsSection from "@/components/dashboard/settings/NotificationsSection";
 import SecuritySection from "@/components/dashboard/settings/SecuritySection";
+import AppearanceSection from "@/components/dashboard/settings/AppearanceSection";
 
-// The 7 settings sub-tabs per the v7 prototype, two groups (Workspace +
-// Account). The sidebar's SettingsRail is the navigation surface — there's
-// no horizontal TabStrip on this page; the rail and the breadcrumb together
-// tell the user where they are.
+// The 8 settings sub-tabs, two groups (Workspace + Account). The sidebar's
+// SettingsRail is the navigation surface — there's no horizontal TabStrip on
+// this page; the rail and the breadcrumb together tell the user where they
+// are. `appearance` is the local-only theme picker (light/dark/system) added
+// in the theme-modes pass.
 type SettingsTab =
   | "workspace"
   | "members"
@@ -26,7 +28,8 @@ type SettingsTab =
   | "usage-limits"
   | "profile"
   | "notifications"
-  | "security";
+  | "security"
+  | "appearance";
 
 const VALID_TABS: SettingsTab[] = [
   "workspace",
@@ -36,6 +39,7 @@ const VALID_TABS: SettingsTab[] = [
   "profile",
   "notifications",
   "security",
+  "appearance",
 ];
 
 const TAB_LABELS: Record<SettingsTab, string> = {
@@ -46,6 +50,7 @@ const TAB_LABELS: Record<SettingsTab, string> = {
   profile: "Profile",
   notifications: "Notifications",
   security: "Security",
+  appearance: "Appearance",
 };
 
 export default function SettingsPage() {
@@ -109,7 +114,7 @@ function SettingsContent() {
       <div className="flex h-[44px] shrink-0 items-center gap-1 border-b border-hairline bg-dark px-5">
         <Link
           href="/dashboard"
-          className="inline-flex items-center gap-1.5 rounded-[4px] px-1.5 py-1 text-[13px] text-fg-muted transition-colors hover:bg-white/[0.04] hover:text-white"
+          className="inline-flex items-center gap-1.5 rounded-[4px] px-1.5 py-1 text-[13px] text-fg-muted transition-colors hover:bg-hover hover:text-fg"
         >
           <SettingsIcon
             className="h-3.5 w-3.5 shrink-0 text-fg-faint"
@@ -121,7 +126,7 @@ function SettingsContent() {
         <span className="px-1 text-fg-disabled" aria-hidden="true">
           /
         </span>
-        <span className="px-1.5 py-1 text-[13px] font-medium text-white">
+        <span className="px-1.5 py-1 text-[13px] font-medium text-fg">
           {TAB_LABELS[tab]}
         </span>
       </div>
@@ -137,6 +142,7 @@ function SettingsContent() {
           {tab === "profile" && <ProfileSection />}
           {tab === "notifications" && <NotificationsSection />}
           {tab === "security" && <SecuritySection />}
+          {tab === "appearance" && <AppearanceSection />}
         </div>
       </div>
     </main>

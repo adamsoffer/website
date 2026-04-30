@@ -94,7 +94,7 @@ export default function HomeNudge() {
         <p className="mt-1 text-sm text-fg-strong">{nudge.title}</p>
         <p className="mt-0.5 text-[13px] text-fg-faint">{nudge.body}</p>
       </div>
-      <span className="inline-flex shrink-0 items-center gap-1 self-end text-[13px] text-fg-muted transition-colors group-hover:text-white sm:self-center">
+      <span className="inline-flex shrink-0 items-center gap-1 self-end text-[13px] text-fg-muted transition-colors group-hover:text-fg sm:self-center">
         {nudge.cta}
         <ArrowRight className="h-3.5 w-3.5" strokeWidth={2} />
       </span>

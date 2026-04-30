@@ -31,7 +31,10 @@ const MEMBERS: Member[] = [
   { name: "Zain Mehta", email: "zain@flipbook.page", role: "Owner", joined: "4mo ago", avatar: "ZM", color: "#1E9960" },
   { name: "Aliyah Park", email: "aliyah@flipbook.page", role: "Admin", joined: "3mo ago", avatar: "AP", color: "#25ABD0" },
   { name: "Marcos Diaz", email: "marcos@flipbook.page", role: "Developer", joined: "2mo ago", avatar: "MD", color: "#7A6BD9" },
-  { name: "Tomi Akinwale", email: "tomi@flipbook.page", role: "Developer", joined: "12d ago", avatar: "TA", color: "#fbbf24" },
+  // `#fbbf24` (amber-300) was too light to carry white initials (~1.6:1).
+  // `#d97706` (amber-600) keeps the warm/yellow identity and lifts contrast
+  // to ~3.5:1 in both themes — same family, legible everywhere.
+  { name: "Tomi Akinwale", email: "tomi@flipbook.page", role: "Developer", joined: "12d ago", avatar: "TA", color: "#d97706" },
 ];
 
 const INVITES: Invite[] = [
@@ -76,12 +79,12 @@ export default function MembersSection() {
         {MEMBERS.map((m) => (
           <div
             key={m.email}
-            className={`${ST_COLS_4} border-b border-hairline last:border-b-0 transition-colors hover:bg-white/[0.025]`}
+            className={`${ST_COLS_4} border-b border-hairline last:border-b-0 transition-colors hover:bg-zebra`}
           >
             <div className="flex min-w-0 items-center gap-2.5">
               <SettingsAvatar initials={m.avatar} color={m.color} />
               <div className="min-w-0">
-                <p className="truncate text-[13px] text-white">{m.name}</p>
+                <p className="truncate text-[13px] text-fg">{m.name}</p>
                 <p className="truncate font-mono text-[11.5px] text-fg-faint">
                   {m.email}
                 </p>
@@ -117,9 +120,9 @@ export default function MembersSection() {
         {INVITES.map((inv) => (
           <div
             key={inv.email}
-            className={`${ST_COLS_4} border-b border-hairline last:border-b-0 transition-colors hover:bg-white/[0.025]`}
+            className={`${ST_COLS_4} border-b border-hairline last:border-b-0 transition-colors hover:bg-zebra`}
           >
-            <div className="truncate text-[13px] text-white">{inv.email}</div>
+            <div className="truncate text-[13px] text-fg">{inv.email}</div>
             <div>
               <RolePill tone={inv.role.toLowerCase() as RolePillTone}>
                 {inv.role}
@@ -129,13 +132,13 @@ export default function MembersSection() {
             <div className="flex justify-end gap-3">
               <button
                 type="button"
-                className="text-[12px] text-fg-strong transition-colors hover:text-white"
+                className="text-[12px] text-fg-strong transition-colors hover:text-fg"
               >
                 Resend
               </button>
               <button
                 type="button"
-                className="text-[12px] text-fg-faint transition-colors hover:text-white"
+                className="text-[12px] text-fg-faint transition-colors hover:text-fg"
               >
                 Revoke
               </button>

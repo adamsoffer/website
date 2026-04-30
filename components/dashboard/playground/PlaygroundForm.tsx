@@ -14,7 +14,7 @@ interface PlaygroundFormProps {
 
 function TypeBadge({ type }: { type: string }) {
   return (
-    <span className="ml-1.5 rounded bg-white/[0.06] px-1.5 py-0.5 text-[10px] text-fg-faint">
+    <span className="ml-1.5 rounded bg-tint px-1.5 py-0.5 text-[10px] text-fg-faint">
       {type}
     </span>
   );
@@ -36,7 +36,7 @@ function FieldRenderer({
   onChange: (val: unknown) => void;
 }) {
   const inputClass =
-    "w-full rounded-lg border border-subtle bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-fg-label focus:outline-none focus:border-strong transition-colors";
+    "w-full rounded-lg border border-subtle bg-zebra px-3 py-2.5 text-sm text-fg placeholder:text-fg-label focus:outline-none focus:border-strong transition-colors";
 
   switch (field.type) {
     case "textarea":
@@ -126,7 +126,7 @@ function FieldRenderer({
             checked={(value as boolean) ?? (field.defaultValue as boolean) ?? false}
             onChange={(e) => onChange(e.target.checked)}
             aria-required={field.required}
-            className="h-4 w-4 rounded border-strong bg-white/[0.03] accent-green-bright"
+            className="h-4 w-4 rounded border-strong bg-zebra accent-green-bright"
           />
           <span className="text-sm text-fg-faint">Enabled</span>
         </label>
@@ -135,7 +135,7 @@ function FieldRenderer({
     case "file":
       return (
         <div className="relative">
-          <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-subtle bg-white/[0.02] py-6 transition-colors hover:border-strong hover:bg-white/[0.04]">
+          <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-subtle bg-zebra py-6 transition-colors hover:border-strong hover:bg-hover">
             <label className="cursor-pointer text-center">
               <p className="text-sm text-fg-label">
                 {value ? (value as File).name : "Drop a file or click to upload"}
@@ -228,7 +228,7 @@ export default function PlaygroundForm({
         <button
           type="button"
           onClick={handleReset}
-          className="flex h-11 items-center gap-1.5 rounded-lg border border-subtle px-3 text-xs text-fg-label transition-colors hover:bg-white/[0.04] hover:text-fg-muted focus:outline-none sm:h-9"
+          className="flex h-11 items-center gap-1.5 rounded-lg border border-subtle px-3 text-xs text-fg-label transition-colors hover:bg-hover hover:text-fg-muted focus:outline-none sm:h-9"
         >
           <RotateCcw className="h-3 w-3" />
           Reset to defaults
@@ -236,7 +236,7 @@ export default function PlaygroundForm({
         <button
           type="submit"
           disabled={isRunning}
-          className="flex h-11 min-w-[120px] items-center justify-center gap-2 rounded-lg bg-green px-4 text-sm font-medium text-white transition-colors hover:bg-green-light active:scale-[0.98] disabled:bg-white/[0.06] disabled:text-fg-disabled focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-bright/50 motion-reduce:active:scale-100 sm:h-9"
+          className="btn-primary flex h-11 min-w-[120px] items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium transition-colors active:scale-[0.98] disabled:bg-tint disabled:text-fg-disabled focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-bright/50 motion-reduce:active:scale-100 sm:h-9"
         >
           {isRunning ? (
             <>

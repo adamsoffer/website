@@ -43,7 +43,7 @@ function SummaryCard({
   return (
     <div className="rounded-xl border border-hairline bg-dark-surface p-5">
       <p className="text-[11px] font-medium uppercase tracking-wider text-fg-label">{label}</p>
-      <p className="mt-1 text-2xl font-semibold tabular-nums text-white">
+      <p className="mt-1 text-2xl font-semibold tabular-nums text-fg">
         ${usd.toLocaleString(undefined, { maximumFractionDigits: 0 })}
       </p>
       <div className="mt-1 flex items-center gap-1 text-xs text-green-bright">
@@ -89,7 +89,7 @@ export default function PaymentsTab() {
     <div className="flex flex-1 flex-col gap-6 p-5 lg:p-6">
       {/* Header — hidden on mobile (dropdown nav already identifies the section) */}
       <div className="hidden lg:block">
-        <h2 className="text-lg font-semibold text-white">Payments</h2>
+        <h2 className="text-lg font-semibold text-fg">Payments</h2>
         <p className="mt-1 text-sm text-fg-muted">
           ETH fees flowing through the network for completed inference jobs, paid to orchestrators.
         </p>
@@ -105,7 +105,7 @@ export default function PaymentsTab() {
             <p className="text-[11px] font-medium uppercase tracking-wider text-fg-label">
               Network Revenue
             </p>
-            <p className="mt-1 text-3xl font-semibold text-white">
+            <p className="mt-1 text-3xl font-semibold text-fg">
               ${(chartData.reduce((s, r) => s + r.volumeUsd, 0) / 1000).toFixed(1)}k
             </p>
           </div>
@@ -120,7 +120,7 @@ export default function PaymentsTab() {
             <BarChart data={chartData} barCategoryGap="15%">
               <XAxis
                 dataKey="date"
-                tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 10 }}
+                tick={{ fill: "var(--color-fg-label)", fontSize: 10 }}
                 tickLine={false}
                 axisLine={false}
                 tickFormatter={(v: string) => v.slice(5)}
@@ -129,13 +129,13 @@ export default function PaymentsTab() {
                 padding={{ right: 8 }}
               />
               <YAxis
-                tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 10 }}
+                tick={{ fill: "var(--color-fg-label)", fontSize: 10 }}
                 tickLine={false}
                 axisLine={false}
                 width={50}
                 tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`}
               />
-              <Tooltip content={<SimpleChartTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
+              <Tooltip content={<SimpleChartTooltip />} cursor={{ fill: "var(--color-zebra)" }} />
               <Bar
                 dataKey="volumeUsd"
                 fill="#40bf86"
@@ -185,7 +185,7 @@ export default function PaymentsTab() {
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(0); }}
               placeholder="Search payments..."
-              className="w-full rounded-lg border border-subtle bg-white/[0.03] py-1.5 pl-9 pr-3 text-xs text-white placeholder:text-fg-disabled focus:border-strong focus:outline-none"
+              className="w-full rounded-lg border border-subtle bg-zebra py-1.5 pl-9 pr-3 text-xs text-fg placeholder:text-fg-disabled focus:border-strong focus:outline-none"
             />
           </div>
         </div>
@@ -203,7 +203,7 @@ export default function PaymentsTab() {
           </div>
 
           {/* Rows */}
-          <div className="divide-y divide-white/[0.04]">
+          <div className="divide-y divide-[var(--color-border-hairline)]">
             {pageTxs.map((tx) => {
               const dateStr = new Date(tx.date).toLocaleString(undefined, {
                 month: "short",
@@ -214,7 +214,7 @@ export default function PaymentsTab() {
               return (
                 <div key={tx.id}>
                   {/* Desktop row */}
-                  <div className="hidden md:flex min-w-[700px] items-center gap-4 px-5 py-3 transition-colors hover:bg-white/[0.02]">
+                  <div className="hidden md:flex min-w-[700px] items-center gap-4 px-5 py-3 transition-colors hover:bg-zebra">
                     <span className="w-36 text-xs tabular-nums text-fg-faint">{dateStr}</span>
                     <span className="w-28 truncate text-xs text-fg-muted">{tx.orchestrator}</span>
                     <span className="flex-1 text-xs text-fg-faint">{tx.pipeline}</span>
@@ -242,13 +242,13 @@ export default function PaymentsTab() {
                     href={`https://arbiscan.io/tx/${tx.txHash}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex flex-col gap-1.5 px-4 py-3 transition-colors hover:bg-white/[0.02] md:hidden"
+                    className="flex flex-col gap-1.5 px-4 py-3 transition-colors hover:bg-zebra md:hidden"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <span className="min-w-0 flex-1 truncate text-xs text-fg-strong">
                         {tx.pipeline}
                       </span>
-                      <span className="shrink-0 text-sm text-white">
+                      <span className="shrink-0 text-sm text-fg">
                         {tx.amountEth.toFixed(4)}{" "}
                         <span className="text-xs text-fg-label">ETH</span>
                       </span>
@@ -275,14 +275,14 @@ export default function PaymentsTab() {
               <button
                 onClick={() => setPage(Math.max(0, page - 1))}
                 disabled={page === 0}
-                className="rounded-lg border border-subtle bg-white/[0.03] px-3 py-1.5 text-xs text-fg-strong transition-colors hover:border-strong hover:bg-white/[0.05] hover:text-white disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-subtle disabled:hover:bg-white/[0.03]"
+                className="rounded-lg border border-subtle bg-zebra px-3 py-1.5 text-xs text-fg-strong transition-colors hover:border-strong hover:bg-hover hover:text-fg disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-subtle disabled:hover:bg-zebra"
               >
                 Prev
               </button>
               <button
                 onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
                 disabled={page >= totalPages - 1}
-                className="rounded-lg border border-subtle bg-white/[0.03] px-3 py-1.5 text-xs text-fg-strong transition-colors hover:border-strong hover:bg-white/[0.05] hover:text-white disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-subtle disabled:hover:bg-white/[0.03]"
+                className="rounded-lg border border-subtle bg-zebra px-3 py-1.5 text-xs text-fg-strong transition-colors hover:border-strong hover:bg-hover hover:text-fg disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-subtle disabled:hover:bg-zebra"
               >
                 Next
               </button>
