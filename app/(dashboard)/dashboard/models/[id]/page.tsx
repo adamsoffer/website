@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -14,16 +14,25 @@ import {
   Server,
   RotateCcw,
   Zap,
+  LayoutGrid,
+  BookOpen,
+  Star,
+  Copy,
+  Check,
+  Activity,
 } from "lucide-react";
-import Breadcrumb from "@/components/dashboard/Breadcrumb";
-import CopyButton from "@/components/dashboard/CopyButton";
 import DashboardSubNav from "@/components/dashboard/DashboardSubNav";
 import CostTag from "@/components/dashboard/CostTag";
 import KeyBadge from "@/components/dashboard/KeyBadge";
-import StarButton from "@/components/dashboard/StarButton";
+import RunsTable from "@/components/dashboard/RunsTable";
 import StatusDot from "@/components/dashboard/StatusDot";
 import Tooltip from "@/components/ui/Tooltip";
-import { getModelById, SETTINGS_API_KEYS } from "@/lib/dashboard/mock-data";
+import { useStarredModels } from "@/lib/dashboard/useStarredModels";
+import {
+  getModelById,
+  SETTINGS_API_KEYS,
+  MOCK_RECENT_REQUESTS,
+} from "@/lib/dashboard/mock-data";
 import { getModelIcon, formatRuns, formatPrice } from "@/lib/dashboard/utils";
 import PlaygroundForm from "@/components/dashboard/playground/PlaygroundForm";
 import JsonInput from "@/components/dashboard/playground/JsonInput";
@@ -35,15 +44,41 @@ import ModelAnalytics from "@/components/dashboard/stats/ModelAnalytics";
 import type { Model } from "@/lib/dashboard/types";
 
 // ─── Tabs ───
+//
+// Mirrors the Livepeer Dashboard v3 model-view tab strip. `Runs` carries an
+// optional count chip — populated at render time from runs filtered to this
+// specific model so the badge tracks reality (zero for empty, drops the chip
+// entirely so we don't show "Runs (0)").
 
-type Tab = "playground" | "api" | "readme" | "stats";
+type Tab = "playground" | "api" | "readme" | "stats" | "runs";
 
-const TABS: { key: Tab; label: string; icon: React.ElementType }[] = [
+type TabSpec = {
+  key: Tab;
+  label: string;
+  icon: React.ElementType;
+  count?: number;
+};
+
+const TABS: TabSpec[] = [
   { key: "playground", label: "Playground", icon: Play },
   { key: "api", label: "API", icon: Code },
   { key: "readme", label: "README", icon: FileText },
   { key: "stats", label: "Stats", icon: BarChart3 },
+  { key: "runs", label: "Runs", icon: Activity },
 ];
+
+// Match a model's catalog id (e.g. "flux-schnell") against an activity row's
+// model string (e.g. "flux/schnell"). The mock data uses "vendor/slug" while
+// the catalog uses "slug" or "vendor-slug" — so we slugify both and check for
+// a containment relationship in either direction. Keeps the filter resilient
+// to small naming drift without forcing a parallel mapping table.
+function modelMatchesRow(catalogId: string, runModel: string): boolean {
+  const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const a = norm(catalogId);
+  const b = norm(runModel);
+  if (!a || !b) return false;
+  return a === b || a.includes(b) || b.includes(a);
+}
 
 // ─── Playground Tab ───
 
@@ -499,12 +534,153 @@ function StatsTab({ model }: { model: Model }) {
   return <ModelAnalytics model={model} />;
 }
 
+// ─── Runs Tab ───
+//
+// Reuses the shared `RunsTable` so this surface, the home "Your runs" panel,
+// and the standalone `/dashboard/runs` view all render identical rows. Empty
+// state is bespoke here because the message ("No runs yet for {model.name}")
+// is capability-specific and doesn't make sense to push into the shared
+// component.
+
+function RunsTab({
+  model,
+  runs,
+}: {
+  model: Model;
+  runs: import("@/lib/dashboard/types").AccountActivityRow[];
+}) {
+  if (runs.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-md border border-hairline bg-dark-card py-16 text-center">
+        <Activity className="h-9 w-9 text-fg-disabled" strokeWidth={1.5} />
+        <p className="mt-3 text-[13px] text-fg-faint">
+          No runs yet for {model.name}
+        </p>
+        <p className="mt-1 text-[11.5px] text-fg-disabled">
+          Calls to this capability from your workspace will show up here.
+        </p>
+      </div>
+    );
+  }
+
+  return <RunsTable rows={runs} showHeader />;
+}
+
+// ─── Chrome bar (44px) — multi-segment breadcrumb + Pin + Docs ──────────────
+//
+// Mirrors the Livepeer Dashboard v3 `PageHead` for the model detail route.
+// First crumb has the grid icon + "Explore", middle crumb is the category
+// (no link in design), last crumb is the model name in white. Right side
+// carries `Pin` (toggles Star) and an external `Docs` link.
+
+function ModelChromeBar({ model }: { model: Model }) {
+  const { isStarred, toggleStar } = useStarredModels();
+  const pinned = isStarred(model.id);
+  return (
+    <div className="flex h-[44px] shrink-0 items-center gap-1 border-b border-hairline bg-dark px-5">
+      <Link
+        href="/dashboard/explore"
+        className="inline-flex items-center gap-1.5 rounded-[4px] px-1.5 py-1 text-[13px] text-fg-muted transition-colors hover:bg-white/[0.04] hover:text-white"
+      >
+        <LayoutGrid
+          className="h-3.5 w-3.5 shrink-0 text-fg-faint"
+          strokeWidth={1.75}
+          aria-hidden="true"
+        />
+        <span>Explore</span>
+      </Link>
+      <span className="px-1 text-fg-disabled" aria-hidden="true">/</span>
+      <span className="px-1.5 py-1 text-[13px] font-medium text-white truncate">
+        {model.name}
+      </span>
+
+      <div className="ml-auto flex shrink-0 items-center gap-1.5">
+        <button
+          type="button"
+          onClick={() => toggleStar(model.id)}
+          aria-pressed={pinned}
+          className={`inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-transparent px-2.5 text-[12.5px] transition-colors hover:border-hairline hover:bg-white/[0.04] ${
+            pinned
+              ? "text-warm hover:text-warm"
+              : "text-fg-strong hover:text-white"
+          }`}
+        >
+          <Star
+            className={`h-3 w-3 ${pinned ? "fill-warm" : ""}`}
+            aria-hidden="true"
+          />
+          {pinned ? "Pinned" : "Pin"}
+        </button>
+        <a
+          href="https://docs.livepeer.org"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-transparent px-2.5 text-[12.5px] text-fg-strong transition-colors hover:border-hairline hover:bg-white/[0.04] hover:text-white"
+        >
+          <BookOpen className="h-3 w-3" aria-hidden="true" />
+          Docs
+          <span className="text-fg-faint">↗</span>
+        </a>
+      </div>
+    </div>
+  );
+}
+
+// ─── Model ID chip — bordered chip with copy-on-click + mono id ─────────────
+
+function ModelIdChip({ modelId }: { modelId: string }) {
+  const [copied, setCopied] = useState(false);
+  const onCopy = () => {
+    navigator.clipboard?.writeText(modelId).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1400);
+  };
+  return (
+    <button
+      type="button"
+      onClick={onCopy}
+      title="Copy capability ID"
+      className={`inline-flex h-[28px] shrink-0 items-center gap-1.5 rounded-[4px] border px-2 font-mono text-[11.5px] transition-colors ${
+        copied
+          ? "border-green-bright/40 bg-green/15 text-green-bright"
+          : "border-hairline bg-dark-card text-fg-faint hover:border-subtle hover:text-fg-strong"
+      }`}
+    >
+      {copied ? (
+        <Check className="h-3 w-3" aria-hidden="true" />
+      ) : (
+        <Copy className="h-3 w-3" aria-hidden="true" />
+      )}
+      {modelId}
+    </button>
+  );
+}
+
 // ─── Main Page ───
 
 export default function ModelDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState<Tab>("playground");
   const model = getModelById(id);
+
+  // Runs filtered to this model — drives both the Runs panel and the count
+  // chip on the Runs tab. `model` may be undefined here (404 path below); we
+  // run the hook unconditionally with a stable input to keep hook order intact.
+  const filteredRuns = useMemo(() => {
+    if (!model) return [];
+    return MOCK_RECENT_REQUESTS.filter((r) =>
+      modelMatchesRow(model.id, r.model),
+    );
+  }, [model]);
+
+  // Tabs spec is rebuilt per-render so the Runs count tracks the filtered set.
+  const tabs: TabSpec[] = useMemo(
+    () =>
+      TABS.map((t) =>
+        t.key === "runs" ? { ...t, count: filteredRuns.length } : t,
+      ),
+    [filteredRuns.length],
+  );
 
   if (!model) {
     return (
@@ -526,133 +702,161 @@ export default function ModelDetailPage() {
 
   return (
     <main id="main-content" className="flex flex-1 flex-col bg-dark">
+      {/* Chrome bar — full multi-segment breadcrumb on the left,
+          Pin + Docs actions on the right. Per the Livepeer Dashboard v3
+          design (`PageHead` with `crumbs={[{ icon: 'grid', label: 'Explore' }, ...]}`). */}
+      <ModelChromeBar model={model} />
+
       <div className="flex-1">
-        <div className="mx-auto max-w-5xl px-5 pt-6 pb-8 lg:pt-10">
-          <Breadcrumb
-            className="mb-5"
-            items={[
-              { label: "Explore", href: "/dashboard/explore" },
-              { label: model.name },
-            ]}
-          />
-          {/* Hero — tightened: smaller icon, smaller title, less chrome */}
-          <div className="flex items-start gap-3.5">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-white/[0.05] ring-1 ring-hairline">
-              <Icon className="h-5 w-5 text-fg-strong" strokeWidth={1.75} />
+        <div className="mx-auto max-w-5xl px-7 pt-7 pb-8">
+          {/* mdv2-head — thumbnail + eyebrow + title + desc, ID chip on the right */}
+          <div className="grid grid-cols-[auto_1fr_auto] items-start gap-5 pb-5">
+            {/* Thumbnail uses the model's coverImage when available; falls back
+                to a bordered icon tile that matches the v3 design glow. */}
+            <div className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-md border border-subtle bg-dark-card">
+              {model.coverImage ? (
+                <img
+                  src={model.coverImage}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div
+                  className="grid h-full w-full place-items-center text-green-bright"
+                  style={{
+                    background: "linear-gradient(135deg, #242424, #1e1e1e)",
+                    boxShadow: "0 0 24px rgba(64,191,134,0.08)",
+                  }}
+                  aria-hidden="true"
+                >
+                  <Icon className="h-7 w-7" strokeWidth={1.5} />
+                </div>
+              )}
             </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-[10px] uppercase tracking-wider text-fg-label">
-                    {model.provider}
-                  </p>
-                  <div className="mt-0.5 flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
-                    <h1 className="text-lg font-semibold text-white text-balance break-words">
-                      {model.name}
-                    </h1>
-                    {model.precision && (
-                      <span className="font-mono text-[11px] text-fg-faint">
-                        {model.precision}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                {/* Actions — top right, icon-only on mobile to avoid cramping */}
-                <div className="flex shrink-0 items-center gap-2">
-                  <StarButton modelId={model.id} variant="inline" />
-                  <CopyButton
-                    value={model.id}
-                    label="Copy ID"
-                    ariaLabel="Copy capability ID"
-                    variant="bordered"
-                    size="md"
-                    hideLabelOnMobile
-                  />
-                </div>
+
+            <div className="min-w-0">
+              <p className="font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-fg-faint">
+                {model.provider}
+              </p>
+              <div className="mt-1 flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
+                <h1 className="text-[28px] font-medium leading-[1.15] tracking-[-0.015em] text-white text-balance break-words">
+                  {model.name}
+                </h1>
+                {model.precision && (
+                  <span className="font-mono text-[12px] text-fg-faint">
+                    {model.precision}
+                  </span>
+                )}
               </div>
-              <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-fg-muted">
+              <p className="mt-2 max-w-[72ch] text-[13.5px] leading-[1.5] text-fg-muted">
                 {model.description}
               </p>
             </div>
+
+            {/* ID chip — bordered, with copy icon and the model id in mono.
+                Replaces the previous Star+Copy split since `Pin` now lives in
+                the chrome bar above. */}
+            <ModelIdChip modelId={model.id} />
           </div>
 
-          {/* Status + metadata — one wrapping row, status first. Slightly more gap-y so the
-              colored pill row and the plain-text metadata row read as two distinct groupings. */}
-          <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2.5 text-xs text-fg-muted">
-            {/* Warm / Cold — matches Explore StatusBadge palette (orange / blue) for consistency across surfaces */}
+          {/* mdv2-strip — single bordered metadata row with right-aligned Run sample CTA */}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-y border-hairline py-2.5">
             {model.status === "hot" ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-warm-subtle px-2.5 py-1 font-medium text-warm">
+              <span className="inline-flex items-center gap-1.5 rounded-[3px] border border-green-bright/30 bg-green/15 px-2 py-0.5 font-mono text-[10.5px] lowercase tracking-[0.02em] text-green-bright">
                 <StatusDot tone="warm" />
-                Warm
+                warm
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-blue/10 px-2.5 py-1 font-medium text-blue-bright">
+              <span className="inline-flex items-center gap-1.5 rounded-[3px] border border-hairline bg-dark-card px-2 py-0.5 font-mono text-[10.5px] lowercase tracking-[0.02em] text-fg-faint">
                 <Snowflake className="h-2.5 w-2.5" />
-                Cold
+                cold
               </span>
             )}
-            {/* Realtime — moat capability marker, clickable to filter Explore */}
             {model.realtime && (
               <Tooltip content="Supports streaming (WebRTC) inference">
                 <Link
                   href="/dashboard/explore?realtime=1"
-                  className="inline-flex items-center gap-1.5 rounded-full bg-green-bright/10 px-2.5 py-1 font-medium text-green-bright transition-colors hover:bg-green-bright/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-bright/40"
+                  className="inline-flex items-center gap-1.5 rounded-[3px] border border-green-bright/22 bg-green-bright/8 px-2 py-0.5 font-mono text-[10.5px] lowercase tracking-[0.02em] text-green-bright transition-colors hover:bg-green-bright/15"
                 >
                   <Zap className="h-2.5 w-2.5" fill="currentColor" />
-                  Realtime
+                  realtime
                 </Link>
               </Tooltip>
             )}
-            {/* Task badge — clickable, filters Explore by this category */}
             <Link
               href={`/dashboard/explore?category=${encodeURIComponent(model.category)}`}
-              className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.06] px-2.5 py-1 text-fg-strong transition-colors hover:bg-white/[0.1] hover:text-white"
+              className="inline-flex items-center gap-1.5 rounded-[3px] border px-2 py-0.5 font-mono text-[10.5px] lowercase tracking-[0.02em] transition-colors"
+              style={{
+                color: "#b794f6",
+                borderColor: "rgba(183,148,246,0.22)",
+                background: "rgba(183,148,246,0.08)",
+              }}
             >
-              <Icon className="h-2.5 w-2.5 text-fg-faint" aria-hidden="true" />
               {model.category}
             </Link>
-            <span className="hidden items-center gap-1.5 sm:flex">
-              <Flame className="h-3 w-3 text-fg-disabled" aria-hidden="true" />
-              {formatRuns(model.runs7d)} runs
-            </span>
-            <span className="hidden items-center gap-1.5 sm:flex">
+
+            <span
+              className="hidden h-3 w-px shrink-0 sm:block"
+              style={{ background: "rgba(255,255,255,0.10)" }}
+              aria-hidden="true"
+            />
+
+            <span className="inline-flex items-center gap-1.5 font-mono text-[11.5px] text-fg-muted">
               <Clock className="h-3 w-3 text-fg-disabled" aria-hidden="true" />
-              {model.latency}ms latency
+              <b className="font-medium text-fg-strong">{model.latency}ms</b>
             </span>
-            <span className="hidden items-center gap-1.5 sm:flex">
+            <span className="inline-flex items-center gap-1.5 font-mono text-[11.5px] text-fg-muted">
               <Server className="h-3 w-3 text-fg-disabled" aria-hidden="true" />
-              {model.orchestrators} GPUs
+              <b className="font-medium text-fg-strong">{model.orchestrators}</b>
+              <span className="text-fg-disabled">GPUs</span>
             </span>
-            <span className="text-fg-strong">
-              {formatPrice(model)}
+            <span className="inline-flex items-center gap-1.5 font-mono text-[11.5px] text-fg-muted">
+              <Flame className="h-3 w-3 text-fg-disabled" aria-hidden="true" />
+              <b className="font-medium text-fg-strong">{formatRuns(model.runs7d)}</b>
+              <span className="text-fg-disabled">runs</span>
             </span>
+            <span className="inline-flex items-center gap-1.5 font-mono text-[11.5px] text-fg-strong">
+              <b className="font-medium text-white">{formatPrice(model)}</b>
+            </span>
+
+            <span className="ml-auto" />
+            <button
+              type="button"
+              onClick={() => setActiveTab("playground")}
+              className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-subtle bg-dark-card px-2.5 text-[12px] font-medium text-fg-strong whitespace-nowrap transition-colors hover:border-strong hover:bg-white/[0.04] hover:text-white"
+            >
+              <Play className="h-3 w-3 text-green-bright" aria-hidden="true" />
+              Run sample
+            </button>
           </div>
 
-          {/* Tabs — desktop horizontal strip */}
+          {/* Tabs — flush document-style underline (mdv2-tabs) */}
           <div
-            className="mt-8 hidden gap-1 overflow-x-auto border-b border-subtle md:flex"
+            className="mt-6 hidden gap-0 overflow-x-auto border-b border-hairline md:flex"
             role="tablist"
             aria-label="Model section"
             style={{ scrollbarWidth: "none" }}
             onKeyDown={(e) => {
-              const i = TABS.findIndex((t) => t.key === activeTab);
+              const i = tabs.findIndex((t) => t.key === activeTab);
               if (e.key === "ArrowRight") {
                 e.preventDefault();
-                setActiveTab(TABS[(i + 1) % TABS.length].key);
+                setActiveTab(tabs[(i + 1) % tabs.length].key);
               } else if (e.key === "ArrowLeft") {
                 e.preventDefault();
-                setActiveTab(TABS[(i - 1 + TABS.length) % TABS.length].key);
+                setActiveTab(tabs[(i - 1 + tabs.length) % tabs.length].key);
               } else if (e.key === "Home") {
                 e.preventDefault();
-                setActiveTab(TABS[0].key);
+                setActiveTab(tabs[0].key);
               } else if (e.key === "End") {
                 e.preventDefault();
-                setActiveTab(TABS[TABS.length - 1].key);
+                setActiveTab(tabs[tabs.length - 1].key);
               }
             }}
           >
-            {TABS.map((tab) => {
+            {tabs.map((tab, i) => {
               const selected = activeTab === tab.key;
+              const showCount =
+                typeof tab.count === "number" && tab.count > 0;
               return (
                 <button
                   key={tab.key}
@@ -662,18 +866,31 @@ export default function ModelDetailPage() {
                   aria-controls={`tabpanel-${tab.key}`}
                   tabIndex={selected ? 0 : -1}
                   onClick={() => setActiveTab(tab.key)}
-                  className={`-mb-px flex h-11 shrink-0 items-center gap-2 border-b-2 px-4 text-sm transition-colors focus:outline-none ${
+                  className={`-mb-px flex shrink-0 items-center gap-1.5 border-b-2 px-4 py-3 text-[13px] transition-colors focus:outline-none ${
+                    i === 0 ? "pl-0" : ""
+                  } ${
                     selected
-                      ? "border-green-bright font-semibold text-white"
-                      : "border-transparent font-medium text-fg-faint hover:text-fg"
+                      ? "border-green-bright text-white"
+                      : "border-transparent text-fg-faint hover:text-fg-strong"
                   }`}
                 >
                   <tab.icon
-                    className={`h-4 w-4 ${
-                      selected ? "text-green-bright" : "text-fg-label"
+                    className={`h-3.5 w-3.5 ${
+                      selected ? "text-green-bright" : "text-fg-disabled"
                     }`}
                   />
                   {tab.label}
+                  {showCount && (
+                    <span
+                      className={`ml-0.5 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-[3px] px-1 font-mono text-[10.5px] tabular-nums ${
+                        selected
+                          ? "bg-green-bright/15 text-green-bright"
+                          : "bg-white/[0.06] text-fg-faint"
+                      }`}
+                    >
+                      {tab.count}
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -683,7 +900,7 @@ export default function ModelDetailPage() {
           <DashboardSubNav
             hideAt="md"
             ariaLabel="Model section"
-            tabs={TABS}
+            tabs={tabs}
             activeKey={activeTab}
             onChange={(key) => setActiveTab(key as Tab)}
             className="mt-6"
@@ -700,6 +917,9 @@ export default function ModelDetailPage() {
             {activeTab === "api" && <ApiTab model={model} />}
             {activeTab === "readme" && <ReadmeTab model={model} />}
             {activeTab === "stats" && <StatsTab model={model} />}
+            {activeTab === "runs" && (
+              <RunsTab model={model} runs={filteredRuns} />
+            )}
           </div>
         </div>
       </div>

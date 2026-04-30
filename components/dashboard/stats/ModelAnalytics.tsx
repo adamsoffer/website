@@ -12,6 +12,7 @@ import {
   Tooltip,
 } from "recharts";
 import StatCard from "@/components/dashboard/statistics/StatCard";
+import KpiStrip from "@/components/dashboard/KpiStrip";
 import PeriodToggle from "@/components/dashboard/statistics/PeriodToggle";
 import {
   SimpleChartTooltip,
@@ -92,11 +93,11 @@ export default function ModelAnalytics({ model }: { model: Model }) {
       </div>
 
       {/* KPI strip */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+      <KpiStrip cols={4}>
         {kpiCards.map((stat) => (
           <StatCard key={stat.label} stat={stat} />
         ))}
-      </div>
+      </KpiStrip>
 
       {/* Request volume */}
       <div className="rounded-xl border border-hairline bg-dark-surface p-5">

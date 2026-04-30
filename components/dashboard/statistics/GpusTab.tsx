@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import { TrendingUp } from "lucide-react";
 import StatCard from "./StatCard";
+import KpiStrip from "@/components/dashboard/KpiStrip";
 import { StackedChartTooltip, SimpleChartTooltip } from "./ChartTooltip";
 import { GPU_NODES, GPU_GROWTH } from "@/lib/dashboard/mock-data";
 import { computeAxisTicks } from "@/lib/dashboard/utils";
@@ -150,11 +151,11 @@ export default function GpusTab() {
       </p>
 
       {/* KPI cards */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <KpiStrip cols={4}>
         {kpi.map((stat) => (
           <StatCard key={stat.label} stat={stat} />
         ))}
-      </div>
+      </KpiStrip>
 
       {/* Growth chart */}
       <div className="rounded-xl border border-hairline bg-dark-surface p-5">

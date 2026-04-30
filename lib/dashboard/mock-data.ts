@@ -108,6 +108,7 @@ Full-stack real-time AI video API powered by the Livepeer network.
     provider: "Livepeer Studio",
     category: "Live Transcoding",
     realtime: true,
+    coverImage: "/images/dashboard/explore/livepeer-transcode.webp",
     description:
       "Adaptive bitrate transcoding routed across independent orchestrators on the Livepeer network.",
     status: "hot",
@@ -178,7 +179,7 @@ Visit [livepeer.studio](https://livepeer.studio) to create an account and get yo
     name: "FLUX.1 [schnell]",
     provider: "Black Forest Labs",
     category: "Image Generation",
-    coverImage: "https://picsum.photos/seed/flux-cover/800/500",
+    coverImage: "/images/dashboard/explore/flux-schnell.webp",
     description:
       "Ultra-fast image generation optimized for speed. 4 steps, sub-second inference for production and near real-time applications.",
     status: "hot",
@@ -260,6 +261,7 @@ Very fast image generation and editing model. 4 steps distilled, sub-second infe
     name: "SDXL Turbo",
     provider: "Stability AI",
     category: "Image Generation",
+    coverImage: "/images/dashboard/explore/sdxl-turbo.webp",
     description:
       "Ultra-fast image generation in a single step, optimized for real-time applications.",
     status: "hot",
@@ -325,6 +327,7 @@ Single-step image generation for real-time applications. Based on Stable Diffusi
     name: "Image-to-Image SDXL",
     provider: "Stability AI",
     category: "Image Generation",
+    coverImage: "/images/dashboard/explore/img2img-sdxl.webp",
     description:
       "Transform existing images using text prompts. Powered by Stable Diffusion XL with fine-grained control over style transfer strength.",
     status: "hot",
@@ -392,7 +395,7 @@ Transform images using text prompts with SDXL. Upload an image and describe how 
     name: "Stable Video Diffusion",
     provider: "Stability AI",
     category: "Video Generation",
-    coverImage: "https://picsum.photos/seed/svd-cover/800/500",
+    coverImage: "/images/dashboard/explore/stable-video-diffusion.webp",
     description:
       "Generate short video clips from images. High visual quality with temporal consistency.",
     status: "cold",
@@ -441,6 +444,7 @@ Transform images using text prompts with SDXL. Upload an image and describe how 
     provider: "Livepeer",
     category: "Video Editing",
     realtime: true,
+    coverImage: "/images/dashboard/explore/live-video-to-video.webp",
     description:
       "Real-time live video transformation pipeline. Apply AI effects, style transfer, and compositing to live video streams with sub-frame latency.",
     status: "hot",
@@ -519,6 +523,7 @@ Typical end-to-end: 20-40ms per frame on dedicated orchestrators.`,
     name: "Qwen3 32B",
     provider: "Qwen",
     category: "Language",
+    coverImage: "/images/dashboard/explore/qwen3-32b.webp",
     description:
       "High-performance 32B parameter language model with strong reasoning and multilingual capabilities.",
     status: "hot",
@@ -594,6 +599,7 @@ curl -X POST https://gateway.livepeer.org/v1/chat/completions \\
     name: "Llama 3 70B",
     provider: "Meta",
     category: "Language",
+    coverImage: "/images/dashboard/explore/llama-3-70b.webp",
     description:
       "Open-weight 70B parameter model with excellent instruction following and coding abilities.",
     status: "hot",
@@ -684,6 +690,7 @@ This implementation has O(log n) time complexity and O(1) space complexity.`,
     provider: "OpenAI",
     category: "Speech",
     realtime: true,
+    coverImage: "/images/dashboard/explore/whisper-v3.webp",
     description:
       "Production-grade speech-to-text transcription with support for 99 languages and automatic language detection.",
     status: "hot",
@@ -750,6 +757,7 @@ mp3, mp4, mpeg, mpga, m4a, wav, webm
     name: "Kokoro TTS",
     provider: "Hexgrad",
     category: "Speech",
+    coverImage: "/images/dashboard/explore/kokoro-tts.webp",
     description:
       "High-quality text-to-speech synthesis with multiple voices and emotional control. Natural-sounding output with low latency.",
     status: "hot",
@@ -806,6 +814,7 @@ mp3, mp4, mpeg, mpga, m4a, wav, webm
     provider: "Depth Anything",
     category: "Video Understanding",
     realtime: true,
+    coverImage: "/images/dashboard/explore/depth-anything-v2.webp",
     description:
       "State-of-the-art monocular depth estimation for real-time 3D understanding of video streams.",
     status: "hot",
@@ -868,7 +877,7 @@ mp3, mp4, mpeg, mpga, m4a, wav, webm
     provider: "Ultralytics",
     category: "Video Understanding",
     realtime: true,
-    coverImage: "https://picsum.photos/seed/yolo-cover/800/500",
+    coverImage: "/images/dashboard/explore/yolov8.webp",
     description:
       "Real-time object detection, segmentation, and tracking for live video analysis.",
     status: "hot",
@@ -945,6 +954,7 @@ mp3, mp4, mpeg, mpga, m4a, wav, webm
     provider: "Meta",
     category: "Video Understanding",
     realtime: true,
+    coverImage: "/images/dashboard/explore/sam-2-large.webp",
     description:
       "Promptable image and video segmentation. Click a point or draw a box to segment any object in an image.",
     status: "hot",
@@ -1015,6 +1025,7 @@ mp3, mp4, mpeg, mpga, m4a, wav, webm
     name: "LLaVA 13B",
     provider: "LLaVA Team",
     category: "Language",
+    coverImage: "/images/dashboard/explore/llava-13b.webp",
     description:
       "Large Language and Vision Assistant. Multimodal model that understands both images and text for visual question answering.",
     status: "cold",
@@ -1067,7 +1078,7 @@ mp3, mp4, mpeg, mpga, m4a, wav, webm
     name: "Real-ESRGAN 4x",
     provider: "Xinntao",
     category: "Video Understanding",
-    coverImage: "https://picsum.photos/seed/esrgan-cover/800/500",
+    coverImage: "/images/dashboard/explore/real-esrgan-4x.webp",
     description:
       "Image upscaling and enhancement. Upscale images by 4x while adding realistic detail and removing artifacts.",
     status: "cold",
@@ -1112,6 +1123,7 @@ mp3, mp4, mpeg, mpga, m4a, wav, webm
     name: "MusicGen Large",
     provider: "Meta",
     category: "Speech",
+    coverImage: "/images/dashboard/explore/musicgen.webp",
     description:
       "Generate high-quality music from text descriptions with controllable style, tempo, and instruments.",
     status: "cold",
@@ -1153,6 +1165,7 @@ mp3, mp4, mpeg, mpga, m4a, wav, webm
     name: "Nomic Embed v1.5",
     provider: "Nomic AI",
     category: "Language",
+    coverImage: "/images/dashboard/explore/nomic-embed.webp",
     description:
       "High-performance text embeddings for semantic search, clustering, and RAG applications. 768 dimensions, 8192 token context.",
     status: "hot",
@@ -1583,7 +1596,22 @@ export { TOP_APIS, API_COLORS };
 //   - Free tier (permanent, can only be rotated — tied to the account's free quota)
 //   - Production + Development (starter user tokens, scoped to "any" provider — fully editable)
 // Provider-specific tokens are added by the user in Billing when connecting a provider.
+// Auto-seeded on first signup. Surfaced in the first-run checklist on Home and
+// in the Settings/Tokens empty state. Scoped to the free tier so a brand-new
+// user can make a real call without a payment method on file.
+export const STARTER_API_KEY: ApiKey = {
+  id: "key-starter",
+  name: "Starter token",
+  prefix: "lp_starter_4n7q",
+  status: "active",
+  created: "2026-04-25",
+  lastUsed: "—",
+  calls7d: 0,
+  scope: "freeTier",
+};
+
 export const SETTINGS_API_KEYS: ApiKey[] = [
+  STARTER_API_KEY,
   {
     id: "key-default-free",
     name: "Free tier",

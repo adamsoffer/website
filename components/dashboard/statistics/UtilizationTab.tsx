@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { Search, RefreshCw } from "lucide-react";
 import StatCard from "./StatCard";
+import KpiStrip from "@/components/dashboard/KpiStrip";
 import { PIPELINE_UTILIZATION, LIVE_JOBS } from "@/lib/dashboard/mock-data";
 import type { NetworkStat, PipelineUtilization, LiveJobStatus } from "@/lib/dashboard/types";
 
@@ -198,11 +199,11 @@ export default function UtilizationTab() {
       </p>
 
       {/* KPI cards */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <KpiStrip cols={4}>
         {kpi.map((stat) => (
           <StatCard key={stat.label} stat={stat} />
         ))}
-      </div>
+      </KpiStrip>
 
       {/* Live Jobs */}
       <LiveJobFeed />

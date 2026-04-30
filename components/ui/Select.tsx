@@ -132,7 +132,7 @@ export default function Select(props: SelectProps) {
         data-required={required || undefined}
         disabled={disabled}
         onClick={() => setOpen((v) => !v)}
-        className={`flex w-full items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] text-left transition-colors hover:border-white/20 hover:bg-white/[0.05] focus:border-white/20 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${triggerSize} ${triggerClassName ?? ""}`}
+        className={`flex w-full items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] text-left transition-colors hover:border-white/20 hover:bg-white/[0.05] focus:border-white/20 focus:outline-none focus-visible:ring-1 focus-visible:ring-green-bright/30 disabled:opacity-50 disabled:cursor-not-allowed ${triggerSize} ${triggerClassName ?? ""}`}
       >
         {label && <span className="shrink-0 text-white/40">{label}</span>}
         <span

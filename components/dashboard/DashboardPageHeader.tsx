@@ -1,48 +1,61 @@
 import type { ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
 
 interface DashboardPageHeaderProps {
-  /** Primary page title — renders as h1. Kept small (text-base font-semibold) for editorial restraint. */
+  /** Primary page title — renders as the last (current) breadcrumb. */
   title: string;
-  /** Optional one-line subtitle below the title. */
+  /** Optional leading icon (lucide). Rendered to the left of the title at the
+   *  same size as the breadcrumb glyph in the design. */
+  icon?: LucideIcon;
+  /** Optional one-line description rendered ABOVE the chrome bar in the page
+   *  body when caller wants additional context. The chrome bar itself stays
+   *  pure breadcrumb + actions. */
   description?: string;
-  /** Optional content rendered to the right of the title — primary action, glance stats, controls. */
+  /** Optional content rendered to the right of the breadcrumbs — primary
+   *  action, glance stats, controls. Kept compact (icon-buttons, sm primary). */
   actions?: ReactNode;
-  /** Adds a hairline border-bottom + bottom padding. Default `true`. Set `false` when the next surface (e.g. tab strip) brings its own divider. */
+  /** @deprecated — chrome bar always has a hairline border-bottom. Kept for
+   *  call-site backward compat. */
   bordered?: boolean;
-  /** Optional className override for the wrapper (overrides default padding). */
+  /** Optional className override. */
   className?: string;
 }
 
 /**
- * DashboardPageHeader — Karri-style page header.
+ * DashboardPageHeader — 44px chrome bar at the top of every dashboard route.
  *
- * Editorial restraint: small title, thin subtitle, generous breathing room,
- * optional inline actions/glance on the right (baseline-aligned). Information
- * density should come from the *content*, not the chrome. The title is
- * intentionally `text-base` — same as a strong section header — because the
- * sidebar already tells the user where they are; the page header doesn't need
- * to shout.
+ * Linear / Livepeer Console pattern: a slim breadcrumb bar with left-aligned
+ * crumbs and right-aligned actions. The page title lives in the breadcrumb,
+ * not as a hero. Information density comes from the *content*; this bar is
+ * pure chrome and stays out of the way.
  */
 export default function DashboardPageHeader({
   title,
+  icon: Icon,
   description,
   actions,
-  bordered = true,
   className,
 }: DashboardPageHeaderProps) {
-  const wrapper = bordered
-    ? "flex flex-wrap items-baseline justify-between gap-x-6 gap-y-3 border-b border-hairline pb-5"
-    : "flex flex-wrap items-baseline justify-between gap-x-6 gap-y-3";
-
   return (
-    <div className={className ?? wrapper}>
-      <div className="min-w-0">
-        <h1 className="text-base font-semibold text-white">{title}</h1>
-        {description && (
-          <p className="mt-0.5 text-sm text-fg-faint">{description}</p>
+    <div
+      className={
+        className ??
+        "flex h-[44px] shrink-0 items-center gap-3 border-b border-hairline bg-dark px-5"
+      }
+    >
+      <div className="flex min-w-0 flex-1 items-center gap-1.5 rounded-[4px] px-1.5 py-1 text-[13px] font-medium text-white">
+        {Icon && (
+          <Icon
+            className="h-3.5 w-3.5 shrink-0 text-fg-faint"
+            strokeWidth={1.75}
+            aria-hidden="true"
+          />
         )}
+        <span className="truncate" title={description}>
+          {title}
+        </span>
       </div>
-      {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
+      {actions && <div className="flex shrink-0 items-center gap-1.5">{actions}</div>}
     </div>
   );
 }

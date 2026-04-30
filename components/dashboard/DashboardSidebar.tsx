@@ -1,36 +1,56 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   House,
   LayoutGrid,
   Activity,
+  BarChart3,
+  Bell,
   BookOpen,
-  ChevronDown,
+  Box,
+  ChevronLeft,
+  CreditCard,
   ExternalLink,
   Globe,
-  Settings,
+  Plus,
   Key,
-  LogOut,
+  Lock,
   Menu,
   PanelLeftClose,
   PanelLeftOpen,
-  Sparkles,
-  User,
+  Settings as SettingsIcon,
+  User as UserIcon,
+  Users as UsersIcon,
+  type LucideIcon,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { LivepeerWordmark, LivepeerSymbol } from "@/components/icons/LivepeerLogo";
 import { PORTAL_NAV_ITEMS } from "@/lib/constants";
 import { useAuth } from "@/components/dashboard/AuthContext";
-import DashboardSearch from "@/components/dashboard/DashboardSearch";
 import Drawer from "@/components/ui/Drawer";
 import NavLink from "@/components/dashboard/NavLink";
 import StatusDot from "@/components/dashboard/StatusDot";
+import SidebarUsageCard from "@/components/dashboard/SidebarUsageCard";
+import WorkspaceMenu from "@/components/dashboard/WorkspaceMenu";
 import Tooltip from "@/components/ui/Tooltip";
+import {
+  MODELS,
+  SETTINGS_API_KEYS,
+} from "@/lib/dashboard/mock-data";
+import { formatRuns, getModelIcon } from "@/lib/dashboard/utils";
 
-const NAV_ICONS = { House, LayoutGrid, Activity, Globe } as const;
+const NAV_ICONS = {
+  House,
+  LayoutGrid,
+  Activity,
+  BarChart3,
+  Globe,
+  Key,
+  Box,
+  Settings: SettingsIcon,
+} as const;
 
 const COLLAPSED_KEY = "dashboard.sidebar.collapsed";
 
@@ -43,155 +63,13 @@ function getNavActive(itemHref: string, pathname: string): boolean {
       pathname.startsWith("/dashboard/models/")
     );
   }
+  // Tab-deep links inherit active state from path only — Settings page tabs
+  // already mark the current sub-tab visually inside their own TabStrip.
+  if (itemHref.includes("?")) {
+    const path = itemHref.split("?")[0];
+    return pathname.startsWith(path);
+  }
   return pathname.startsWith(itemHref);
-}
-
-// ─── Avatar ─────────────────────────────────────────────────────────────────
-
-function Avatar({ initials, size = "sm" }: { initials: string; size?: "sm" | "md" }) {
-  const dims = size === "md" ? "h-8 w-8 text-xs" : "h-7 w-7 text-[11px]";
-  return (
-    <span
-      className={`inline-flex items-center justify-center rounded-md bg-green-bright/15 font-semibold text-green-bright ring-1 ring-green-bright/25 ${dims}`}
-      aria-hidden="true"
-    >
-      {initials || "?"}
-    </span>
-  );
-}
-
-// ─── AvatarMenu — opens downward from the top of the sidebar ────────────────
-
-const dropdownVariants = {
-  hidden: { opacity: 0, scale: 0.95, y: -4 },
-  visible: { opacity: 1, scale: 1, y: 0 },
-  exit: { opacity: 0, scale: 0.95, y: -4 },
-};
-
-interface AvatarMenuProps {
-  user: { name: string; email: string; initials: string };
-  disconnect: () => void;
-  collapsed: boolean;
-}
-
-function AvatarMenu({ user, disconnect, collapsed }: AvatarMenuProps) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const onMouseDown = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("mousedown", onMouseDown);
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("mousedown", onMouseDown);
-      document.removeEventListener("keydown", onKeyDown);
-    };
-  }, [open]);
-
-  return (
-    <div className="relative" ref={ref}>
-      <button
-        type="button"
-        aria-label={`Account menu for ${user.name}`}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-        title={collapsed ? user.name : undefined}
-        className={
-          collapsed
-            ? `flex h-9 w-9 items-center justify-center rounded-md transition-colors ${
-                open ? "bg-white/[0.08]" : "hover:bg-white/[0.06]"
-              }`
-            : `flex w-full items-center gap-2 rounded-md px-2 py-1.5 transition-colors ${
-                open ? "bg-white/[0.08]" : "hover:bg-white/[0.06]"
-              }`
-        }
-      >
-        <Avatar initials={user.initials} />
-        {!collapsed && (
-          <>
-            <span className="min-w-0 flex-1 truncate text-left text-[13px] font-medium text-fg">
-              {user.name}
-            </span>
-            <ChevronDown
-              className={`h-3.5 w-3.5 shrink-0 text-fg-label transition-transform duration-200 ${
-                open ? "rotate-180" : ""
-              }`}
-              aria-hidden="true"
-            />
-          </>
-        )}
-      </button>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            role="menu"
-            aria-orientation="vertical"
-            variants={dropdownVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className={`absolute top-full z-[100] mt-2 w-64 overflow-hidden rounded-xl border border-hairline bg-dark-card backdrop-blur-xl ${
-              collapsed ? "left-full ml-2 mt-0 top-0 origin-top-left" : "left-0 origin-top-left"
-            }`}
-          >
-            <div className="border-b border-hairline px-4 py-3">
-              <div className="flex items-center gap-3">
-                <Avatar initials={user.initials} size="md" />
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-white">{user.name}</div>
-                  <div className="truncate text-xs text-fg-faint">{user.email}</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="px-1.5 py-1.5">
-              {[
-                { label: "Settings", href: "/dashboard/settings", icon: Settings },
-                { label: "API Tokens", href: "/dashboard/settings?tab=tokens", icon: Key },
-              ].map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  role="menuitem"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-fg-strong transition-colors hover:bg-white/[0.06] hover:text-white"
-                >
-                  <item.icon className="h-4 w-4 text-fg-label" />
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-
-            <div className="border-t border-hairline px-1.5 py-1.5">
-              <button
-                type="button"
-                role="menuitem"
-                onClick={() => {
-                  disconnect();
-                  setOpen(false);
-                }}
-                className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-fg-faint transition-colors hover:bg-red-500/10 hover:text-red-400"
-              >
-                <LogOut className="h-4 w-4" />
-                Sign out
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
 }
 
 // ─── Sidebar content (shared between desktop + mobile drawer) ───────────────
@@ -205,6 +83,402 @@ interface SidebarContentProps {
   hideToggle?: boolean;
 }
 
+// ─── Logged-out sidebar variant ─────────────────────────────────────────────
+//
+// Mirrors the Livepeer Dashboard v4 prototype's `loggedOut` Sidebar (see
+// `components.jsx`, the `if (loggedOut)` branch). Order top → bottom:
+//
+//   1. Brand row — wordmark links to /dashboard/explore (no workspace switcher)
+//   2. Search button (Cmd-K, same as signed-in variant)
+//   3. Public nav — Explore (count), Docs (external)
+//   4. WORKSPACE eyebrow + locked nav: Home, Runs, Usage, API keys
+//   5. Spacer
+//   6. Free-tier promo card — "Get an API key" + "Sign in"
+//   7. Footer — Network nav, status row
+//
+// Locked items still navigate to their real routes; those routes render a
+// `SignInWall` instead of their content so the sidebar stays put. The promo
+// card replaces the SidebarUsageCard since there's no workspace usage to
+// show; per the prototype the eyebrow is "Free tier" and the body sells the
+// 5-demo-runs hook with a single primary CTA.
+
+function SignedOutSidebarContent({
+  collapsed,
+  padX,
+  onToggleCollapsed,
+  hideToggle,
+  onNavigate,
+}: {
+  collapsed: boolean;
+  padX: string;
+  onToggleCollapsed?: () => void;
+  hideToggle: boolean;
+  onNavigate?: () => void;
+}) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const exploreActive =
+    pathname === "/dashboard/explore" ||
+    pathname.startsWith("/dashboard/explore/") ||
+    pathname.startsWith("/dashboard/models/");
+
+  return (
+    <div className="flex h-full flex-col bg-dark">
+      {/* Brand row — wordmark links to /dashboard/explore (the public landing) */}
+      <div
+        className={`flex shrink-0 items-center gap-1 pt-2 pb-2 ${padX} ${collapsed ? "flex-col" : ""}`}
+      >
+        <Link
+          href="/dashboard/explore"
+          aria-label="Livepeer Dashboard — explore capabilities"
+          className={
+            collapsed
+              ? "flex h-[26px] w-[26px] items-center justify-center"
+              : "flex min-w-0 flex-1 items-center px-1.5"
+          }
+          onClick={onNavigate}
+        >
+          {collapsed ? (
+            <LivepeerSymbol className="h-5 w-5 text-white" aria-hidden="true" />
+          ) : (
+            <LivepeerWordmark
+              className="h-3.5 w-auto text-white"
+              aria-hidden="true"
+            />
+          )}
+        </Link>
+
+        {!hideToggle && onToggleCollapsed && (
+          <button
+            type="button"
+            onClick={onToggleCollapsed}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-[4px] text-fg-faint transition-colors hover:bg-white/[0.04] hover:text-white"
+          >
+            {collapsed ? (
+              <PanelLeftOpen className="h-4 w-4" aria-hidden="true" />
+            ) : (
+              <PanelLeftClose className="h-4 w-4" aria-hidden="true" />
+            )}
+          </button>
+        )}
+      </div>
+
+      {/* Search button — same Cmd-K dispatch as the signed-in variant; copy
+          tweaked to "Search capabilities…" since there's no workspace to jump
+          across. */}
+      <div className={`shrink-0 pb-2 ${padX}`}>
+        {collapsed ? (
+          <button
+            type="button"
+            aria-label="Search"
+            onClick={() => {
+              const isMac =
+                typeof navigator !== "undefined" &&
+                navigator.platform.toUpperCase().includes("MAC");
+              document.dispatchEvent(
+                new KeyboardEvent("keydown", {
+                  key: "k",
+                  [isMac ? "metaKey" : "ctrlKey"]: true,
+                }),
+              );
+            }}
+            className="flex h-9 w-9 items-center justify-center rounded-md text-fg-muted transition-colors hover:bg-white/[0.06] hover:text-white"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-4 w-4"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => {
+              const isMac =
+                typeof navigator !== "undefined" &&
+                navigator.platform.toUpperCase().includes("MAC");
+              document.dispatchEvent(
+                new KeyboardEvent("keydown", {
+                  key: "k",
+                  [isMac ? "metaKey" : "ctrlKey"]: true,
+                }),
+              );
+            }}
+            className="flex w-full items-center gap-2 rounded-[6px] border border-hairline bg-dark-lighter px-2.5 py-1.5 text-[12.5px] text-fg-faint transition-colors hover:border-subtle hover:text-fg-strong"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-3.5 w-3.5"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+            <span className="flex-1 text-left">Search capabilities…</span>
+            <kbd className="font-mono text-[10.5px] tracking-wider text-fg-disabled">
+              ⌘K
+            </kbd>
+          </button>
+        )}
+      </div>
+
+      {/* Public nav — Explore + Docs */}
+      <nav aria-label="Public navigation" className={`pb-2 ${padX}`}>
+        <ul className="space-y-px">
+          <li>
+            <NavLink
+              href="/dashboard/explore"
+              icon={LayoutGrid}
+              label="Explore"
+              active={exploreActive}
+              collapsed={collapsed}
+              meta={collapsed ? undefined : formatRuns(MODELS.length)}
+              onNavigate={onNavigate}
+            />
+          </li>
+          <li>
+            <NavLink
+              href="https://docs.livepeer.org"
+              icon={BookOpen}
+              label="Docs"
+              collapsed={collapsed}
+              external
+              onNavigate={onNavigate}
+            />
+          </li>
+        </ul>
+      </nav>
+
+      {/* (The locked-Workspace nav block previously rendered here — Home /
+          Runs / Usage / API keys with lock icons — has been removed. Logged-
+          out users now go straight from public nav to the Free-tier promo.
+          Discovery of those routes happens through the promo's "Get an API
+          key" CTA + the sign-in walls that gate the routes themselves, not
+          through teaser entries in the rail.) */}
+
+      {/* Spacer pushes promo + footer to the bottom */}
+      <div className="flex-1" />
+
+      {/* Free-tier promo card — replaces the workspace usage strip. Hidden
+          when collapsed (no useful 26px representation). */}
+      {!collapsed && (
+        <div className={`shrink-0 ${padX} pb-2`}>
+          <div className="relative overflow-hidden rounded-md border border-hairline bg-dark-lighter px-3.5 py-3">
+            {/* Subtle accent glow — bottom-left, mirroring the prototype's
+                ::before with the green accent at low opacity. */}
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{
+                background:
+                  "radial-gradient(120% 80% at 0% 100%, rgba(64,191,134,0.08), transparent 60%)",
+              }}
+              aria-hidden="true"
+            />
+            <div className="relative">
+              <p className="font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-green-bright">
+                Free tier
+              </p>
+              <p className="mt-2 text-[14.5px] font-semibold leading-[1.25] text-white">
+                5 demo runs
+                <br />
+                per capability
+              </p>
+              <p className="mt-1.5 mb-2.5 text-[11.5px] leading-[1.45] text-fg-muted">
+                No credit card. Spin up in 30 seconds with an API key.
+              </p>
+              <div className="flex flex-col gap-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    router.push("/dashboard/login?mode=signup");
+                    onNavigate?.();
+                  }}
+                  className="flex h-7 items-center justify-center rounded-[4px] bg-green px-2.5 text-[12.5px] font-medium text-white transition-colors hover:bg-green-light active:bg-green-dark"
+                >
+                  Get an API key
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    router.push("/dashboard/login");
+                    onNavigate?.();
+                  }}
+                  className="flex h-[26px] items-center justify-center rounded-[4px] text-[12.5px] text-fg-strong transition-colors hover:bg-white/[0.04] hover:text-white"
+                >
+                  Sign in
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Footer — Network + status row. (Docs is already in the public nav
+          above for logged-out users, so we don't duplicate it here.) */}
+      <div className={`shrink-0 border-t border-hairline pt-2 pb-2 ${padX} space-y-1`}>
+        <NavLink
+          href="/dashboard/network"
+          icon={Globe}
+          label="Network"
+          collapsed={collapsed}
+          onNavigate={onNavigate}
+        />
+      </div>
+
+      <div className={`shrink-0 border-t border-hairline ${padX} py-2`}>
+        {collapsed ? (
+          <Tooltip content="All services operational" side="right">
+            <a
+              href="https://status.livepeer.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Status: all services operational (opens in new tab)"
+              className="flex h-7 w-9 items-center justify-center rounded-md transition-colors hover:bg-white/[0.025]"
+            >
+              <StatusDot tone="green" size="md" />
+            </a>
+          </Tooltip>
+        ) : (
+          <a
+            href="https://status.livepeer.org"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Status: all services operational (opens in new tab)"
+            className="flex h-7 w-full items-center gap-2 rounded-md px-2 font-mono text-[11px] tracking-[0.02em] text-fg-faint transition-colors hover:bg-white/[0.025] hover:text-fg-muted"
+          >
+            <StatusDot tone="green" />
+            <span className="min-w-0 flex-1 truncate">All systems operational</span>
+            <ExternalLink className="h-3 w-3 shrink-0 text-fg-disabled" aria-hidden="true" />
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Settings rail ──────────────────────────────────────────────────────────
+//
+// Renders inline inside the signed-in `SidebarContent` when the user is on a
+// `/dashboard/settings*` route. Per the v6 prototype's `SettingsRail` (see
+// `components.jsx`): a back-arrow header that returns to `/dashboard`,
+// followed by a `Workspace` group (General / Members / Billing / Limits) and
+// an `Account` group (Profile / Notifications / Security). The workspace
+// switcher and search above stay put; the usage strip and footer below stay
+// put — only the main nav block + Pinned section swap to this rail.
+//
+// Active item is determined by `?tab=<id>` on the current path. Items whose
+// content isn't built yet still navigate (the route renders the closest
+// existing tab) so the rail's behavior is correct end-to-end.
+
+const SETTINGS_RAIL_GROUPS: {
+  group: string;
+  items: { id: string; label: string; icon: LucideIcon; meta?: string }[];
+}[] = [
+  {
+    group: "Workspace",
+    items: [
+      { id: "workspace", label: "General", icon: Box },
+      { id: "members", label: "Members", icon: UsersIcon, meta: "4" },
+      { id: "billing", label: "Billing", icon: CreditCard },
+      { id: "usage-limits", label: "Limits", icon: BarChart3 },
+    ],
+  },
+  {
+    group: "Account",
+    items: [
+      { id: "profile", label: "Profile", icon: UserIcon },
+      { id: "notifications", label: "Notifications", icon: Bell },
+      { id: "security", label: "Security", icon: Lock },
+    ],
+  },
+];
+
+function SettingsRail({
+  pathname,
+  padX,
+  onNavigate,
+}: {
+  pathname: string;
+  padX: string;
+  onNavigate?: () => void;
+}) {
+  const router = useRouter();
+
+  // Read the active sub-tab from `?tab=<id>` on the current URL. Default to
+  // "workspace" when on `/dashboard/settings` with no tab param — matches the
+  // prototype's fallback (`route === 'settings' ? 'workspace' : ...`).
+  let activeTab = "workspace";
+  if (pathname === "/dashboard/settings" || pathname.startsWith("/dashboard/settings")) {
+    const search = typeof window !== "undefined" ? window.location.search : "";
+    const params = new URLSearchParams(search);
+    const t = params.get("tab");
+    if (t) activeTab = t;
+  }
+
+  return (
+    <div className={`flex flex-col ${padX}`}>
+      {/* Back arrow + "Settings" header — returns to /dashboard, mirroring
+          the prototype's `setRoute('home')` on the back button. */}
+      <button
+        type="button"
+        onClick={() => {
+          router.push("/dashboard");
+          onNavigate?.();
+        }}
+        className="mb-1 flex h-[26px] items-center gap-1.5 rounded-[4px] px-2 text-[13px] text-fg-strong transition-colors hover:bg-white/[0.04] hover:text-white"
+      >
+        <ChevronLeft className="h-3.5 w-3.5 text-fg-faint" aria-hidden="true" />
+        <span className="font-medium">Settings</span>
+      </button>
+
+      {SETTINGS_RAIL_GROUPS.map((g) => (
+        <div key={g.group} className="mt-2.5">
+          <div className="flex items-center gap-2 px-2.5 pt-1 pb-1">
+            <span className="font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-fg-disabled">
+              {g.group}
+            </span>
+          </div>
+          <ul className="space-y-px">
+            {g.items.map((it) => {
+              const href = `/dashboard/settings?tab=${it.id}`;
+              const active = activeTab === it.id;
+              return (
+                <li key={it.id}>
+                  <NavLink
+                    href={href}
+                    icon={it.icon}
+                    label={it.label}
+                    active={active}
+                    collapsed={false}
+                    meta={it.meta}
+                    onNavigate={onNavigate}
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function SidebarContent({
   collapsed,
   onToggleCollapsed,
@@ -212,20 +486,40 @@ function SidebarContent({
   hideToggle = false,
 }: SidebarContentProps) {
   const pathname = usePathname();
-  const router = useRouter();
-  const { isConnected, user, disconnect } = useAuth();
+  const { isConnected, isLoading, user, disconnect } = useAuth();
 
   const padX = collapsed ? "px-2.5" : "px-3";
 
+  // Logged-out sidebar variant — per the v4 prototype's `loggedOut` Sidebar
+  // (components.jsx:43). Brand wordmark in place of the workspace switcher,
+  // Explore + Docs as the only enabled routes, the workspace block (Home /
+  // Runs / Usage / API keys) shown but locked, and a Free-tier promo block
+  // replacing the workspace usage card. We intentionally render this only
+  // once auth state has hydrated to avoid a one-frame flash of the signed-in
+  // chrome on cold load.
+  if (!isLoading && !isConnected) {
+    return (
+      <SignedOutSidebarContent
+        collapsed={collapsed}
+        padX={padX}
+        onToggleCollapsed={onToggleCollapsed}
+        hideToggle={hideToggle}
+        onNavigate={onNavigate}
+      />
+    );
+  }
+
   return (
-    <div className="flex h-full flex-col bg-shell">
-      {/* Top: avatar (when signed in) or logo (when signed out) + collapse toggle */}
+    <div className="flex h-full flex-col bg-dark">
+      {/* Top: workspace switcher (FB Flipbook ▾). Per the v6 prototype, the
+          row is *just* the switcher — no "+ New" button, no collapse toggle.
+          Workspace-scoped actions live inside the dropdown instead. */}
       <div
-        className={`flex shrink-0 items-center gap-2 pt-3 pb-2 ${padX} ${collapsed ? "flex-col" : ""}`}
+        className={`flex shrink-0 items-center gap-1 pt-2 pb-2 ${padX} ${collapsed ? "flex-col" : ""}`}
       >
         <div className={collapsed ? "" : "min-w-0 flex-1"}>
           {isConnected && user ? (
-            <AvatarMenu user={user} disconnect={disconnect} collapsed={collapsed} />
+            <WorkspaceMenu user={user} disconnect={disconnect} collapsed={collapsed} />
           ) : (
             <Link
               href="/dashboard"
@@ -241,21 +535,6 @@ function SidebarContent({
             </Link>
           )}
         </div>
-
-        {!hideToggle && onToggleCollapsed && (
-          <button
-            type="button"
-            onClick={onToggleCollapsed}
-            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-fg-faint transition-colors hover:bg-white/[0.06] hover:text-white"
-          >
-            {collapsed ? (
-              <PanelLeftOpen className="h-4 w-4" aria-hidden="true" />
-            ) : (
-              <PanelLeftClose className="h-4 w-4" aria-hidden="true" />
-            )}
-          </button>
-        )}
       </div>
 
       {/* Search */}
@@ -288,35 +567,161 @@ function SidebarContent({
             </svg>
           </button>
         ) : (
-          <DashboardSearch mobile />
+          <button
+            type="button"
+            onClick={() => {
+              const isMac =
+                typeof navigator !== "undefined" &&
+                navigator.platform.toUpperCase().includes("MAC");
+              document.dispatchEvent(
+                new KeyboardEvent("keydown", {
+                  key: "k",
+                  [isMac ? "metaKey" : "ctrlKey"]: true,
+                }),
+              );
+            }}
+            className="flex w-full items-center gap-2 rounded-[6px] border border-hairline bg-dark-lighter px-2.5 py-1.5 text-[12.5px] text-fg-faint transition-colors hover:border-subtle hover:text-fg-strong"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-3.5 w-3.5"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+            <span className="flex-1 text-left">Search &amp; jump…</span>
+            <kbd className="font-mono text-[10.5px] tracking-wider text-fg-disabled">
+              ⌘K
+            </kbd>
+          </button>
         )}
       </div>
 
-      {/* Primary nav */}
-      <nav aria-label="Developer Dashboard" className={`flex-1 overflow-y-auto pb-2 ${padX}`}>
-        <ul className="space-y-0.5">
-          {PORTAL_NAV_ITEMS.map((item) => {
-            const Icon = NAV_ICONS[item.icon];
-            const active = getNavActive(item.href, pathname);
-            return (
-              <li key={item.href}>
-                <NavLink
-                  href={item.href}
-                  icon={Icon}
-                  label={item.label}
-                  active={active}
-                  collapsed={collapsed}
-                  onNavigate={onNavigate}
-                />
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+      {/* Main nav block — primary nav + Pinned. Per the v6 prototype, when
+          the user is on /dashboard/settings/* the entire block is replaced
+          inline by a `SettingsRail` (back-arrow header + workspace + account
+          groups). Workspace switcher and search above stay put. */}
+      {pathname.startsWith("/dashboard/settings") ? (
+        <SettingsRail pathname={pathname} padX={padX} onNavigate={onNavigate} />
+      ) : (
+        <>
+          {/* Primary nav */}
+          <nav aria-label="Developer Dashboard" className={`pb-2 ${padX}`}>
+            <ul className="space-y-px">
+              {PORTAL_NAV_ITEMS.map((item) => {
+                const Icon = NAV_ICONS[item.icon];
+                const active = getNavActive(item.href, pathname);
+                // Right-aligned mono meta counts. Only render expanded;
+                // collapsed sidebar shows icon only.
+                let meta: string | undefined;
+                if (!collapsed) {
+                  if (item.href === "/dashboard/explore")
+                    meta = formatRuns(MODELS.length);
+                  else if (item.href === "/dashboard/runs") meta = "1.2K";
+                  else if (item.href === "/dashboard/keys")
+                    meta = formatRuns(SETTINGS_API_KEYS.length);
+                }
+                // The constants array has heterogeneous shapes (some items
+                // carry `kbd`, only Settings carries `submenu`). Narrow via
+                // `in` checks rather than assert away the union.
+                const itemKbd =
+                  "kbd" in item ? (item.kbd as string) : undefined;
+                const itemSubmenu =
+                  "submenu" in item ? Boolean(item.submenu) : false;
+                return (
+                  <li key={item.href}>
+                    <NavLink
+                      href={item.href}
+                      icon={Icon}
+                      label={item.label}
+                      active={active}
+                      collapsed={collapsed}
+                      meta={meta}
+                      kbd={!collapsed ? itemKbd : undefined}
+                      submenu={itemSubmenu}
+                      onNavigate={onNavigate}
+                    />
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
 
-      {/* Footer: Network + Docs + Changelog + sign-in/sign-up (signed-out).
-          Network is internal protocol view (GPUs, payments). The Statuspage
-          row lives below as a separate operational-health concern. */}
+          {/* Pinned section — capabilities the user works with. Mono-uppercase
+              section label per the Livepeer Console design. Hardcoded to
+              mirror the prototype (Daydream Video / FLUX / Transcode);
+              resolves real models where available, falls back to a string
+              label. */}
+          {!collapsed && (
+            <div className={`shrink-0 ${padX} pb-2`}>
+              <div className="flex items-center gap-2 px-2.5 pt-3 pb-1">
+                <span className="font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-fg-disabled">
+                  Pinned
+                </span>
+                <span className="flex-1" />
+                <button
+                  type="button"
+                  aria-label="Manage pins"
+                  title="Manage pins"
+                  className="grid h-[18px] w-[18px] place-items-center rounded-[3px] text-fg-faint transition-colors hover:bg-white/[0.04] hover:text-fg-strong"
+                >
+                  <Plus className="h-3 w-3" aria-hidden="true" />
+                </button>
+              </div>
+              <ul className="space-y-px">
+                {[
+                  { id: "daydream-video", label: "Daydream Video" },
+                  { id: "flux-schnell", label: "FLUX [schnell]" },
+                  { id: "livepeer-transcode", label: "Transcode" },
+                ].map((pin) => {
+                  const model = MODELS.find((m) => m.id === pin.id);
+                  const Icon = model ? getModelIcon(model.category) : LayoutGrid;
+                  return (
+                    <li key={pin.id}>
+                      <NavLink
+                        href={`/dashboard/models/${pin.id}?tab=playground`}
+                        icon={Icon}
+                        label={pin.label}
+                        collapsed={false}
+                        onNavigate={onNavigate}
+                      />
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Spacer pushes footer to the bottom */}
+      <div className="flex-1" />
+
+      {/* Plan + usage card — between flex spacer and footer per the
+          Livepeer Console design v2 (Apr 2026, `.side-usage`). The 8px
+          bottom margin (pb-2) clears the footer's border-t hairline so the
+          card doesn't visually sit on the divider. Hidden when collapsed
+          (no useful 26px representation) AND when the user is inside the
+          settings sub-experience — the workspace usage strip would compete
+          with the settings rail's own context. */}
+      {isConnected && !collapsed && !pathname.startsWith("/dashboard/settings") && (
+        <div className={`shrink-0 ${padX} pb-2`}>
+          <SidebarUsageCard />
+        </div>
+      )}
+
+      {/* Footer: Network + Docs. Settings has moved into the workspace
+          dropdown (`Workspace settings`), so it doesn't appear here.
+          Logged-out users get a separate footer rendered by the
+          `SignedOutSidebarContent` branch above; this footer is signed-in
+          only. */}
       <div className={`shrink-0 border-t border-hairline pt-2 pb-2 ${padX} space-y-1`}>
         <NavLink
           href="/dashboard/network"
@@ -334,62 +739,9 @@ function SidebarContent({
           external
           onNavigate={onNavigate}
         />
-
-        <NavLink
-          href="https://docs.livepeer.org/changelog"
-          icon={Sparkles}
-          label="Changelog"
-          collapsed={collapsed}
-          external
-          onNavigate={onNavigate}
-        />
-
-        {!isConnected && (
-          collapsed ? (
-            <button
-              type="button"
-              aria-label="Sign in"
-              title="Sign in"
-              onClick={() => {
-                router.push("/dashboard/login");
-                onNavigate?.();
-              }}
-              className="flex h-9 w-9 items-center justify-center rounded-md text-fg-muted transition-colors hover:bg-white/[0.06] hover:text-white"
-            >
-              <User className="h-4 w-4" aria-hidden="true" />
-            </button>
-          ) : (
-            <div className="flex items-center gap-2 px-1 pt-1">
-              <button
-                type="button"
-                onClick={() => {
-                  router.push("/dashboard/login");
-                  onNavigate?.();
-                }}
-                className="text-sm text-fg-muted transition-colors hover:text-white"
-              >
-                Sign in
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  router.push("/dashboard/login");
-                  onNavigate?.();
-                }}
-                className="ml-auto select-none rounded-full bg-green px-3.5 py-1 text-[13px] font-medium text-white transition-colors hover:bg-green-light active:bg-green-dark"
-              >
-                Sign up
-              </button>
-            </div>
-          )
-        )}
       </div>
 
-      {/* Statuspage row — operational health, external link. Standard
-          Statuspage convention: a single line with a status dot indicating
-          uptime. Distinct from the internal Network nav above (which shows
-          protocol/GPU/payment data). When something's degraded, this dot
-          turns warm/red. */}
+      {/* Statuspage row — operational health, external link. */}
       <div className={`shrink-0 border-t border-hairline ${padX} py-2`}>
         {collapsed ? (
           <Tooltip content="All services operational" side="right">
@@ -409,10 +761,10 @@ function SidebarContent({
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Status: all services operational (opens in new tab)"
-            className="flex h-7 w-full items-center gap-2 rounded-md px-2 text-[12px] text-fg-muted transition-colors hover:bg-white/[0.025] hover:text-white"
+            className="flex h-7 w-full items-center gap-2 rounded-md px-2 font-mono text-[11px] tracking-[0.02em] text-fg-faint transition-colors hover:bg-white/[0.025] hover:text-fg-muted"
           >
             <StatusDot tone="green" />
-            <span className="min-w-0 flex-1 truncate">All services operational</span>
+            <span className="min-w-0 flex-1 truncate">All systems operational</span>
             <ExternalLink className="h-3 w-3 shrink-0 text-fg-disabled" aria-hidden="true" />
           </a>
         )}
@@ -453,7 +805,8 @@ export default function DashboardSidebar() {
   };
 
   // Avoid flashing the wrong width before localStorage read completes.
-  const desktopWidth = collapsed ? "md:w-14" : "md:w-60";
+  // Width matches the Livepeer Console design (--side-w 232px).
+  const desktopWidth = collapsed ? "md:w-14" : "md:w-[232px]";
   const transition = hydrated ? "transition-[width] duration-200 ease-out" : "";
 
   return (

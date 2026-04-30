@@ -73,8 +73,8 @@
 
 /* ─── Branded text selection + caret (was browser default) ─────────────────── */
 ::selection {
-  background-color: rgba(64, 191, 134, 0.25);
-  color: #ffffff;
+  background-color: color-mix(in srgb, var(--color-green-bright) 25%, transparent);
+  color: var(--color-fg);
 }
 
 input,
@@ -93,8 +93,8 @@ input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active,
 textarea:-webkit-autofill {
-  -webkit-text-fill-color: #ffffff;
-  -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.025) inset !important;
+  -webkit-text-fill-color: var(--color-fg);
+  -webkit-box-shadow: 0 0 0 1000px color-mix(in srgb, var(--color-fg) 2.5%, transparent) inset !important;
   caret-color: var(--color-green-bright);
   transition: background-color 5000s ease-in-out 0s;
 }
@@ -104,8 +104,8 @@ html {
 }
 
 body {
-  background-color: #121212;
-  color: #ffffff;
+  background-color: var(--color-dark);
+  color: var(--color-fg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -124,8 +124,8 @@ summary {
  * Used sparingly on dashboard (login splash only) and prominently on marketing surfaces. */
 .tile-bg {
   background-image:
-    linear-gradient(to right, rgba(24, 121, 78, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(24, 121, 78, 0.04) 1px, transparent 1px);
+    linear-gradient(to right, color-mix(in srgb, var(--color-green) 4%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--color-green) 4%, transparent) 1px, transparent 1px);
   background-size: 48px 48px;
 }
 
@@ -148,15 +148,19 @@ summary {
   background: linear-gradient(
     to right,
     transparent,
-    rgba(255, 255, 255, 0.06) 30%,
-    rgba(255, 255, 255, 0.06) 70%,
+    var(--color-border-hairline) 30%,
+    var(--color-border-hairline) 70%,
     transparent
   );
 }
 
 /* Gradient text — green-only, no blue */
 .text-gradient {
-  background: linear-gradient(to right, #40bf86, #1e9960);
+  background: linear-gradient(
+    to right,
+    var(--color-green-bright),
+    var(--color-green-light)
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -340,13 +344,13 @@ summary {
   0%,
   100% {
     box-shadow:
-      0 0 16px 0 rgba(30, 153, 96, 0.1),
-      0 0 32px 0 rgba(24, 121, 78, 0.05);
+      0 0 16px 0 color-mix(in srgb, var(--color-green-light) 10%, transparent),
+      0 0 32px 0 color-mix(in srgb, var(--color-green) 5%, transparent);
   }
   50% {
     box-shadow:
-      0 0 20px 2px rgba(30, 153, 96, 0.18),
-      0 0 40px 4px rgba(24, 121, 78, 0.08);
+      0 0 20px 2px color-mix(in srgb, var(--color-green-light) 18%, transparent),
+      0 0 40px 4px color-mix(in srgb, var(--color-green) 8%, transparent);
   }
 }
 
@@ -386,28 +390,28 @@ summary {
   appearance: none;
   width: 4px;
   height: 20px;
-  background: rgba(255, 255, 255, 0.9);
+  background: color-mix(in srgb, var(--color-fg) 90%, transparent);
   border: none;
   border-radius: 2px;
   cursor: pointer;
   transition: background 0.15s, box-shadow 0.15s;
 }
 .price-range-thumb::-webkit-slider-thumb:hover {
-  background: #ffffff;
-  box-shadow: 0 0 8px rgba(64, 191, 134, 0.5);
+  background: var(--color-fg);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--color-green-bright) 50%, transparent);
 }
 .price-range-thumb::-moz-range-thumb {
   width: 4px;
   height: 20px;
-  background: rgba(255, 255, 255, 0.9);
+  background: color-mix(in srgb, var(--color-fg) 90%, transparent);
   border: none;
   border-radius: 2px;
   cursor: pointer;
   transition: background 0.15s, box-shadow 0.15s;
 }
 .price-range-thumb::-moz-range-thumb:hover {
-  background: #ffffff;
-  box-shadow: 0 0 8px rgba(64, 191, 134, 0.5);
+  background: var(--color-fg);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--color-green-bright) 50%, transparent);
 }
 .price-range-thumb::-webkit-slider-runnable-track {
   background: transparent;
@@ -425,15 +429,15 @@ summary {
   background: transparent;
 }
 .scrollbar-dark::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--color-fg) 10%, transparent);
   border-radius: 3px;
 }
 .scrollbar-dark::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: color-mix(in srgb, var(--color-fg) 20%, transparent);
 }
 .scrollbar-dark {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  scrollbar-color: color-mix(in srgb, var(--color-fg) 10%, transparent) transparent;
 }
 
 /* Hidden scrollbar for containers that scroll horizontally without chrome (e.g. mobile tab strips) */
@@ -456,13 +460,13 @@ summary {
 .blog-prose {
   font-size: 1.125rem;
   line-height: 1.8;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--color-fg-strong);
 }
 
 .blog-prose h2 {
   font-size: 1.625rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--color-fg);
   margin-top: 3.5rem;
   margin-bottom: 1.25rem;
   letter-spacing: -0.02em;
@@ -472,7 +476,7 @@ summary {
 .blog-prose h3 {
   font-size: 1.375rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--color-fg);
   margin-top: 2.5rem;
   margin-bottom: 0.75rem;
   letter-spacing: -0.01em;
@@ -481,7 +485,7 @@ summary {
 .blog-prose h4 {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--color-fg);
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;
 }
@@ -491,19 +495,19 @@ summary {
 }
 
 .blog-prose a {
-  color: #40bf86;
+  color: var(--color-green-bright);
   text-decoration: none;
   transition: color 0.15s ease;
 }
 
 .blog-prose a:hover {
-  color: #1e9960;
+  color: var(--color-green-light);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
 .blog-prose strong {
-  color: #ffffff;
+  color: var(--color-fg);
   font-weight: 600;
 }
 
@@ -536,15 +540,15 @@ summary {
 }
 
 .blog-prose blockquote {
-  border-left: 2px solid #18794e;
+  border-left: 2px solid var(--color-green);
   padding-left: 1rem;
   font-style: italic;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-fg-faint);
   margin: 1.5rem 0;
 }
 
 .blog-prose code {
-  background-color: #242424;
+  background-color: var(--color-surface-raised);
   padding: 0.125rem 0.375rem;
   border-radius: 0.25rem;
   font-family: var(--font-mono);
@@ -552,8 +556,8 @@ summary {
 }
 
 .blog-prose pre {
-  background-color: #242424;
-  border: 1px solid #2a2a2a;
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-dark-border);
   border-radius: 0.75rem;
   padding: 1rem 1.25rem;
   margin: 1.5rem 0;
@@ -581,8 +585,8 @@ summary {
   background: linear-gradient(
     to right,
     transparent,
-    rgba(255, 255, 255, 0.06) 30%,
-    rgba(255, 255, 255, 0.06) 70%,
+    var(--color-border-hairline) 30%,
+    var(--color-border-hairline) 70%,
     transparent
   );
   margin: 2.5rem 0;

@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import StatCard from "./StatCard";
+import KpiStrip from "@/components/dashboard/KpiStrip";
 import PeriodToggle from "./PeriodToggle";
 import { StackedChartTooltip } from "./ChartTooltip";
 import {
@@ -167,12 +168,12 @@ export default function OverviewTab() {
         Network-wide request volumes, top APIs, and growth metrics for the Livepeer AI inference network.
       </p>
 
-      {/* KPI cards — 4 metrics fit 2×2 on mobile, 2×2 at sm, 1×4 on desktop */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {/* KPI cards — 4 metrics, responsive via shared KpiStrip */}
+      <KpiStrip cols={4}>
         {OVERVIEW_KPI.map((stat) => (
           <StatCard key={stat.label} stat={stat} />
         ))}
-      </div>
+      </KpiStrip>
 
       {/* Total Requests section */}
       <div className="rounded-xl border border-hairline bg-dark-surface p-5">

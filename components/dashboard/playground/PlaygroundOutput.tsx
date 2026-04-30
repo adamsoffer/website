@@ -1,12 +1,18 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Download } from "lucide-react";
 import type { Model, PlaygroundOutputType } from "@/lib/dashboard/types";
-import { getModelIcon } from "@/lib/dashboard/utils";
+import {
+  estimateCallCost,
+  generateMockRequestId,
+  getModelIcon,
+} from "@/lib/dashboard/utils";
 import type { ModelCategory } from "@/lib/dashboard/types";
 import CodeSnippets from "@/components/dashboard/playground/CodeSnippets";
 import CopyButton from "@/components/dashboard/CopyButton";
+import CostTag from "@/components/dashboard/CostTag";
+import RequestIdChip from "@/components/dashboard/RequestIdChip";
 import WaveSurferAudio from "@/components/dashboard/playground/WaveSurferAudio";
 import WaveformStatic from "@/components/dashboard/playground/WaveformStatic";
 
@@ -307,6 +313,20 @@ export default function PlaygroundOutput({
       ? "result"
       : "empty";
 
+  // One stable request ID per result. Regenerated when `result` changes so a
+  // fresh Run gets a fresh ID; client-side only to avoid SSR/CSR mismatch.
+  const [requestId, setRequestId] = useState<string | null>(null);
+  useEffect(() => {
+    if (state === "result" && result) {
+      setRequestId(generateMockRequestId());
+    }
+  }, [state, result]);
+
+  const costDisplay = useMemo(
+    () => (model ? estimateCallCost(model, inferenceTime) : null),
+    [model, inferenceTime],
+  );
+
   return (
     <div className="flex flex-col gap-3">
       {/* View mode tabs — always rendered so the layout doesn't shift when a result arrives.
@@ -371,12 +391,20 @@ export default function PlaygroundOutput({
         </>
       )}
 
-      {/* Metadata */}
-      {state === "result" && inferenceTime && (
-        <p className="text-xs text-fg-faint">
-          Generated in{" "}
-          <span className="font-mono text-fg-faint">{inferenceTime}s</span>
-        </p>
+      {/* Run metadata — cost + latency + request ID. Render whenever a result
+          is shown; pieces are independent so each appears as data is available. */}
+      {state === "result" && (costDisplay || inferenceTime || requestId) && (
+        <div className="flex flex-wrap items-center gap-2 text-xs text-fg-faint">
+          {costDisplay && (
+            <CostTag mode="cost" cost={costDisplay} />
+          )}
+          {inferenceTime && (
+            <span className="font-mono tabular-nums text-fg-faint">
+              {inferenceTime}s
+            </span>
+          )}
+          {requestId && <RequestIdChip id={requestId} className="ml-auto" />}
+        </div>
       )}
 
       {/* Action buttons */}

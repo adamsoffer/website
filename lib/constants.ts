@@ -51,21 +51,42 @@ export const NAV_ITEMS: NavItem[] = [
   },
 ];
 
-// Three-item nav, builder mental model:
-//   Home         = your workspace (last runs, pinned capabilities)
-//   Capabilities = catalog (models, services, pipelines — was "Explore")
-//   Usage        = observability (errors, latency, spend, runs)
-// Account (profile, tokens, billing) routes through the avatar dropdown — no
-// primary nav item needed. Network protocol view lives at /dashboard/network
-// and is reached via the sidebar footer status link.
+// Primary nav per the v6 prototype's signed-in `Sidebar`:
+//   Home (G H) → Explore (47) → Runs (1.2K) → Usage → API keys (3) → Settings ›
+// Settings carries a chev-right (rendered by NavLink via `submenu: true`)
+// instead of a count, signaling that it leads into a sub-experience — clicking
+// it swaps the sidebar contents to a settings rail. Billing is no longer a
+// peer of Home; it lives inside the workspace dropdown and inside the settings
+// rail. Network is in the sidebar footer.
 export const PORTAL_NAV_ITEMS = [
-  { label: "Home", href: "/dashboard", icon: "House" as const },
   {
-    label: "Capabilities",
+    label: "Home",
+    href: "/dashboard",
+    icon: "House" as const,
+    kbd: "G H",
+  },
+  {
+    label: "Explore",
     href: "/dashboard/explore",
     icon: "LayoutGrid" as const,
   },
-  { label: "Usage", href: "/dashboard/usage", icon: "Activity" as const },
+  {
+    label: "Runs",
+    href: "/dashboard/runs",
+    icon: "Activity" as const,
+  },
+  { label: "Usage", href: "/dashboard/usage", icon: "BarChart3" as const },
+  {
+    label: "API keys",
+    href: "/dashboard/keys",
+    icon: "Key" as const,
+  },
+  {
+    label: "Settings",
+    href: "/dashboard/settings",
+    icon: "Settings" as const,
+    submenu: true,
+  },
 ] as const;
 
 export const EXTERNAL_LINKS = {

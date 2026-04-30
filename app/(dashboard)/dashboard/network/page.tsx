@@ -2,13 +2,16 @@
 
 import { Suspense, useCallback } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { BarChart3, Activity, Wallet, Cpu, ArrowUpRight } from "lucide-react";
+import { BarChart3, Activity, Globe, Wallet, Cpu, ArrowUpRight } from "lucide-react";
+import { useAuth } from "@/components/dashboard/AuthContext";
 import OverviewTab from "@/components/dashboard/statistics/OverviewTab";
 import UtilizationTab from "@/components/dashboard/statistics/UtilizationTab";
 import PaymentsTab from "@/components/dashboard/statistics/PaymentsTab";
 import GpusTab from "@/components/dashboard/statistics/GpusTab";
 import TabStrip from "@/components/dashboard/TabStrip";
 import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
+import DashboardPageSkeleton from "@/components/dashboard/DashboardPageSkeleton";
+import SignInWall from "@/components/dashboard/SignInWall";
 
 type NetworkTab = "overview" | "utilization" | "payments" | "gpus";
 
@@ -23,13 +26,16 @@ const TABS: { key: NetworkTab; label: string; icon: React.ElementType }[] = [
 
 export default function NetworkPage() {
   return (
-    <Suspense>
+    <Suspense
+      fallback={<DashboardPageSkeleton withTabs kpiCount={4} withChart />}
+    >
       <NetworkContent />
     </Suspense>
   );
 }
 
 function NetworkContent() {
+  const { isConnected, isLoading } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -39,6 +45,9 @@ function NetworkContent() {
     ? (rawTab as NetworkTab)
     : "overview";
 
+  // `setTab` lives above the auth gates so the hook order stays stable
+  // between rendered states (loading → wall → content). Calling hooks after
+  // an early return violates the Rules of Hooks.
   const setTab = useCallback(
     (key: NetworkTab) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -53,26 +62,31 @@ function NetworkContent() {
     [searchParams, router, pathname],
   );
 
+  // Network is per-workspace per the v4 prototype — even though the sidebar
+  // surfaces it for logged-out users in its footer (no lock icon), clicking
+  // through lands on a sign-in wall with route-specific copy. Keeps the
+  // workspace gate consistent without hiding the entry point entirely.
+  if (isLoading) return null;
+  if (!isConnected) return <SignInWall route="network" />;
+
   return (
     <main id="main-content" className="flex flex-1 flex-col bg-dark">
-      <div className="mx-auto w-full max-w-6xl px-5 pt-6 pb-5 lg:px-6 lg:pt-10">
-        <DashboardPageHeader
-          bordered={false}
-          title="Network"
-          description="Live state of the open GPU network — orchestrators, payments, hardware."
-          actions={
-            <a
-              href="https://status.livepeer.org"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex h-8 items-center gap-1.5 rounded-full border border-hairline bg-transparent px-3 text-[12px] font-medium text-fg-strong transition-colors hover:border-subtle hover:bg-white/[0.04] hover:text-white"
-            >
-              Status page
-              <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
-            </a>
-          }
-        />
-      </div>
+      <DashboardPageHeader
+        title="Network"
+        icon={Globe}
+        description="Live state of the open GPU network — orchestrators, payments, hardware."
+        actions={
+          <a
+            href="https://status.livepeer.org"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-transparent px-2.5 text-[12.5px] font-medium text-fg-strong transition-colors hover:border-hairline hover:bg-white/[0.04] hover:text-white"
+          >
+            Status page
+            <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+          </a>
+        }
+      />
 
       {/* Horizontal tab strip */}
       <div className="sticky top-0 z-20 border-b border-hairline bg-dark">

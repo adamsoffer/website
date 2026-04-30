@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import CopyButton from "@/components/dashboard/CopyButton";
+import { useAuth } from "@/components/dashboard/AuthContext";
+import { STARTER_API_KEY } from "@/lib/dashboard/mock-data";
 import type { Model } from "@/lib/dashboard/types";
 
 type Lang = "curl" | "python" | "node" | "http";
@@ -13,8 +15,19 @@ const LANGS: { key: Lang; label: string }[] = [
   { key: "http", label: "HTTP" },
 ];
 
+const PLACEHOLDER_TOKEN = "YOUR_API_KEY";
+
+// Mock-only: a stable demo token shape so copy-paste yields a working-looking
+// command. Pinned with useMemo on mount to avoid SSR/CSR hydration mismatches
+// and to keep the value stable across re-renders. When real auth lands, the
+// useMemo body becomes "fetch from AuthContext.user.starterToken".
+function makeMockToken(prefix: string): string {
+  return `${prefix}_demo_${Math.random().toString(36).slice(2, 10).padEnd(8, "0")}`;
+}
+
 function generateSnippets(
   model: Model,
+  token: string,
   runValues?: Record<string, unknown>,
 ): Record<Lang, string> {
   const baseUrl = model.apiEndpoint ?? "https://gateway.livepeer.org/v1";
@@ -53,7 +66,7 @@ function generateSnippets(
 
   return {
     curl: `curl -X POST "${endpoint}" \\
-  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Authorization: Bearer ${token}" \\
   -H "Content-Type: application/json" \\
   -d '${body}'`,
 
@@ -63,7 +76,7 @@ function generateSnippets(
 response = requests.post(
     "${endpoint}",
     headers={
-        "Authorization": "Bearer YOUR_API_KEY",
+        "Authorization": "Bearer ${token}",
         "Content-Type": "application/json",
     },
     json=${body.replace(/^/gm, "    ").trimStart()},
@@ -74,7 +87,7 @@ print(response.json())`
 
 client = OpenAI(
     base_url="${baseUrl}",
-    api_key="YOUR_API_KEY",
+    api_key="${token}",
 )
 
 response = client.chat.completions.create(
@@ -91,7 +104,7 @@ print(response.choices[0].message.content)`
 response = requests.post(
     "${endpoint}",
     headers={
-        "Authorization": "Bearer YOUR_API_KEY",
+        "Authorization": "Bearer ${token}",
         "Content-Type": "application/json",
     },
     json={
@@ -105,7 +118,7 @@ print(response.json())`,
       ? `const response = await fetch("${endpoint}", {
   method: "POST",
   headers: {
-    Authorization: "Bearer YOUR_API_KEY",
+    Authorization: "Bearer ${token}",
     "Content-Type": "application/json",
   },
   body: JSON.stringify(${body.replace(/^/gm, "  ").trimStart()}),
@@ -117,7 +130,7 @@ console.log(result);`
 
 const client = new OpenAI({
   baseURL: "${baseUrl}",
-  apiKey: "YOUR_API_KEY",
+  apiKey: "${token}",
 });
 
 const response = await client.chat.completions.create({
@@ -132,7 +145,7 @@ console.log(response.choices[0].message.content);`
         : `const response = await fetch("${endpoint}", {
   method: "POST",
   headers: {
-    Authorization: "Bearer YOUR_API_KEY",
+    Authorization: "Bearer ${token}",
     "Content-Type": "application/json",
   },
   body: JSON.stringify({
@@ -145,7 +158,7 @@ console.log(result);`,
 
     http: `POST ${endpoint} HTTP/1.1
 Host: ${new URL(baseUrl).host}
-Authorization: Bearer YOUR_API_KEY
+Authorization: Bearer ${token}
 Content-Type: application/json
 
 ${body}`,
@@ -164,7 +177,29 @@ export default function CodeSnippets({
   runValues?: Record<string, unknown>;
 }) {
   const [lang, setLang] = useState<Lang>(fixedLang ?? "curl");
-  const snippets = generateSnippets(model, runValues);
+  const { isConnected } = useAuth();
+  // Token injection state: null = follow `isConnected` (default-on for signed-in
+  // users), true/false = user explicitly chose. Storing the override separately
+  // avoids the "useState(initialValue) freezes the value" trap when AuthContext
+  // hydrates from localStorage after first render.
+  const [authOverride, setAuthOverride] = useState<boolean | null>(null);
+  const useToken = authOverride ?? isConnected;
+
+  // Pin the demo token across renders + avoid SSR/CSR hydration mismatch by
+  // generating it client-side only after mount.
+  const [mockToken, setMockToken] = useState<string | null>(null);
+  useEffect(() => {
+    setMockToken(makeMockToken(STARTER_API_KEY.prefix));
+  }, []);
+
+  const token = useToken && isConnected && mockToken
+    ? mockToken
+    : PLACEHOLDER_TOKEN;
+
+  const snippets = useMemo(
+    () => generateSnippets(model, token, runValues),
+    [model, token, runValues],
+  );
   const activeLang = fixedLang ?? lang;
 
   return (
@@ -191,12 +226,31 @@ export default function CodeSnippets({
             ))}
           </div>
         )}
-        <CopyButton
-          value={snippets[activeLang]}
-          label="Copy"
-          ariaLabel="Copy code"
-          className="mr-2"
-        />
+        <div className="flex items-center gap-1 pr-2">
+          {isConnected && (
+            <button
+              type="button"
+              onClick={() => setAuthOverride(!useToken)}
+              className={`hidden h-7 items-center rounded-md px-2 text-[11px] font-medium transition-colors sm:inline-flex ${
+                useToken
+                  ? "text-fg-muted hover:bg-white/[0.04] hover:text-white"
+                  : "bg-white/[0.06] text-fg-strong hover:bg-white/[0.09]"
+              }`}
+              title={
+                useToken
+                  ? "Show snippet without your token (safe to share)"
+                  : "Inject your starter token into the snippet"
+              }
+            >
+              {useToken ? "Without auth" : "With my token"}
+            </button>
+          )}
+          <CopyButton
+            value={snippets[activeLang]}
+            label="Copy"
+            ariaLabel="Copy code"
+          />
+        </div>
       </div>
       <pre className="scrollbar-dark overflow-x-auto bg-black/40 p-4 font-mono text-xs leading-relaxed text-fg-muted">
         {snippets[activeLang]}

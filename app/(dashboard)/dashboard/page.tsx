@@ -1,13 +1,12 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
-  ArrowUpRight,
-  ChevronRight,
-  Code2,
-  MessageSquare,
-  FileText,
+  BarChart3,
+  ChevronDown,
+  House,
   Activity,
 } from "lucide-react";
 import { useAuth } from "@/components/dashboard/AuthContext";
@@ -16,22 +15,21 @@ import {
   MOCK_RECENT_REQUESTS,
   ACCOUNT_USAGE_SUMMARY,
 } from "@/lib/dashboard/mock-data";
-import { getModelIcon } from "@/lib/dashboard/utils";
+import { generateSparklineData, getModelIcon } from "@/lib/dashboard/utils";
+import Banner from "@/components/dashboard/Banner";
+import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
 import EmptyState from "@/components/dashboard/EmptyState";
-import ModelCard from "@/components/dashboard/ModelCard";
+import FirstRunChecklist, {
+  FIRST_RUN_CHANGED_EVENT,
+  FIRST_RUN_DISMISSED_KEY,
+} from "@/components/dashboard/FirstRunChecklist";
+import CapabilityLeaderboardPanel from "@/components/dashboard/CapabilityLeaderboardPanel";
+import KpiCard from "@/components/dashboard/KpiCard";
+import KpiStrip from "@/components/dashboard/KpiStrip";
+import RunsTable from "@/components/dashboard/RunsTable";
 import SectionHeader from "@/components/dashboard/SectionHeader";
+import SignInWall from "@/components/dashboard/SignInWall";
 import type { ModelCategory } from "@/lib/dashboard/types";
-
-function ViewAllLink({ href }: { href: string }) {
-  return (
-    <Link
-      href={href}
-      className="text-xs text-fg-muted transition-colors hover:text-white"
-    >
-      View all →
-    </Link>
-  );
-}
 
 // ─── Mock data ───
 
@@ -55,219 +53,14 @@ function formatLatency(ms: number | null): string {
   return `${ms}ms`;
 }
 
-// ─── Welcome Card ───
-
-function WelcomeCard({
-  isConnected,
-}: {
-  isConnected: boolean;
-  // user is reserved for future personalization (greeting strings, model
-  // recommendations) but not used in the current welcome — we lead with the
-  // brand thesis, not "Welcome back, {name}".
-  user: { name: string } | null;
-}) {
-  // Lead with the brand thesis: real-time AI video inference is what Livepeer
-  // is for. One primary affordance — try the flagship real-time pipeline.
-  // Other capabilities are one click away in /dashboard/explore.
-  const flagshipModelId = "daydream-video";
-
-  return (
-    <section className="rounded-xl border border-hairline px-6 py-10 lg:px-10 lg:py-14">
-      <p className="text-[11px] uppercase tracking-wider text-fg-label">
-        Real-time AI video inference · on the open network
-      </p>
-      <h1 className="mt-4 text-2xl leading-tight text-white text-balance sm:text-3xl">
-        Stream video in. Stream video out.
-        <br className="hidden sm:inline" />
-        <span className="text-fg-muted"> Sub-second latency, over WebRTC.</span>
-      </h1>
-      <p className="mt-4 max-w-2xl text-sm text-fg-muted">
-        The open network for GPU-powered video. Compose AI models with live
-        transcoding into real-time pipelines that ship — at a fraction of the
-        cost of centralized alternatives.
-      </p>
-
-      <div className="mt-7 flex flex-wrap items-center gap-x-4 gap-y-3">
-        {isConnected ? (
-          <>
-            <Link
-              href={`/dashboard/models/${flagshipModelId}?tab=playground`}
-              className="inline-flex h-9 items-center gap-2 rounded-md bg-green px-4 text-[13px] font-medium text-white transition-colors hover:bg-green-light active:bg-green-dark"
-            >
-              Try real-time inference
-              <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-            </Link>
-            <Link
-              href="/dashboard/explore"
-              className="text-[13px] text-fg-muted transition-colors hover:text-white"
-            >
-              Browse all capabilities →
-            </Link>
-          </>
-        ) : (
-          <>
-            <Link
-              href="/dashboard/login"
-              className="inline-flex h-9 items-center gap-2 rounded-md bg-green px-4 text-[13px] font-medium text-white transition-colors hover:bg-green-light active:bg-green-dark"
-            >
-              Get started
-              <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-            </Link>
-            <a
-              href="https://docs.livepeer.org"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-[13px] text-fg-muted transition-colors hover:text-white"
-            >
-              Read the docs
-              <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
-            </a>
-          </>
-        )}
-      </div>
-    </section>
-  );
-}
-
-// ─── Featured Capabilities ───
-
-function FeaturedCapabilities() {
-  const featured = MODELS.filter((m) => m.featured).slice(0, 4);
-
-  return (
-    <div>
-      <SectionHeader
-        title="Featured capabilities"
-        action={<ViewAllLink href="/dashboard/explore" />}
-      />
-
-      <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
-        {featured.map((model) => (
-          <ModelCard key={model.id} model={model} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ─── Browse by Category ───
-
-const HOME_CATEGORIES: {
-  label: ModelCategory;
-  subtitle: string;
-}[] = [
-  { label: "Video Generation", subtitle: "Generate video" },
-  { label: "Video Editing", subtitle: "Edit footage" },
-  { label: "Video Understanding", subtitle: "Understand video" },
-  { label: "Live Transcoding", subtitle: "Transcode live" },
-  { label: "Image Generation", subtitle: "Generate images" },
-  { label: "Speech", subtitle: "Transcribe & synthesize" },
-  { label: "Language", subtitle: "Run LLMs" },
-];
-
-function BrowseByCategory() {
-  return (
-    <div>
-      <SectionHeader
-        title="Browse by category"
-        action={<ViewAllLink href="/dashboard/explore" />}
-      />
-
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        {HOME_CATEGORIES.map(({ label, subtitle }, i) => {
-          const Icon = getModelIcon(label);
-          const isLastOdd =
-            i === HOME_CATEGORIES.length - 1 &&
-            HOME_CATEGORIES.length % 2 === 1;
-          return (
-            <Link
-              key={label}
-              href={`/dashboard/explore?category=${encodeURIComponent(label)}`}
-              className={`group flex flex-col rounded-xl bg-dark-surface/60 p-4 transition-colors hover:bg-dark-card ${
-                isLastOdd ? "col-span-2 sm:col-span-1" : ""
-              }`}
-            >
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-bright/10">
-                <Icon className="h-4 w-4 text-green-bright" />
-              </div>
-              <p className="mt-3 text-sm font-medium text-white">
-                {label}
-              </p>
-              <p className="mt-0.5 text-xs text-fg-muted">{subtitle}</p>
-            </Link>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-// ─── Getting Started Strip ───
-
-function GettingStartedStrip() {
-  const cards = [
-    {
-      icon: FileText,
-      title: "Documentation",
-      description: "Guides and concepts for building on the network.",
-      href: "https://docs.livepeer.org",
-      external: true,
-    },
-    {
-      icon: Code2,
-      title: "API reference",
-      description: "REST and streaming endpoints with full schemas.",
-      href: "https://docs.livepeer.org/api-reference",
-      external: true,
-    },
-    {
-      icon: MessageSquare,
-      title: "Community",
-      description: "Get help from GPU providers and builders in Discord.",
-      href: "https://discord.gg/livepeer",
-      external: true,
-    },
-  ];
-
-  return (
-    <div>
-      <h2 className="mb-4 text-base font-semibold text-white">Get started</h2>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {cards.map(({ icon: Icon, title, description, href, external }) => {
-          const Wrapper = external ? "a" : Link;
-          const extraProps = external
-            ? { target: "_blank", rel: "noopener noreferrer" }
-            : {};
-          return (
-            <Wrapper
-              key={title}
-              href={href}
-              {...(extraProps as Record<string, string>)}
-              className="group flex items-start gap-3 rounded-xl bg-dark-surface/60 p-4 transition-colors hover:bg-dark-card"
-            >
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-bright/10 text-green-bright">
-                <Icon className="h-4 w-4" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5">
-                  <p className="text-sm font-medium text-white">{title}</p>
-                  {external && (
-                    <ArrowUpRight className="h-3 w-3 shrink-0 text-fg-disabled transition-colors group-hover:text-fg-muted" />
-                  )}
-                </div>
-                <p className="mt-0.5 text-xs leading-relaxed text-fg-faint">
-                  {description}
-                </p>
-              </div>
-            </Wrapper>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 // ─── Helpers for the workspace home ───
+//
+// (`WelcomeCard`, `FeaturedCapabilities`, `BrowseByCategory`, and
+// `GettingStartedStrip` previously lived here as the signed-out body of
+// /dashboard. The v4 prototype replaces that marketing-style page with a
+// route-specific `SignInWall`, so those components are gone — `git log` if
+// you need them back. Browse-by-category and the marketing pitch now live on
+// /dashboard/explore, which is the public landing for logged-out users.)
 
 // Map a recent-request pipeline string to a category so we can pick an icon
 // for runs whose model isn't in the MODELS list (mock data has /-shaped names
@@ -404,15 +197,18 @@ function PinnedCapabilities() {
 
   return (
     <section>
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-base font-semibold text-white">Pinned</h2>
-        <Link
-          href="/dashboard/explore"
-          className="text-xs text-fg-muted transition-colors hover:text-white"
-        >
-          See all capabilities →
-        </Link>
-      </div>
+      <SectionHeader
+        title="Pinned"
+        action={
+          <Link
+            href="/dashboard/explore"
+            className="text-xs text-fg-muted transition-colors hover:text-white"
+          >
+            See all capabilities →
+          </Link>
+        }
+        className="mb-3"
+      />
       <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
         {pinned.map((model) => {
           const Icon = getModelIcon(model.category);
@@ -440,136 +236,195 @@ function PinnedCapabilities() {
   );
 }
 
-// ─── Your Runs — recent runs as a slim list (was "Recent activity") ───
+// ─── Recent runs panel ─────────────────────────────────────────────────────
+//
+// Per the v5 prototype, "Recent runs" is a panel with its own head (title +
+// "Across all capabilities" sub + "View all →" action). The runs table sits
+// flush below the head sharing the same rounded border. The previous version
+// rendered a free-standing `<SectionHeader>` above an already-bordered
+// `RunsTable`, which made it look like two stacked panels.
 
-function YourRuns() {
-  const rows = MOCK_RECENT_REQUESTS.slice(0, 10);
+function RecentRunsPanel() {
+  const rows = MOCK_RECENT_REQUESTS.slice(0, 8);
 
   if (rows.length === 0) {
     return (
-      <section>
-        <h2 className="mb-3 text-base font-semibold text-white">Your runs</h2>
-        <EmptyState
-          variant="guided"
-          icon={<Activity className="h-4 w-4" />}
-          title="No runs yet"
-          description="Run inference to see your runs here — status, latency, and time per request."
-          action={{ label: "Browse capabilities", href: "/dashboard/explore" }}
-        />
-      </section>
+      <EmptyState
+        variant="guided"
+        icon={<Activity className="h-4 w-4" />}
+        title="No runs yet"
+        description="Run inference to see your runs here — status, latency, and time per request."
+        action={{ label: "Browse capabilities", href: "/dashboard/explore" }}
+      />
     );
   }
 
   return (
-    <section>
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-base font-semibold text-white">Your runs</h2>
+    <section className="overflow-hidden rounded-md border border-hairline bg-dark-lighter">
+      <div className="flex items-start justify-between gap-3 border-b border-hairline px-4 py-3.5">
+        <div>
+          <p className="text-[13.5px] font-medium text-white">Recent runs</p>
+          <p className="mt-0.5 text-[11.5px] text-fg-faint">
+            Across all capabilities
+          </p>
+        </div>
         <Link
-          href="/dashboard/settings?tab=usage"
-          className="text-xs text-fg-muted transition-colors hover:text-white"
+          href="/dashboard/runs"
+          className="inline-flex items-center gap-1 text-[12px] text-fg-faint transition-colors hover:text-white"
         >
-          See all →
+          View all <ArrowRight className="h-3 w-3" aria-hidden="true" />
         </Link>
       </div>
-      <div className="overflow-hidden rounded-lg border border-hairline">
-        <div className="hidden items-center gap-4 border-b border-hairline bg-white/[0.015] px-4 py-2 text-[11px] uppercase tracking-wider text-fg-faint sm:flex">
-          <span className="flex-1">Model</span>
-          <span className="w-[68px]">Status</span>
-          <span className="w-14 text-right">Latency</span>
-          <span className="w-16 text-right">Time</span>
-          <span className="h-4 w-4" aria-hidden="true" />
-        </div>
-
-        {rows.map((row) => {
-          const isSuccess = row.status === "success";
-          return (
-            <Link
-              key={row.id}
-              href={`/dashboard/settings?tab=usage&request=${row.id}`}
-              className="group flex flex-col gap-2 border-b border-hairline px-4 py-2.5 transition-colors last:border-0 hover:bg-white/[0.015] sm:flex-row sm:items-center sm:justify-between sm:gap-4"
-            >
-              <span className="flex-1 truncate font-mono text-[13px] text-white">
-                {row.model}
-              </span>
-              <div className="flex shrink-0 items-center gap-3 sm:gap-4">
-                <span
-                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2 py-0.5 text-center text-xs sm:w-[68px] sm:justify-center ${
-                    isSuccess
-                      ? "bg-green/15 text-green-bright"
-                      : "bg-white/[0.06] text-fg-faint"
-                  }`}
-                >
-                  <span
-                    className={`hidden h-1.5 w-1.5 shrink-0 rounded-full sm:block ${
-                      isSuccess ? "bg-green-bright" : "bg-fg-faint"
-                    }`}
-                    aria-hidden="true"
-                  />
-                  {row.status}
-                </span>
-                <span className="shrink-0 text-xs tabular-nums text-fg-strong sm:w-14 sm:text-right">
-                  {formatLatency(row.latencyMs)}
-                </span>
-                <span className="ml-auto text-xs tabular-nums text-fg-faint sm:ml-0 sm:w-16 sm:text-right">
-                  {formatRelativeTime(row.timestamp)}
-                </span>
-                <ChevronRight
-                  className="hidden h-4 w-4 shrink-0 text-fg-disabled opacity-0 transition-opacity group-hover:opacity-100 sm:block"
-                  aria-hidden
-                />
-              </div>
-            </Link>
-          );
-        })}
-      </div>
+      {/* Shared `RunsTable` rendered borderless so the panel's outer chrome
+          provides the rounded edge — keeps row vocabulary identical to
+          /dashboard/runs and the model-detail Runs tab. */}
+      <RunsTable rows={rows} showHeader bordered={false} />
     </section>
   );
 }
 
-// ─── Capacity Footnote — quiet free-tier line at the very bottom ───
+// ─── Home page header — chrome bar with Period selector + actions ───
 
-function CapacityFootnote() {
-  const used = ACCOUNT_USAGE_SUMMARY.freeTierUsed;
-  const limit = ACCOUNT_USAGE_SUMMARY.freeTierLimit;
-  const usedPct = (used / limit) * 100;
+function HomePageHeader() {
+  return (
+    <DashboardPageHeader
+      title="Home"
+      icon={House}
+      actions={
+        <>
+          <button
+            type="button"
+            className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-transparent px-2.5 text-[12.5px] text-fg-strong transition-colors hover:border-hairline hover:bg-white/[0.04] hover:text-white"
+          >
+            <span className="text-fg-faint">Period</span>
+            <span>7d</span>
+            <ChevronDown className="h-3 w-3" aria-hidden="true" />
+          </button>
+          <Link
+            href="/dashboard/usage"
+            className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-transparent px-2.5 text-[12.5px] text-fg-strong transition-colors hover:border-hairline hover:bg-white/[0.04] hover:text-white"
+          >
+            <BarChart3 className="h-3 w-3" aria-hidden="true" />
+            View usage
+          </Link>
+        </>
+      }
+    />
+  );
+}
 
-  const barTone =
-    usedPct >= 95
-      ? "bg-red-400"
-      : usedPct >= 70
-        ? "bg-warm"
-        : "bg-green-bright";
+// ─── Greeting block — eyebrow + 'Good morning, {name}' + live indicator ───
+
+function Greeting({
+  workspace,
+  firstName,
+}: {
+  workspace: string;
+  firstName: string;
+}) {
+  const hour = new Date().getHours();
+  const greeting =
+    hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+  return (
+    <div className="flex items-baseline justify-between gap-3">
+      <div>
+        <p className="font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-fg-disabled">
+          Workspace · {workspace}
+        </p>
+        <h1 className="mt-1 text-[22px] font-semibold tracking-[-0.02em] text-white">
+          {greeting}, {firstName}
+        </h1>
+      </div>
+      <p className="font-mono text-[12px] text-fg-faint">
+        Last refresh: just now · live
+      </p>
+    </div>
+  );
+}
+
+// ─── Home KPI strip — 4 stats with sparklines ───
+
+function HomeKpis() {
+  // Stable mock sparklines per render (regenerate only on mount)
+  const reqSpark = useMemo(() => generateSparklineData(30), []);
+  const latSpark = useMemo(() => generateSparklineData(30), []);
+  const errSpark = useMemo(() => generateSparklineData(30), []);
+  const spendSpark = useMemo(() => generateSparklineData(30), []);
 
   return (
-    <Link
-      href="/dashboard/settings?tab=usage"
-      className="group flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-hairline pt-5 text-[12px] tabular-nums text-fg-faint transition-colors hover:text-fg-strong"
+    <KpiStrip cols={4}>
+      <KpiCard
+        label="Runs · 7d"
+        value="17,374"
+        delta="+18.2%"
+        trend="up"
+        spark={reqSpark}
+        sparkColor="#40BF86"
+      />
+      <KpiCard
+        label="p95 latency"
+        value="284"
+        unit="ms"
+        delta="−12ms"
+        trend="down"
+        spark={latSpark}
+        sparkColor="#25ABD0"
+      />
+      <KpiCard
+        label="Error rate"
+        value="0.84"
+        unit="%"
+        delta="−0.2pp"
+        trend="down"
+        spark={errSpark}
+        sparkColor="#fbbf24"
+      />
+      <KpiCard
+        label="Spend · MTD"
+        value="$5.70"
+        delta="+$1.80"
+        trend="up"
+        spark={spendSpark}
+        sparkColor="#1E9960"
+      />
+    </KpiStrip>
+  );
+}
+
+// (`UsageByCapabilityPanel` and `PinnedCapabilitiesPanel` previously lived
+// here as the home view's two-column bottom section. The v5 prototype
+// replaces both with a single full-width sortable leaderboard —
+// `CapabilityLeaderboardPanel`. `git log` if you need them back.)
+
+// ─── Capacity Banner — slim free-tier callout at the top of Home ───
+//
+// Per the Livepeer Console design (Apr 2026): always visible, quiet, with the
+// exact remaining quota and an inline accent action. No threshold gating —
+// the banner is ambient context, not an alert.
+
+function CapacityBanner() {
+  const used = ACCOUNT_USAGE_SUMMARY.freeTierUsed;
+  const limit = ACCOUNT_USAGE_SUMMARY.freeTierLimit;
+  const remaining = Math.max(0, limit - used);
+
+  return (
+    <Banner
+      icon={
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          className="h-3.5 w-3.5"
+          aria-hidden="true"
+        >
+          <path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" />
+        </svg>
+      }
+      action={{ label: "Add a payment provider", href: "/dashboard/settings?tab=billing" }}
     >
-      <span className="text-[10px] uppercase tracking-wider text-fg-label">
-        Free tier
-      </span>
-      <span>
-        <span className="text-fg-strong">{used.toLocaleString()}</span>
-        <span className="mx-1 text-fg-disabled">/</span>
-        {limit.toLocaleString()} used
-      </span>
-      <span
-        className="inline-block h-[3px] w-32 overflow-hidden rounded-full bg-white/[0.06]"
-        aria-hidden="true"
-      >
-        <span
-          className={`block h-full ${barTone}`}
-          style={{ width: `${Math.min(100, Math.max(1, usedPct))}%` }}
-        />
-      </span>
-      <span>
-        {usedPct.toFixed(usedPct < 10 ? 1 : 0)}% · resets in{" "}
-        {ACCOUNT_USAGE_SUMMARY.freeTierResetIn}
-      </span>
-      <span className="ml-auto text-fg-muted transition-colors group-hover:text-white">
-        Manage →
-      </span>
-    </Link>
+      <span className="font-medium text-white">You&apos;re on the free tier</span>
+      <span className="text-fg-faint"> · {remaining.toLocaleString()} requests left this month · resets in {ACCOUNT_USAGE_SUMMARY.freeTierResetIn}</span>
+    </Banner>
   );
 }
 
@@ -589,38 +444,109 @@ function CapacityFootnote() {
 export default function HomePage() {
   const { isConnected, isLoading, user } = useAuth();
 
+  // Signed-in users get the inline first-run checklist unless they've
+  // dismissed it (via Skip, "I've made my first call", or by clicking through
+  // to the playground). Quickstart in the sidebar footer clears this flag to
+  // re-open the checklist. Mock-only gate: in production we'd ALSO check
+  // server-side run history, but in mock mode the flag alone is the source
+  // of truth (MOCK_RECENT_REQUESTS is always non-empty for the workspace demo).
+  const [firstRunDismissed, setFirstRunDismissed] = useState<boolean | null>(
+    null,
+  );
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const read = () =>
+      setFirstRunDismissed(
+        window.localStorage.getItem(FIRST_RUN_DISMISSED_KEY) === "1",
+      );
+    read();
+    // Cross-tab updates via storage; same-tab updates (e.g. Quickstart click in
+    // the sidebar) via a custom event since storage events don't fire in the
+    // window that wrote the value.
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === FIRST_RUN_DISMISSED_KEY) read();
+    };
+    window.addEventListener("storage", onStorage);
+    window.addEventListener(FIRST_RUN_CHANGED_EVENT, read);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener(FIRST_RUN_CHANGED_EVENT, read);
+    };
+  }, []);
+
   if (isLoading) return null;
 
-  // "Returning" = user has at least one prior request. Pre-real-backend, this
-  // proxies through MOCK_RECENT_REQUESTS — flip it empty in mock-data to demo
-  // the first-time flow.
-  const isReturning = isConnected && MOCK_RECENT_REQUESTS.length > 0;
+  const showFirstRun = isConnected && firstRunDismissed === false;
 
+  const handleDismiss = () => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(FIRST_RUN_DISMISSED_KEY, "1");
+    }
+    setFirstRunDismissed(true);
+  };
+
+  // Workspace name + greeting first-name (stand-ins until real workspaces +
+  // proper user profile fields exist; matches the design spec).
+  const workspace = "Flipbook";
+  const firstName = (user?.name?.split(" ")[0] ?? "there");
+
+  // Signed-out users see the workspace sign-in wall — Home is workspace-only.
+  // The logged-out sidebar variant (rendered by `DashboardSidebar` itself when
+  // `!isConnected`) provides the "Explore capabilities" escape hatch alongside
+  // the wall's `→ Explore capabilities` link, so users always have a way out
+  // of the gate without an account. Per the v4 prototype's `SignInWall`.
+  if (!isConnected || !user) {
+    return <SignInWall route="home" />;
+  }
+
+  // Hold off rendering signed-in content for one frame while we read the
+  // localStorage flag, so the workspace doesn't flash before the checklist.
+  if (firstRunDismissed === null) {
+    return <main id="main-content" className="flex flex-1 flex-col bg-dark" />;
+  }
+
+  // Signed-in workspace home — Linear / Livepeer Console structure:
+  //   chrome bar  → greeting → KPIs → free-tier banner → quickstart (when not
+  //   dismissed) → recent runs → usage chart + pinned capabilities grid.
   return (
     <main id="main-content" className="flex flex-1 flex-col bg-dark">
-      <div className="flex-1 px-5 pt-6 pb-16 space-y-8 lg:px-8 lg:pt-10">
-        {isConnected && isReturning && user ? (
-          <>
-            {/* 1 — last run hero, the page's primary affordance */}
-            <LastRunHero />
-            {/* 2 — pinned capabilities, one-click re-launch */}
-            <PinnedCapabilities />
-            {/* 3 — slim list of recent inferences */}
-            <YourRuns />
-            {/* 4 — capacity footnote, quiet at the bottom */}
-            <CapacityFootnote />
-          </>
-        ) : (
-          // First-time / disconnected — keep the welcome + discovery so the
-          // user has something to land on. Returning users get the working
-          // surface above; new users still need the marketing-y entry.
-          <>
-            <WelcomeCard isConnected={isConnected} user={user} />
-            <FeaturedCapabilities />
-            <BrowseByCategory />
-            <GettingStartedStrip />
-          </>
-        )}
+      <HomePageHeader />
+      <div className="flex-1 overflow-y-auto">
+        <div className="mx-auto w-full max-w-[1200px] px-7 pt-7 pb-20 space-y-4">
+          <Greeting workspace={workspace} firstName={firstName} />
+          <HomeKpis />
+          <CapacityBanner />
+
+          {!showFirstRun ? null : (
+            <>
+              <SectionHeader
+                title="Quickstart"
+                count="2 of 4 done"
+                action={
+                  <button
+                    type="button"
+                    onClick={handleDismiss}
+                    className="inline-flex items-center gap-1 text-fg-faint transition-colors hover:text-fg-strong"
+                  >
+                    Skip ✕
+                  </button>
+                }
+              />
+              <FirstRunChecklist onDismiss={handleDismiss} />
+            </>
+          )}
+
+          {/* Recent runs — panel-with-head (no external SectionHeader above
+              it) per the v5 prototype. */}
+          <RecentRunsPanel />
+
+          {/* Capability leaderboard — replaces the previous 2-column
+              "stacked-area chart + Pinned capabilities" grid. The home view
+              now has a single full-width "Usage by capability" panel that
+              answers what's growing / costing / failing, not just "look at
+              this chart of run counts." */}
+          <CapabilityLeaderboardPanel />
+        </div>
       </div>
     </main>
   );

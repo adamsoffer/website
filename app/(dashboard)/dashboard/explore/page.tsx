@@ -9,24 +9,20 @@ import {
   Flame,
   Snowflake,
   X,
-  ArrowDown,
-  ArrowUp,
+  ChevronDown,
+  Plus,
+  SlidersHorizontal,
   Star,
   Search,
-  SlidersHorizontal,
-  Zap,
 } from "lucide-react";
 import { MODELS } from "@/lib/dashboard/mock-data";
 import Button from "@/components/ui/Button";
-import SearchInput from "@/components/ui/SearchInput";
 import Drawer from "@/components/ui/Drawer";
-import Select from "@/components/ui/Select";
-import { getModelIcon, formatPrice } from "@/lib/dashboard/utils";
+import { getModelIcon, formatRuns } from "@/lib/dashboard/utils";
 import { useStarredModels } from "@/lib/dashboard/useStarredModels";
 import ModelCard from "@/components/dashboard/ModelCard";
-import StatusDot from "@/components/dashboard/StatusDot";
-import TabStrip from "@/components/dashboard/TabStrip";
 import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
+import DashboardPageSkeleton from "@/components/dashboard/DashboardPageSkeleton";
 import type { Model, ModelCategory } from "@/lib/dashboard/types";
 
 const VALID_CATEGORIES: ModelCategory[] = [
@@ -56,34 +52,7 @@ const OTHER_CATEGORIES: { label: ModelCategory; icon: ReturnType<typeof getModel
   { label: "Language", icon: getModelIcon("Language") },
 ];
 
-const SORT_OPTIONS = [
-  { value: "recommended", label: "Recommended" },
-  { value: "latency", label: "Latency" },
-  { value: "uptime", label: "Uptime" },
-  { value: "price", label: "Price" },
-  { value: "recent", label: "New" },
-];
-
 const PRICE_BUCKETS = 20;
-
-// ─── Badges ───
-
-function StatusBadge({ status }: { status: "hot" | "cold" }) {
-  if (status === "hot") {
-    return (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-warm-subtle px-2 py-0.5 text-[11px] font-medium text-warm">
-        <StatusDot tone="warm" />
-        Warm
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-blue/10 px-2 py-0.5 text-[11px] font-medium text-blue-bright">
-      <Snowflake className="h-2.5 w-2.5" />
-      Cold
-    </span>
-  );
-}
 
 // ─── Empty State ───
 
@@ -130,51 +99,104 @@ function ExploreEmptyState({
 
 // ─── List Item ───
 
+// Shared grid template for list view header + rows. Columns:
+//   28px icon | 1fr name+meta | 60px p50 | 60px p95 | 60px GPUs | 78px price | 80px 7d runs
+const LIST_GRID =
+  "grid grid-cols-[28px_minmax(0,1fr)_60px_60px_60px_78px_80px] items-center gap-3";
+
+function formatLatencyShort(ms: number): string {
+  if (ms >= 1000) return `${(ms / 1000).toFixed(2)}s`;
+  return `${Math.round(ms)}ms`;
+}
+
+function ListHeaderRow() {
+  return (
+    <div
+      className={`${LIST_GRID} border-b border-hairline px-2 py-2 font-mono text-[10.5px] uppercase tracking-[0.05em] text-fg-disabled`}
+      role="row"
+    >
+      <div />
+      <div role="columnheader">Capability</div>
+      <div role="columnheader" className="text-right">p50</div>
+      <div role="columnheader" className="text-right">p95</div>
+      <div role="columnheader" className="text-right">GPUs</div>
+      <div role="columnheader" className="text-right">Price</div>
+      <div role="columnheader" className="text-right">7d runs</div>
+    </div>
+  );
+}
+
 function ModelListItem({ model }: { model: Model }) {
   const Icon = getModelIcon(model.category);
+  const isWarm = model.status === "hot";
+  const price = model.pricing.amount;
+  const priceDecimals = price < 0.01 ? 4 : 3;
 
   return (
     <Link
       href={`/dashboard/models/${model.id}`}
-      className="group flex w-full items-center gap-4 border-b border-hairline px-5 py-4 text-left transition-colors hover:bg-dark-surface"
+      className={`${LIST_GRID} border-b border-hairline px-2 py-2 text-[12.5px] transition-colors hover:bg-white/[0.04]`}
     >
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/[0.06] transition-colors group-hover:bg-white/[0.08]">
-        {model.coverImage ? (
-          <img
-            src={model.coverImage}
-            alt=""
-            className="h-full w-full rounded-xl object-cover"
-          />
-        ) : (
-          <Icon className="h-5 w-5 text-fg-label" />
-        )}
+      {/* Icon thumbnail (24px square, bordered) */}
+      <div
+        className="grid h-6 w-6 place-items-center rounded-[4px] border border-hairline bg-dark-card text-fg-strong"
+        aria-hidden="true"
+      >
+        <Icon className="h-3.5 w-3.5" strokeWidth={1.5} />
       </div>
 
-      <div className="flex-1 min-w-0">
-        <p className="text-[15px] font-medium text-white">
+      {/* Name + provider + status pill + category */}
+      <div className="flex min-w-0 items-center gap-2">
+        <span className="shrink-0 truncate font-medium text-white">
           {model.name}
-          {model.precision && (
-            <span className="ml-1.5 rounded bg-white/[0.06] px-1.5 py-0.5 text-[11px] font-normal text-fg-faint">
-              {model.precision}
-            </span>
-          )}
-        </p>
-        <p className="text-xs text-fg-faint truncate">
-          {model.provider}
-        </p>
-      </div>
-
-      <div className="hidden items-center gap-2 sm:flex">
-        <span className="inline-flex items-center gap-1.5 rounded-md bg-white/[0.05] px-2.5 py-1 text-xs text-fg-faint">
-          <span className="h-1.5 w-1.5 rounded-full bg-white/30" />
-          {model.category}
         </span>
-        <StatusBadge status={model.status} />
+        <span className="shrink-0 text-[11.5px] text-fg-faint">
+          {model.provider}
+        </span>
+        <span
+          className={`inline-flex items-center gap-1.5 rounded-[3px] border px-1.5 py-0.5 font-mono text-[10.5px] lowercase tracking-[0.02em] ${
+            isWarm
+              ? "border-warm/20 bg-warm/[0.08] text-warm"
+              : "border-hairline text-fg-faint"
+          }`}
+        >
+          {isWarm ? (
+            <span className="h-1.5 w-1.5 rounded-full bg-warm" aria-hidden="true" />
+          ) : (
+            <span className="h-1.5 w-1.5 rounded-full bg-fg-faint" aria-hidden="true" />
+          )}
+          {isWarm ? "warm" : "cold"}
+        </span>
+        <span className="truncate text-[11.5px] text-fg-faint">
+          · {model.category}
+        </span>
       </div>
 
-      <div className="w-40 shrink-0 text-right">
-        <p className="text-xs font-medium text-fg-muted">{formatPrice(model)}</p>
-      </div>
+      {/* p50 latency */}
+      <span className="text-right font-mono text-[11.5px] tabular-nums text-fg-strong">
+        {formatLatencyShort(model.latency)}
+      </span>
+
+      {/* p95 latency — assume ~1.65× p50 for mock parity */}
+      <span className="text-right font-mono text-[11.5px] tabular-nums text-fg-strong">
+        {formatLatencyShort(Math.round(model.latency * 1.65))}
+      </span>
+
+      {/* GPUs */}
+      <span className="text-right font-mono text-[11.5px] tabular-nums text-fg-strong">
+        {model.orchestrators}
+      </span>
+
+      {/* Price */}
+      <span className="text-right font-mono text-[11.5px] tabular-nums text-fg-strong">
+        ${price.toFixed(priceDecimals)}
+        <span className="text-fg-disabled">/{model.pricing.unit}</span>
+      </span>
+
+      {/* 7d runs */}
+      <span className="text-right font-mono text-[11.5px] tabular-nums text-fg-strong">
+        {formatRuns(model.runs7d)}
+      </span>
     </Link>
   );
 }
@@ -306,11 +328,64 @@ function PriceRangeFilter({
   );
 }
 
+// ─── Filter Pill — Linear-style mono-key + value chip used in the toolbar ──
+
+function ExploreFilterPill({
+  label,
+  value,
+  onClick,
+  onClear,
+}: {
+  label: string;
+  value: string;
+  onClick?: () => void;
+  onClear?: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-hairline bg-dark-card px-2 text-[11.5px] text-fg-strong transition-colors hover:bg-dark-lighter"
+    >
+      <span className="font-mono text-[10.5px] uppercase tracking-[0.05em] text-fg-faint">
+        {label}
+      </span>
+      <span className="lowercase">{value}</span>
+      {onClear ? (
+        <span
+          onClick={(e) => {
+            e.stopPropagation();
+            onClear();
+          }}
+          className="ml-0.5 grid h-3.5 w-3.5 place-items-center border-l border-hairline pl-1 text-fg-faint transition-colors hover:text-white"
+          aria-label={`Clear ${label}`}
+        >
+          <X className="h-2.5 w-2.5" />
+        </span>
+      ) : (
+        <ChevronDown
+          className="h-3 w-3 text-fg-faint"
+          aria-hidden="true"
+        />
+      )}
+    </button>
+  );
+}
+
 // ─── Explore Page ───
 
 export default function ExplorePage() {
   return (
-    <Suspense fallback={null}>
+    <Suspense
+      fallback={
+        <DashboardPageSkeleton
+          maxWidth="7xl"
+          withTabs
+          kpiCount={0}
+          withChart={false}
+        />
+      }
+    >
       <ExplorePageInner />
     </Suspense>
   );
@@ -329,12 +404,11 @@ function ExplorePageInner() {
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"grid" | "list">("grid");
   const [category, setCategory] = useState<ModelCategory | null>(initialCategory);
-  const [sort, setSort] = useState("recommended");
-  const [sortDir, setSortDir] = useState<"desc" | "asc">("desc");
+  // Sort is locked to the recommended ordering (warm + realtime tier, then runs7d desc).
+  // The v3 design exposes no sort selector — ordering happens by default.
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const [availabilityFilter, setAvailabilityFilter] = useState<AvailabilityFilter>("all");
   const [favoritesOnly, setFavoritesOnly] = useState(initialFavorites);
-  const [realtimeOnly, setRealtimeOnly] = useState(searchParams.get("realtime") === "1");
   const [priceMin, setPriceMin] = useState(0);
   const [priceMax, setPriceMax] = useState(100);
   const dataMaxPrice = useMemo(
@@ -347,7 +421,6 @@ function ExplorePageInner() {
       if (availabilityFilter === "warm" && m.status !== "hot") return false;
       if (availabilityFilter === "cold" && m.status !== "cold") return false;
       if (favoritesOnly && !isStarred(m.id)) return false;
-      if (realtimeOnly && !m.realtime) return false;
       const matchesSearch =
         !search ||
         m.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -358,35 +431,19 @@ function ExplorePageInner() {
       return matchesSearch && matchesCategory && matchesPrice;
     });
 
+    // Recommended sort: featured first, then tiered by (realtime, warm),
+    // then by 7-day run count. The v3 design exposes no sort selector, so this
+    // is always-on and deterministic.
     result.sort((a, b) => {
       if (a.featured !== b.featured) return a.featured ? -1 : 1;
-      const dir = sortDir === "asc" ? 1 : -1;
-      switch (sort) {
-        case "latency":
-          return (a.latency - b.latency) * dir;
-        case "price":
-          return (a.pricing.amount - b.pricing.amount) * dir;
-        case "uptime":
-          return (b.uptime - a.uptime) * dir;
-        case "recent": {
-          const aTs = a.releasedAt ? new Date(a.releasedAt).getTime() : 0;
-          const bTs = b.releasedAt ? new Date(b.releasedAt).getTime() : 0;
-          return (bTs - aTs) * dir;
-        }
-        default: {
-          // Recommended: tier by (realtime, warm), then by runs7d. Tier is always
-          // best-first regardless of direction; only the popularity tiebreaker flips
-          // when the user toggles asc/desc.
-          const tier = (m: Model) => (m.realtime ? 0 : 2) + (m.status === "hot" ? 0 : 1);
-          const tierDiff = tier(a) - tier(b);
-          if (tierDiff !== 0) return tierDiff;
-          return (b.runs7d - a.runs7d) * dir;
-        }
-      }
+      const tier = (m: Model) => (m.realtime ? 0 : 2) + (m.status === "hot" ? 0 : 1);
+      const tierDiff = tier(a) - tier(b);
+      if (tierDiff !== 0) return tierDiff;
+      return b.runs7d - a.runs7d;
     });
 
     return result;
-  }, [search, category, sort, sortDir, availabilityFilter, favoritesOnly, realtimeOnly, isStarred, priceMin, priceMax, dataMaxPrice]);
+  }, [search, category, availabilityFilter, favoritesOnly, isStarred, priceMin, priceMax, dataMaxPrice]);
 
   const activeFilters = [
     ...(category
@@ -398,208 +455,197 @@ function ExplorePageInner() {
     ...(favoritesOnly
       ? [{ label: "Starred", onClear: () => setFavoritesOnly(false) }]
       : []),
-    ...(realtimeOnly
-      ? [{ label: "Realtime", onClear: () => setRealtimeOnly(false) }]
-      : []),
   ];
 
   const ALL_CATEGORIES = [...VIDEO_CATEGORIES, ...OTHER_CATEGORIES];
 
+  const tabKeys: ({ key: "all"; label: string } | { key: ModelCategory; label: string })[] = [
+    { key: "all", label: "All" },
+    ...ALL_CATEGORIES.map((c) => ({ key: c.label, label: c.label })),
+  ];
+
   return (
     <main id="main-content" className="flex flex-1 flex-col bg-dark">
-      <div className="mx-auto w-full max-w-7xl px-5 pt-6 pb-5 lg:px-6 lg:pt-10">
-        <DashboardPageHeader
-          bordered={false}
-          title="Capabilities"
-          description="Models, services, and pipelines for real-time AI video inference on the open network."
-          actions={
-            <span className="hidden text-[12px] tabular-nums text-fg-faint sm:inline">
-              {MODELS.length} capabilities
-            </span>
-          }
-        />
+      <DashboardPageHeader
+        title="Explore"
+        icon={LayoutGrid}
+        actions={
+          <>
+            {/* Grid / list view toggle — segmented control per v3 `.view-toggle` */}
+            <div
+              className="flex h-[26px] items-center rounded-[4px] border border-hairline bg-dark-lighter p-0.5"
+              role="tablist"
+              aria-label="View"
+            >
+              <button
+                type="button"
+                onClick={() => setView("grid")}
+                aria-label="Grid view"
+                aria-pressed={view === "grid"}
+                className={`flex h-5 w-6 items-center justify-center rounded-[3px] transition-colors ${
+                  view === "grid"
+                    ? "bg-white/[0.08] text-white"
+                    : "text-fg-faint hover:text-fg-strong"
+                }`}
+              >
+                <LayoutGrid className="h-3 w-3" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setView("list")}
+                aria-label="List view"
+                aria-pressed={view === "list"}
+                className={`flex h-5 w-6 items-center justify-center rounded-[3px] transition-colors ${
+                  view === "list"
+                    ? "bg-white/[0.08] text-white"
+                    : "text-fg-faint hover:text-fg-strong"
+                }`}
+              >
+                <List className="h-3 w-3" />
+              </button>
+            </div>
+            <button
+              type="button"
+              onClick={() => setFilterDrawerOpen(true)}
+              className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-transparent px-2.5 text-[12.5px] text-fg-strong transition-colors hover:border-hairline hover:bg-white/[0.04] hover:text-white"
+            >
+              <SlidersHorizontal className="h-3 w-3" aria-hidden="true" />
+              Display
+            </button>
+          </>
+        }
+      />
+
+      {/* Tabstrip — flush full-width, hairline border-bottom. Active tab gets
+          green-bright underline (8px inset both sides) + count chip. Per the
+          Livepeer Dashboard v3 design (`.tabstrip` / `.tab` in styles.css). */}
+      <div
+        className="scrollbar-none flex shrink-0 items-center gap-0.5 overflow-x-auto border-b border-hairline px-5"
+        role="tablist"
+        aria-label="Capability category"
+      >
+        {tabKeys.map((tab) => {
+          const isActive = (tab.key === "all" && category === null) || tab.key === category;
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => setCategory(tab.key === "all" ? null : tab.key)}
+              className={`relative inline-flex shrink-0 items-center gap-1.5 px-3 py-[11px] text-[13px] transition-colors ${
+                isActive
+                  ? "text-white"
+                  : "text-fg-muted hover:text-fg-strong"
+              }`}
+            >
+              {tab.label}
+              {isActive && (
+                <span className="rounded-[3px] border border-hairline bg-dark-card px-1.5 py-px font-mono text-[10.5px] text-fg-faint tabular-nums">
+                  {filtered.length}
+                </span>
+              )}
+              {isActive && (
+                <span
+                  className="absolute right-2 left-2 -bottom-px h-0.5 rounded-t-[2px] bg-green-bright"
+                  aria-hidden="true"
+                />
+              )}
+            </button>
+          );
+        })}
       </div>
 
-      {/* Category pill row — primary filter, horizontal scroll on overflow */}
-      <div className="border-b border-hairline">
-        <div className="mx-auto w-full max-w-7xl px-5 lg:px-6">
-          <TabStrip
-            tabs={[
-              { key: "all" as const, label: "All" },
-              ...ALL_CATEGORIES.map((c) => ({
-                key: c.label,
-                label: c.label,
-                icon: c.icon,
-              })),
-            ]}
-            active={category ?? "all"}
-            onChange={(key) => setCategory(key === "all" ? null : (key as ModelCategory))}
-            layoutId="explore-categories"
-            ariaLabel="Capability category"
+      {/* Filter bar — pills + dashed `+ Filter` + right-aligned search.
+          Per `.filter-bar` in the Livepeer Dashboard v3 design. */}
+      <div className="flex flex-wrap items-center gap-1.5 border-b border-hairline bg-dark px-5 py-2.5">
+        <ExploreFilterPill
+          label="Status"
+          value={
+            availabilityFilter === "all"
+              ? "warm, cold"
+              : availabilityFilter === "warm"
+                ? "warm"
+                : "cold"
+          }
+          onClick={() => setFilterDrawerOpen(true)}
+        />
+        {(priceMin > 0 || priceMax < 100) && (
+          <ExploreFilterPill
+            label="Price"
+            value={`≤ $${((priceMax / 100) * dataMaxPrice).toFixed(3)}`}
+            onClear={() => {
+              setPriceMin(0);
+              setPriceMax(100);
+            }}
+          />
+        )}
+        {favoritesOnly && (
+          <ExploreFilterPill
+            label="Starred"
+            value={`${starredIds.length}`}
+            onClear={() => setFavoritesOnly(false)}
+          />
+        )}
+        <button
+          type="button"
+          onClick={() => setFilterDrawerOpen(true)}
+          className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-dashed border-hairline px-2 text-[11.5px] text-fg-muted transition-colors hover:border-subtle hover:text-fg-strong"
+        >
+          <Plus className="h-2.5 w-2.5" aria-hidden="true" />
+          Filter
+        </button>
+
+        {/* Right-aligned search — 280px per design */}
+        <div className="ml-auto flex h-[26px] w-[280px] items-center gap-1.5 rounded-[4px] border border-hairline bg-dark-card px-2.5">
+          <Search
+            className="h-3 w-3 shrink-0 text-fg-faint"
+            aria-hidden="true"
+          />
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search capabilities…"
+            className="flex-1 bg-transparent text-[11.5px] text-fg-strong placeholder:text-fg-faint outline-none"
           />
         </div>
       </div>
 
-      {/* Content + Footer — single column now that the secondary sidebar is gone */}
+      {/* Content */}
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* Toolbar */}
-          <div className="sticky top-0 z-20 flex flex-col gap-2.5 border-b border-hairline bg-dark px-4 py-2 lg:flex-row lg:items-center lg:gap-3 lg:px-5 lg:py-2">
-            {/* Search — full-width on mobile, capped on desktop */}
-            <SearchInput
-              value={search}
-              onChange={setSearch}
-              placeholder="Search capabilities..."
-              ariaLabel="Search capabilities"
-              size="md"
-              className="w-full lg:max-w-xs lg:flex-1"
+        {filtered.length === 0 ? (
+          <div className="flex-1">
+            <ExploreEmptyState
+              onClearFilters={() => {
+                setSearch("");
+                setCategory(null);
+                setAvailabilityFilter("all");
+                setFavoritesOnly(false);
+                setPriceMin(0);
+                setPriceMax(100);
+              }}
             />
-
-            {/* Active filter pills — inline next to Search on desktop; stacks below on mobile */}
-            {activeFilters.length > 0 && (
-              <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-                {activeFilters.map((f) => (
-                  <button
-                    key={f.label}
-                    onClick={f.onClear}
-                    className="inline-flex items-center gap-1 rounded-full bg-white/[0.06] px-2.5 py-1 text-xs text-fg-muted transition-colors hover:bg-white/[0.1] hover:text-white"
-                  >
-                    {f.label}
-                    <X className="h-3 w-3" />
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* Controls — data controls (filter, sort, dir) then display (view). All uniform h-9 mobile / h-8 desktop. */}
-            <div className="flex flex-wrap items-center gap-2 lg:flex-nowrap lg:ml-auto">
-              {/* Filters button — mobile only (desktop has sidebar) */}
-              <button
-                type="button"
-                onClick={() => setFilterDrawerOpen(true)}
-                aria-label="Filters"
-                className="flex h-9 lg:h-8 shrink-0 items-center gap-1.5 rounded-lg border border-subtle bg-white/[0.03] px-2.5 text-xs text-fg-strong transition-colors hover:border-strong hover:bg-white/[0.05] hover:text-white sm:px-3"
-              >
-                <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
-                <span className="hidden sm:inline">Filters</span>
-                {activeFilters.length > 0 && (
-                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-green-bright/15 px-1 text-[11px] font-medium text-green-bright">
-                    {activeFilters.length}
-                  </span>
-                )}
-              </button>
-
-              {/* Sort + direction paired so they wrap together when tight */}
-              <div className="flex min-w-0 flex-1 basis-40 items-center gap-2 lg:flex-initial lg:basis-auto">
-                <Select
-                  size="sm"
-                  ariaLabel="Sort"
-                  value={sort}
-                  options={SORT_OPTIONS}
-                  onChange={setSort}
-                  className="min-w-0 flex-1"
-                  triggerClassName="lg:h-8"
-                />
-
-                <button
-                  onClick={() => setSortDir(sortDir === "desc" ? "asc" : "desc")}
-                  aria-label={
-                    sortDir === "desc"
-                      ? "Sort direction: descending, tap to ascend"
-                      : "Sort direction: ascending, tap to descend"
-                  }
-                  aria-pressed={sortDir === "desc"}
-                  className="flex h-9 w-9 lg:h-8 lg:w-8 shrink-0 items-center justify-center rounded-lg border border-subtle bg-white/[0.03] transition-colors hover:border-strong hover:bg-white/[0.05] focus:outline-none"
-                >
-                  {sortDir === "desc" ? (
-                    <ArrowDown className="h-4 w-4 text-fg-strong" />
-                  ) : (
-                    <ArrowUp className="h-4 w-4 text-fg-strong" />
-                  )}
-                </button>
-              </div>
-
-              {/* View toggle — display preference, anchored last */}
-              <div className="flex shrink-0 rounded-lg border border-subtle bg-white/[0.03]">
-                <button
-                  onClick={() => setView("grid")}
-                  aria-label="Grid view"
-                  aria-pressed={view === "grid"}
-                  className={`flex h-9 w-9 lg:h-8 lg:w-8 items-center justify-center rounded-l-lg transition-colors focus:outline-none ${
-                    view === "grid"
-                      ? "bg-white/[0.08] text-white"
-                      : "text-fg-muted hover:text-white"
-                  }`}
-                >
-                  <LayoutGrid className="h-3.5 w-3.5" />
-                </button>
-                <button
-                  onClick={() => setView("list")}
-                  aria-label="List view"
-                  aria-pressed={view === "list"}
-                  className={`flex h-9 w-9 lg:h-8 lg:w-8 items-center justify-center rounded-r-lg transition-colors focus:outline-none ${
-                    view === "list"
-                      ? "bg-white/[0.08] text-white"
-                      : "text-fg-muted hover:text-white"
-                  }`}
-                >
-                  <List className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-
           </div>
-
-          {/* Grid / List */}
-          <div className="flex-1 p-4">
-            {filtered.length === 0 ? (
-              <ExploreEmptyState
-                onClearFilters={() => {
-                  setSearch("");
-                  setCategory(null);
-                  setAvailabilityFilter("all");
-                  setFavoritesOnly(false);
-                  setRealtimeOnly(false);
-                  setPriceMin(0);
-                  setPriceMax(100);
-                }}
-              />
-            ) : view === "grid" ? (
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-                {filtered.map((model) => (
-                  <ModelCard key={model.id} model={model} />
-                ))}
-              </div>
-            ) : (
-              <div className="overflow-hidden rounded-xl border border-subtle bg-dark-surface">
-                {filtered.map((model) => (
-                  <ModelListItem key={model.id} model={model} />
-                ))}
-              </div>
-            )}
+        ) : view === "grid" ? (
+          <div className="grid grid-cols-1 gap-3 px-5 pt-4 pb-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+            {filtered.map((model) => (
+              <ModelCard key={model.id} model={model} />
+            ))}
           </div>
-          {filtered.length > 0 && (
-            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 px-6 py-3 text-xs">
-              <span className="text-fg-muted">
-                Showing {filtered.length}{" "}
-                {filtered.length === 1 ? "capability" : "capabilities"}
-              </span>
-              <span className="text-fg-disabled" aria-hidden="true">·</span>
-              <span className="text-fg-faint">Missing something?</span>
-              <a
-                href="https://docs.livepeer.org"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-green-bright underline decoration-green-bright/40 underline-offset-4 transition-colors hover:text-green-light hover:decoration-green-bright"
-              >
-                Publish a capability
-              </a>
-            </div>
-          )}
+        ) : (
+          <div className="px-5 pb-8">
+            <ListHeaderRow />
+            {filtered.map((model) => (
+              <ModelListItem key={model.id} model={model} />
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Filter drawer — Availability / Realtime / Starred / Price.
-          Tasks (categories) live in the horizontal pill row above; only secondary
-          filters live here. Used at all breakpoints. */}
+      {/* Filter drawer — Availability / Starred / Price. Categories live
+          in the horizontal pill row above; only secondary filters live
+          here. Used at all breakpoints. */}
       <Drawer
         open={filterDrawerOpen}
         onClose={() => setFilterDrawerOpen(false)}
@@ -636,29 +682,6 @@ function ExplorePageInner() {
                 Cold
               </button>
             </div>
-          </div>
-
-          <div className="h-px bg-white/[0.06]" />
-
-          {/* Realtime — capability filter */}
-          <div>
-            <p className="mb-1.5 px-3 text-xs font-medium uppercase tracking-wider text-fg-muted">
-              Realtime
-            </p>
-            <button
-              onClick={() => setRealtimeOnly(!realtimeOnly)}
-              className={`flex w-full items-center gap-1.5 rounded-lg px-3 py-2.5 text-sm transition-colors ${
-                realtimeOnly
-                  ? "bg-green-bright/10 font-medium text-green-bright"
-                  : "text-fg-strong hover:bg-white/[0.06]"
-              }`}
-            >
-              <Zap
-                className="h-3.5 w-3.5"
-                fill={realtimeOnly ? "currentColor" : "none"}
-              />
-              Realtime only
-            </button>
           </div>
 
           <div className="h-px bg-white/[0.06]" />
@@ -706,7 +729,6 @@ function ExplorePageInner() {
               setCategory(null);
               setAvailabilityFilter("all");
               setFavoritesOnly(false);
-              setRealtimeOnly(false);
               setPriceMin(0);
               setPriceMax(100);
             }}

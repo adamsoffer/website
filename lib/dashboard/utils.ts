@@ -30,6 +30,33 @@ export function formatRuns(n: number): string {
   return n.toString();
 }
 
+// ─── Run-row formatters ─────────────────────────────────────────────────────
+//
+// Shared by every surface that renders an `AccountActivityRow`: home "Your
+// runs" panel, standalone /dashboard/runs view, and the model-detail Runs
+// tab. Centralized here so all three speak the same vocabulary (e.g. "284ms"
+// vs "1.2s", "5m ago" vs "yesterday") instead of three near-duplicate
+// implementations drifting out of sync.
+
+export function formatRunLatency(ms: number | null): string {
+  if (ms == null) return "—";
+  if (ms >= 1000) return `${(ms / 1000).toFixed(1)}s`;
+  return `${ms}ms`;
+}
+
+export function formatRunRelativeTime(iso: string): string {
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return "";
+  const minutes = Math.round((Date.now() - then) / 60_000);
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.round(hours / 24);
+  if (days === 1) return "yesterday";
+  return `${days}d ago`;
+}
+
 export const NEW_MODEL_WINDOW_DAYS = 30;
 
 export function isModelNew(model: { releasedAt?: string }): boolean {
@@ -47,6 +74,48 @@ export function formatPrice(model: Model): string {
     return `$${model.pricing.inputPrice} in / $${model.pricing.outputPrice} out /${model.pricing.unit}`;
   }
   return `$${model.pricing.amount} /${model.pricing.unit}`;
+}
+
+// Per-call cost estimate displayed in playground (CostTag mode="cost") and
+// in code-snippet annotations. Resolution by unit:
+//   Request / Step: one unit per call
+//   Second / Minute: derived from inferenceTime when known, else one unit
+//   M Tokens: one call ≈ ~500 output tokens (rough mock; tokens not tracked)
+// Returned as a short USD string; "<$0.0001" for tiny amounts so the badge
+// never collapses to "$0.00".
+export function estimateCallCost(
+  model: Model,
+  inferenceTimeSeconds?: number,
+): string {
+  const { amount, unit } = model.pricing;
+  let cost: number;
+  switch (unit) {
+    case "Second":
+      cost = amount * (inferenceTimeSeconds ?? 1);
+      break;
+    case "Minute":
+      cost = amount * ((inferenceTimeSeconds ?? 60) / 60);
+      break;
+    case "M Tokens":
+      cost = amount * (500 / 1_000_000);
+      break;
+    case "Request":
+    case "Step":
+    default:
+      cost = amount;
+  }
+  if (cost < 0.0001) return "<$0.0001";
+  if (cost < 0.01) return `$${cost.toFixed(4)}`;
+  if (cost < 1) return `$${cost.toFixed(3)}`;
+  return `$${cost.toFixed(2)}`;
+}
+
+// Stable mock request ID — used by RequestIdChip in playground output and
+// (later) anywhere we want to show "this is what a real request ID looks like."
+// Format mirrors common provider conventions (Stripe, OpenAI): `req_<12 hex>`.
+export function generateMockRequestId(): string {
+  const hex = Math.random().toString(16).slice(2, 14).padEnd(12, "0");
+  return `req_${hex}`;
 }
 
 export function generateMockUsageData(days: number = 30) {

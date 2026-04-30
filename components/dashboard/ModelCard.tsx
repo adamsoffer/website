@@ -1,122 +1,166 @@
 "use client";
 
 import Link from "next/link";
-import { Sparkles, Snowflake, Zap } from "lucide-react";
-import {
-  getModelIcon,
-  formatPrice,
-  isModelNew,
-} from "@/lib/dashboard/utils";
+import { Sparkles } from "lucide-react";
+import { getModelIcon, formatRuns, isModelNew } from "@/lib/dashboard/utils";
 import { generateCardBackground } from "@/lib/dashboard/generate-card-visual";
 import StarButton from "@/components/dashboard/StarButton";
-import StatusDot from "@/components/dashboard/StatusDot";
-import Tooltip from "@/components/ui/Tooltip";
+import Pill from "@/components/dashboard/Pill";
 import type { Model } from "@/lib/dashboard/types";
 
+function formatLatency(ms: number): string {
+  if (ms >= 1000) return `${(ms / 1000).toFixed(2)}s`;
+  return `${Math.round(ms)}ms`;
+}
+
+function formatUnitPrice(model: Model): {
+  amount: string;
+  unit: string;
+} {
+  const p = model.pricing.amount;
+  const decimals = p < 0.01 ? 4 : 3;
+  return {
+    amount: `$${p.toFixed(decimals)}`,
+    unit: `/${model.pricing.unit}`,
+  };
+}
+
+/**
+ * ModelCard — capability card per the Livepeer Dashboard design v3
+ * (Apr 2026, `.cap-card-*` in styles.css).
+ *
+ * Structure: 16:10 thumbnail with a backdrop-blur category chip pinned to the
+ * bottom-left, then a body with name + warm/cold status pill, vendor, two-line
+ * description (with reserved height so cards line up), and a three-column
+ * stats footer (p50 latency, unit price, 7-day runs) separated by a hairline.
+ *
+ * Star (top-right, hover-reveal) and NEW (top-left, when applicable) badges
+ * are preserved on top of the v3 chrome since they're working production
+ * affordances on this surface.
+ */
 export default function ModelCard({
   model,
   hideNewBadge = false,
 }: {
   model: Model;
-  /** Starred/recently-viewed contexts already imply discovery — the NEW badge reads as noise there. */
+  /** Starred / recently-viewed contexts already imply discovery — the NEW badge reads as noise there. */
   hideNewBadge?: boolean;
 }) {
   const Icon = getModelIcon(model.category);
-  const providerSlug = model.provider.toLowerCase().replace(/\s+/g, "-");
   const isWarm = model.status === "hot";
   const isNew = isModelNew(model) && !hideNewBadge;
+  const price = formatUnitPrice(model);
 
   return (
     <Link
       href={`/dashboard/models/${model.id}`}
-      className="group relative flex flex-col overflow-hidden rounded-lg border border-hairline transition-colors duration-150 hover:border-subtle hover:bg-white/[0.015]"
+      className="group flex flex-col overflow-hidden rounded-md border border-hairline bg-dark-lighter transition-colors duration-150 hover:border-strong"
     >
-      {/* Cover */}
-      <div className="relative aspect-video w-full overflow-hidden">
+      {/* Thumbnail */}
+      <div className="relative aspect-[16/10] w-full overflow-hidden bg-dark-card">
         {model.coverImage ? (
           <img
             src={model.coverImage}
             alt={`${model.name} by ${model.provider}`}
-            className="block h-full w-full object-cover"
+            loading="lazy"
+            className="block h-full w-full object-cover transition-transform duration-200 ease-out group-hover:scale-[1.02]"
           />
         ) : (
           <div
             className="flex h-full w-full items-center justify-center"
             style={{ background: generateCardBackground(model.id) }}
+            aria-hidden="true"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.08] ring-1 ring-white/[0.1] backdrop-blur-sm">
-              <Icon
-                className="h-5 w-5 text-fg-strong"
-                strokeWidth={2}
-                aria-hidden="true"
-              />
-            </div>
+            <Icon
+              className="h-7 w-7 text-fg-faint"
+              strokeWidth={1.5}
+            />
           </div>
         )}
 
-        {/* NEW badge — top-left, with safe margin from corner */}
+        {/* NEW badge — top-left, only when the model is fresh */}
         {isNew && (
-          <span className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-md bg-green-bright px-2 py-1 text-[11px] font-medium text-dark">
+          <span className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-md bg-green-bright px-1.5 py-0.5 text-[10.5px] font-medium text-dark">
             <Sparkles className="h-2.5 w-2.5" strokeWidth={2.25} />
             new
           </span>
         )}
 
-        {/* Status pills — bottom-left. Warm/Cold + optional Realtime (moat signal). */}
-        <div className="absolute bottom-3 left-3 flex items-center gap-1.5">
-          <span
-            className={`inline-flex items-center gap-1.5 rounded-full bg-black/50 px-2 py-1 text-[11px] font-medium backdrop-blur-sm ${
-              isWarm ? "text-warm" : "text-blue-bright"
-            }`}
-          >
-            {isWarm ? (
-              <StatusDot tone="warm" />
-            ) : (
-              <Snowflake className="h-2.5 w-2.5" />
-            )}
-            {isWarm ? "Warm" : "Cold"}
-          </span>
-          {model.realtime && (
-            <Tooltip content="Supports streaming (WebRTC) inference">
-              <span
-                tabIndex={0}
-                className="inline-flex items-center gap-1.5 rounded-full bg-black/50 px-2 py-1 text-[11px] font-medium text-green-bright backdrop-blur-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-bright/40"
-              >
-                <Zap className="h-2.5 w-2.5" fill="currentColor" />
-                Realtime
-              </span>
-            </Tooltip>
-          )}
-        </div>
-
-        {/* Star — top-right, hover-reveal */}
-        <StarButton modelId={model.id} className="absolute top-3 right-3" />
-      </div>
-
-      {/* Content */}
-      <div className="flex flex-1 flex-col p-4">
-        <p className="text-[11px] uppercase tracking-wider text-fg-label">
-          {providerSlug}
-        </p>
-        <p className="text-[15px] font-medium leading-snug text-white">
-          {model.name}
-        </p>
-        <span className="mt-2 inline-flex items-center gap-1 self-start rounded-md bg-white/[0.05] px-2 py-1 text-[11px] text-fg-muted">
-          <Icon className="h-3 w-3" />
+        {/* Category chip — backdrop-blurred, bottom-left of the thumbnail */}
+        <span
+          className="absolute bottom-2 left-2 inline-flex items-center gap-1.5 rounded-[4px] py-[3px] pr-[7px] pl-[6px] text-[10.5px] font-medium text-white/90"
+          style={{
+            background: "rgba(10, 10, 11, 0.72)",
+            backdropFilter: "blur(6px)",
+            WebkitBackdropFilter: "blur(6px)",
+          }}
+        >
+          <Icon className="h-3 w-3" aria-hidden="true" />
           {model.category}
         </span>
-        <p className="mt-2.5 line-clamp-2 text-[13px] leading-relaxed text-fg-faint">
+
+        {/* Star — top-right, hover-reveal */}
+        <StarButton modelId={model.id} className="absolute top-2 right-2" />
+      </div>
+
+      {/* Body */}
+      <div className="flex flex-1 flex-col gap-2 px-3.5 pt-3 pb-3.5">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-white">
+            {model.name}
+          </span>
+          <Pill tone={isWarm ? "warm" : "cold"} dot>
+            {isWarm ? "warm" : "cold"}
+          </Pill>
+        </div>
+
+        <p className="-mt-1 text-[11.5px] text-fg-faint">{model.provider}</p>
+
+        <p
+          className="text-[12px] leading-[1.45] text-fg-muted"
+          style={{
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+            minHeight: 34,
+          }}
+        >
           {model.description}
         </p>
 
-        <div className="flex-1" />
-
-        <div className="mt-4 flex items-center justify-end border-t border-hairline pt-4">
-          <span className="text-xs text-fg-strong">
-            {formatPrice(model)}
-          </span>
+        {/* Stats footer — 3 columns, hairline divider above */}
+        <div className="mt-[2px] grid grid-cols-3 gap-2 border-t border-hairline pt-2.5">
+          <Stat label="p50" value={formatLatency(model.latency)} />
+          <Stat
+            label="Price"
+            value={
+              <>
+                {price.amount}
+                <span className="text-fg-disabled">{price.unit}</span>
+              </>
+            }
+          />
+          <Stat label="7d runs" value={formatRuns(model.runs7d)} />
         </div>
       </div>
     </Link>
+  );
+}
+
+function Stat({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) {
+  return (
+    <div className="flex min-w-0 flex-col gap-0.5">
+      <span className="font-mono text-[10px] uppercase tracking-[0.05em] text-fg-faint">
+        {label}
+      </span>
+      <span className="truncate text-[12px] text-fg-strong">{value}</span>
+    </div>
   );
 }

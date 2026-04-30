@@ -1,7 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { ExternalLink, type LucideIcon } from "lucide-react";
+import {
+  ChevronRight,
+  ExternalLink,
+  Lock,
+  type LucideIcon,
+} from "lucide-react";
 import Tooltip from "@/components/ui/Tooltip";
 
 interface NavLinkProps {
@@ -11,9 +16,34 @@ interface NavLinkProps {
   active?: boolean;
   collapsed?: boolean;
   external?: boolean;
+  /** Locked = workspace-only route shown to a logged-out user. Renders dimmer
+   *  icon/label + a small lock icon on the right (replacing `meta`). The link
+   *  still navigates — the destination route is expected to render a sign-in
+   *  wall instead of its content, so the lock is purely a visual signal. */
+  locked?: boolean;
+  /** Right-aligned mono count badge (e.g. `47`, `1.2K`, `3`). Hidden when
+   *  collapsed. Mutually exclusive with `kbd` and `submenu`. */
+  meta?: string;
+  /** Right-aligned keyboard hint, dimmer than `meta` (e.g. `G H`). Per the v6
+   *  prototype's `nav-kbd`. Hidden when collapsed. Mutually exclusive with
+   *  `meta`. */
+  kbd?: string;
+  /** Renders a chev-right at the end, signaling that this row leads into a
+   *  sub-experience (the v6 prototype uses this on the Settings nav item to
+   *  hint that clicking swaps the sidebar to a settings rail). Suppresses
+   *  `meta`/`kbd`/`external` rendering. */
+  submenu?: boolean;
   onNavigate?: () => void;
 }
 
+/**
+ * NavLink — sidebar nav row.
+ *
+ * Density per the Livepeer Console design (Apr 2026): 26px tall, 13px text,
+ * gap-2, px-2.5. Active = `bg-active` (white at 7%) + white label + white icon.
+ * The right-aligned `meta` slot (mono, 11px, fg-label) carries counts/badges
+ * inline so the row stays scannable.
+ */
 export default function NavLink({
   href,
   icon: Icon,
@@ -21,36 +51,66 @@ export default function NavLink({
   active = false,
   collapsed = false,
   external = false,
+  locked = false,
+  meta,
+  kbd,
+  submenu = false,
   onNavigate,
 }: NavLinkProps) {
   const base =
-    "group relative flex h-9 items-center rounded-md text-sm transition-colors";
+    "group relative flex h-[26px] items-center rounded-[4px] text-[13px] font-medium transition-colors";
   const state = active
-    ? "bg-white/[0.05] text-white"
-    : "text-fg-muted hover:bg-white/[0.025] hover:text-white";
-  const layout = collapsed ? "w-9 justify-center" : "w-full gap-3 px-2.5";
+    ? "bg-white/[0.07] text-white"
+    : locked
+      ? "text-fg-faint hover:bg-white/[0.04] hover:text-fg-strong"
+      : "text-fg-strong hover:bg-white/[0.04] hover:text-white";
+  const layout = collapsed ? "w-[26px] justify-center" : "w-full gap-2 px-2.5";
   const className = `${base} ${state} ${layout}`;
 
   const content = (
     <>
-      {active && !collapsed && (
-        <span
-          aria-hidden="true"
-          className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-r bg-green-bright motion-safe:[animation:breathe_4s_ease-in-out_infinite]"
-        />
-      )}
       <Icon
-        className={`h-4 w-4 shrink-0 ${active ? "text-white" : "text-fg-faint"}`}
+        className={`h-3.5 w-3.5 shrink-0 ${
+          active
+            ? "text-white"
+            : locked
+              ? "text-fg-disabled"
+              : "text-fg-label"
+        }`}
         aria-hidden="true"
       />
       {!collapsed && (
         <>
           <span className="min-w-0 flex-1 truncate">{label}</span>
-          {external && (
-            <ExternalLink
+          {locked ? (
+            <Lock
               className="h-3 w-3 shrink-0 text-fg-disabled"
               aria-hidden="true"
             />
+          ) : submenu ? (
+            <ChevronRight
+              className="-mr-0.5 h-3.5 w-3.5 shrink-0 text-fg-faint"
+              aria-hidden="true"
+            />
+          ) : (
+            <>
+              {meta && (
+                <span className="shrink-0 font-mono text-[11px] text-fg-label tabular-nums">
+                  {meta}
+                </span>
+              )}
+              {kbd && (
+                <span className="shrink-0 font-mono text-[10.5px] tracking-[0.04em] text-fg-disabled">
+                  {kbd}
+                </span>
+              )}
+              {external && (
+                <ExternalLink
+                  className="h-3 w-3 shrink-0 text-fg-disabled"
+                  aria-hidden="true"
+                />
+              )}
+            </>
           )}
         </>
       )}
@@ -80,8 +140,6 @@ export default function NavLink({
     </Link>
   );
 
-  // When collapsed (icon-only rail), wrap in a Tooltip pointing right so the
-  // user can read the label without expanding the sidebar.
   if (collapsed) {
     return (
       <Tooltip content={label} side="right">
