@@ -580,7 +580,9 @@ function ModelChromeBar({ model }: { model: Model }) {
   const pinned = isStarred(model.id);
   const { isConnected, isLoading } = useAuth();
   const pathname = usePathname() ?? "";
-  const isAuthRoute = pathname.startsWith("/dashboard/login");
+  const isAuthRoute =
+    pathname.startsWith("/dashboard/login") ||
+    pathname.startsWith("/dashboard/signup");
   // Hide auth CTAs while auth state is still resolving (one frame on first
   // paint) to avoid flashing them in for connected users.
   const showAuthCTAs = !isLoading && !isConnected && !isAuthRoute;
@@ -635,7 +637,7 @@ function ModelChromeBar({ model }: { model: Model }) {
               Sign in
             </Link>
             <Link
-              href="/dashboard/login?mode=signup"
+              href="/dashboard/signup"
               className="btn-primary inline-flex h-[26px] items-center rounded-[4px] px-2.5 text-[12.5px] font-medium transition-colors"
             >
               Sign up

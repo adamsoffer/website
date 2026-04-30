@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth, type AuthProvider } from "@/components/dashboard/AuthContext";
 import { LivepeerWordmark } from "@/components/icons/LivepeerLogo";
@@ -56,14 +57,21 @@ function GoogleIcon({ className }: { className?: string }) {
   );
 }
 
-export default function LoginPage() {
-  // `?mode=signup` lands here from the sidebar promo's "Get an API key", the
-  // header's "Sign up" CTA, and the sign-in walls. Without this the toggle
-  // would always start on Sign in and the user would have to flip it.
-  const searchParams = useSearchParams();
-  const initialMode: "signin" | "signup" =
-    searchParams?.get("mode") === "signup" ? "signup" : "signin";
-  const [mode, setMode] = useState<"signin" | "signup">(initialMode);
+interface LoginPageProps {
+  /** Which mode the page renders in. Driven by route — `/dashboard/login`
+   *  passes `"signin"`, `/dashboard/signup` passes `"signup"`. The footer
+   *  toggle navigates between the two routes so the URL always matches the
+   *  visible mode. */
+  initialMode?: "signin" | "signup";
+}
+
+export default function LoginPage({ initialMode = "signin" }: LoginPageProps = {}) {
+  // Mode is owned by the route, not by local state — sibling pages
+  // `/dashboard/login` and `/dashboard/signup` re-mount this component
+  // with the appropriate `initialMode`. The footer toggle is a `<Link>`
+  // navigation, not a `setState` call, so the URL stays in sync with the
+  // visible mode and a sign-up URL can be shared.
+  const mode = initialMode;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -250,24 +258,22 @@ export default function LoginPage() {
             {mode === "signin" ? (
               <>
                 Don&apos;t have an account?{" "}
-                <button
-                  type="button"
-                  onClick={() => setMode("signup")}
+                <Link
+                  href="/dashboard/signup"
                   className="text-fg-strong underline decoration-fg-disabled underline-offset-2 transition-colors hover:text-fg hover:decoration-fg-strong"
                 >
                   Sign up
-                </button>
+                </Link>
               </>
             ) : (
               <>
                 Already have an account?{" "}
-                <button
-                  type="button"
-                  onClick={() => setMode("signin")}
+                <Link
+                  href="/dashboard/login"
                   className="text-fg-strong underline decoration-fg-disabled underline-offset-2 transition-colors hover:text-fg hover:decoration-fg-strong"
                 >
                   Log in
-                </button>
+                </Link>
               </>
             )}
           </p>

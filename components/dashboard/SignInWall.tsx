@@ -117,7 +117,7 @@ export default function SignInWall({ route }: { route: SignInWallRoute }) {
             <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
           </Link>
           <Link
-            href="/dashboard/login?mode=signup"
+            href="/dashboard/signup"
             className="inline-flex h-9 items-center justify-center rounded-[6px] border border-hairline bg-dark-card px-4 text-[13px] text-fg-strong transition-colors hover:border-subtle hover:bg-hover hover:text-fg"
           >
             Create workspace

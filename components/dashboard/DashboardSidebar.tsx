@@ -312,7 +312,7 @@ function SignedOutSidebarContent({
                 <button
                   type="button"
                   onClick={() => {
-                    router.push("/dashboard/login?mode=signup");
+                    router.push("/dashboard/signup");
                     onNavigate?.();
                   }}
                   className="btn-primary flex h-7 w-full items-center justify-center rounded-[4px] px-2.5 text-[12.5px] font-medium tracking-[-0.005em] transition-colors"
