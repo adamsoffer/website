@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { Search, RefreshCw } from "lucide-react";
 import StatCard from "./StatCard";
+import EmptyState from "@/components/dashboard/EmptyState";
 import KpiStrip from "@/components/dashboard/KpiStrip";
 import { PIPELINE_UTILIZATION, LIVE_JOBS } from "@/lib/dashboard/mock-data";
 import type { NetworkStat, PipelineUtilization, LiveJobStatus } from "@/lib/dashboard/types";
@@ -60,43 +61,52 @@ function LiveJobFeed() {
   const activeJobCount = LIVE_JOBS.filter((j) => j.status !== "completed").length;
 
   return (
-    <div className="rounded-xl border border-hairline bg-dark-surface">
-      <div className="border-b border-hairline px-4 py-3 sm:px-5">
-        {/* Row 1: title + LIVE badge */}
-        <div className="flex items-center justify-between gap-3">
-          <h3 className="text-sm font-medium text-fg-muted">Live Job Feed</h3>
-          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-green-bright/10 px-2.5 py-1 text-[11px] font-medium text-green-bright">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-bright" />
+    <div className="rounded-md border border-hairline bg-dark-lighter shadow-card">
+      <div className="border-b border-hairline px-4 py-3.5">
+        {/* Row 1: title + sub on the left, LIVE badge on the right. */}
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-[17px] font-bold text-fg">Live job feed</p>
+            <p className="mt-0.5 text-[12px] text-fg-muted">
+              {LIVE_JOBS.length} jobs · {activeJobCount + 9} active orchestrators
+            </p>
+          </div>
+          <span className="inline-flex h-[22px] shrink-0 items-center gap-1.5 rounded-full bg-green-bright/10 px-2 text-[11px] font-medium text-green-bright">
+            <span className="h-1.5 w-1.5 animate-breathe rounded-full bg-green-bright" />
             LIVE
           </span>
         </div>
-        {/* Row 2: refresh toggle left, job count right */}
+        {/* Row 2: refresh interval segmented control. */}
         <div className="mt-2.5 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-1 rounded-lg bg-hover p-0.5">
-            <RefreshCw className="ml-1.5 h-3 w-3 shrink-0 text-fg-disabled" />
+          <div
+            className="flex h-[26px] items-center gap-0.5 rounded-[4px] border border-hairline bg-dark-lighter p-0.5"
+            role="tablist"
+            aria-label="Refresh interval"
+          >
+            <RefreshCw className="ml-1 h-3 w-3 shrink-0 text-fg-disabled" />
             {REFRESH_OPTIONS.map((opt) => (
               <button
                 key={opt}
+                type="button"
+                role="tab"
+                aria-selected={refreshInterval === opt}
                 onClick={() => setRefreshInterval(opt)}
-                className={`shrink-0 rounded-md px-2 py-1 text-[11px] transition-colors ${
+                className={`flex h-5 items-center rounded-[3px] px-2 text-[11.5px] font-medium transition-colors ${
                   refreshInterval === opt
-                    ? "bg-pop font-medium text-fg"
-                    : "text-fg-label hover:text-fg-muted"
+                    ? "bg-pop text-fg"
+                    : "text-fg-faint hover:text-fg-strong"
                 }`}
               >
                 {opt}
               </button>
             ))}
           </div>
-          <span className="shrink-0 whitespace-nowrap text-[11px] text-fg-label">
-            {LIVE_JOBS.length} / {activeJobCount + 9} active
-          </span>
         </div>
       </div>
 
       {/* Column headers — outside scroll, desktop only */}
       <div className="hidden md:block overflow-x-auto">
-        <div className="flex min-w-[600px] items-center gap-4 border-b border-hairline px-5 py-2 text-[11px] font-medium uppercase tracking-wider text-fg-disabled">
+        <div className="flex min-w-[600px] items-center gap-4 border-b border-hairline px-4 py-2 font-mono text-[10.5px] font-medium uppercase tracking-[0.06em] text-fg-disabled">
           <span className="flex-1">Pipeline</span>
           <span className="w-44">Model</span>
           <span className="w-20 text-right">FPS</span>
@@ -118,7 +128,7 @@ function LiveJobFeed() {
             return (
               <div key={job.id}>
                 {/* Desktop row */}
-                <div className="hidden md:flex min-w-[600px] items-center gap-4 px-5 py-2.5 transition-colors hover:bg-zebra">
+                <div className="hidden md:flex min-w-[600px] items-center gap-4 px-4 py-2.5 transition-colors hover:bg-zebra">
                   <span className="flex-1 text-sm text-fg-strong">{job.pipeline}</span>
                   <span className="w-44 truncate text-xs text-fg-faint">{job.model}</span>
                   <span className="w-20 text-right text-xs text-fg-faint">{fps}</span>
@@ -155,7 +165,7 @@ function LiveJobFeed() {
 
 // ─── Main ───
 
-const PIPELINE_PAGE_SIZE = 5;
+const PIPELINE_PAGE_SIZE = 20;
 
 export default function UtilizationTab() {
   const [search, setSearch] = useState("");
@@ -164,9 +174,12 @@ export default function UtilizationTab() {
   const kpi: NetworkStat[] = useMemo(() => {
     const active = PIPELINE_UTILIZATION.filter((p) => p.status !== "cold");
     const totalWarm = PIPELINE_UTILIZATION.reduce((s, p) => s + p.warmOrchestrators, 0);
+    // Derive Active Jobs from the LIVE_JOBS feed instead of a literal so it
+    // tracks reality when the mock data changes.
+    const activeJobs = LIVE_JOBS.filter((j) => j.status !== "completed").length;
 
     return [
-      { label: "Active Jobs", value: "24", delta: "+3", trend: "up" as const },
+      { label: "Active Jobs", value: `${activeJobs}`, delta: "+3", trend: "up" as const },
       { label: "Active Pipelines", value: `${active.length}`, trend: "flat" as const },
       { label: "Warm Capabilities", value: `${totalWarm}`, delta: "+12", trend: "up" as const },
       { label: "Requests (1h)", value: "4,280", delta: "+340", trend: "up" as const },
@@ -186,17 +199,9 @@ export default function UtilizationTab() {
   );
 
   return (
-    <div className="flex flex-1 flex-col gap-6 p-5 lg:p-6">
-      {/* Header — hidden on mobile (dropdown nav already identifies the section) */}
-      <div className="hidden lg:block">
-        <h2 className="text-lg font-semibold text-fg">Utilization</h2>
-        <p className="mt-1 text-sm text-fg-muted">
-          Real-time network activity and pipeline capacity across the Livepeer AI inference network.
-        </p>
-      </div>
-      <p className="text-sm text-fg-muted lg:hidden">
-        Real-time network activity and pipeline capacity across the Livepeer AI inference network.
-      </p>
+    <div className="mx-auto flex w-full max-w-[1200px] flex-1 flex-col gap-7 px-7 pt-7 pb-20">
+      {/* No in-tab section header — page chrome + active tab pill identify
+          the section. */}
 
       {/* KPI cards */}
       <KpiStrip cols={4}>
@@ -209,32 +214,34 @@ export default function UtilizationTab() {
       <LiveJobFeed />
 
       {/* Pipelines */}
-      <div className="rounded-xl border border-hairline bg-dark-surface">
-        <div className="border-b border-hairline px-4 py-3 sm:px-5">
+      <div className="overflow-hidden rounded-md border border-hairline bg-dark-lighter shadow-card">
+        <div className="border-b border-hairline px-4 py-3.5">
           <div className="flex items-start justify-between gap-3">
-            <h3 className="text-sm font-medium text-fg-muted">Pipelines</h3>
-            <p className="shrink-0 text-[11px] text-fg-label">
-              {filteredPipelines.length} active · {PIPELINE_UTILIZATION.filter((p) => p.status !== "cold").length} warm · {Math.round(
-                PIPELINE_UTILIZATION.filter((p) => p.status !== "cold").reduce((s, p) => s + p.utilizationPct, 0) /
-                  PIPELINE_UTILIZATION.filter((p) => p.status !== "cold").length,
-              )}% avg
-            </p>
+            <div>
+              <p className="text-[17px] font-bold text-fg">Pipelines</p>
+              <p className="mt-0.5 text-[12px] text-fg-muted">
+                {filteredPipelines.length} active · {PIPELINE_UTILIZATION.filter((p) => p.status !== "cold").length} warm · {Math.round(
+                  PIPELINE_UTILIZATION.filter((p) => p.status !== "cold").reduce((s, p) => s + p.utilizationPct, 0) /
+                    PIPELINE_UTILIZATION.filter((p) => p.status !== "cold").length,
+                )}% avg utilization
+              </p>
+            </div>
           </div>
-          <div className="relative mt-2.5">
-            <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-fg-disabled" />
+          <div className="mt-3 flex h-[26px] w-full items-center gap-1.5 rounded-[4px] border border-hairline bg-dark-card px-2.5 sm:max-w-[280px]">
+            <Search className="h-3 w-3 shrink-0 text-fg-faint" aria-hidden="true" />
             <input
-              type="text"
+              type="search"
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPipelinePage(0); }}
-              placeholder="Search pipelines..."
-              className="w-full rounded-lg border border-subtle bg-zebra py-1.5 pl-9 pr-3 text-xs text-fg placeholder:text-fg-disabled focus:border-strong focus:outline-none"
+              placeholder="Search pipelines…"
+              className="flex-1 bg-transparent text-[11.5px] text-fg-strong placeholder:text-fg-faint outline-none"
             />
           </div>
         </div>
 
         {/* Column headers — outside scroll, desktop only */}
         <div className="hidden md:block overflow-x-auto">
-          <div className="flex min-w-[700px] items-center gap-4 border-b border-hairline px-5 py-2 text-[11px] font-medium uppercase tracking-wider text-fg-disabled">
+          <div className="flex min-w-[700px] items-center gap-4 border-b border-hairline px-4 py-2 font-mono text-[10.5px] font-medium uppercase tracking-[0.06em] text-fg-disabled">
             <span className="flex-1">Pipeline</span>
             <span className="w-16 text-right">Warm</span>
             <span className="w-16 text-right">Capacity</span>
@@ -245,13 +252,25 @@ export default function UtilizationTab() {
           </div>
         </div>
 
-        {/* Paginated rows — desktop table, mobile card list */}
+        {/* Paginated rows — desktop table, mobile card list. Empty state
+            renders when search returns nothing instead of letting the table
+            silently disappear. */}
+        {filteredPipelines.length === 0 ? (
+          <div className="px-5 py-6">
+            <EmptyState
+              variant="guided"
+              icon={<Search className="h-4 w-4" />}
+              title="No pipelines match your search"
+              description={`No results for "${search}". Try a different name or clear the search.`}
+            />
+          </div>
+        ) : (
         <div className="md:overflow-x-auto">
           <div className="divide-y divide-[var(--color-border-hairline)]">
             {pipelinePageItems.map((p) => (
               <div key={p.id}>
                 {/* Desktop row */}
-                <div className="hidden md:flex min-w-[700px] items-center gap-4 px-5 py-3 transition-colors hover:bg-zebra">
+                <div className="hidden md:flex min-w-[700px] items-center gap-4 px-4 py-2.5 transition-colors hover:bg-zebra">
                   <span className="flex-1 text-sm text-fg-strong">{p.name}</span>
                   <span className="w-16 text-right text-xs text-green-bright">
                     {p.warmOrchestrators}
@@ -301,27 +320,28 @@ export default function UtilizationTab() {
             ))}
           </div>
         </div>
+        )}
 
         {/* Pagination */}
         {pipelineTotalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-hairline px-5 py-2.5">
-            <span className="text-xs text-fg-faint">
-              {pipelinePage * PIPELINE_PAGE_SIZE + 1}–
-              {Math.min((pipelinePage + 1) * PIPELINE_PAGE_SIZE, filteredPipelines.length)} of{" "}
-              {filteredPipelines.length} pipelines
+          <div className="flex items-center justify-between border-t border-hairline px-4 py-2.5">
+            <span className="text-[12px] text-fg-faint tabular-nums">
+              Page {pipelinePage + 1} of {pipelineTotalPages} · {filteredPipelines.length} pipelines
             </span>
             <div className="flex gap-1.5">
               <button
+                type="button"
                 onClick={() => setPipelinePage(Math.max(0, pipelinePage - 1))}
                 disabled={pipelinePage === 0}
-                className="rounded-lg border border-subtle bg-zebra px-3 py-1.5 text-xs text-fg-strong transition-colors hover:border-strong hover:bg-hover hover:text-fg disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-subtle disabled:hover:bg-zebra"
+                className="inline-flex h-[26px] items-center rounded-[4px] border border-transparent px-2.5 text-[12.5px] text-fg-strong transition-colors hover:border-hairline hover:bg-hover hover:text-fg disabled:cursor-not-allowed disabled:text-fg-disabled disabled:hover:border-transparent disabled:hover:bg-transparent"
               >
                 Prev
               </button>
               <button
+                type="button"
                 onClick={() => setPipelinePage(Math.min(pipelineTotalPages - 1, pipelinePage + 1))}
                 disabled={pipelinePage >= pipelineTotalPages - 1}
-                className="rounded-lg border border-subtle bg-zebra px-3 py-1.5 text-xs text-fg-strong transition-colors hover:border-strong hover:bg-hover hover:text-fg disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-subtle disabled:hover:bg-zebra"
+                className="inline-flex h-[26px] items-center rounded-[4px] border border-transparent px-2.5 text-[12.5px] text-fg-strong transition-colors hover:border-hairline hover:bg-hover hover:text-fg disabled:cursor-not-allowed disabled:text-fg-disabled disabled:hover:border-transparent disabled:hover:bg-transparent"
               >
                 Next
               </button>

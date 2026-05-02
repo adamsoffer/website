@@ -12,6 +12,7 @@ import {
 import { ExternalLink, TrendingUp, Search } from "lucide-react";
 import PeriodToggle from "./PeriodToggle";
 import { SimpleChartTooltip } from "./ChartTooltip";
+import EmptyState from "@/components/dashboard/EmptyState";
 import {
   PAYMENT_HISTORY,
   PAYMENT_STATS,
@@ -41,12 +42,14 @@ function SummaryCard({
   usd: number;
 }) {
   return (
-    <div className="rounded-xl border border-hairline bg-dark-surface p-5">
-      <p className="text-[11px] font-medium uppercase tracking-wider text-fg-label">{label}</p>
-      <p className="mt-1 text-2xl font-semibold tabular-nums text-fg">
+    <div className="rounded-md border border-hairline bg-dark-lighter shadow-card px-5 py-4">
+      <p className="font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-fg-faint">
+        {label}
+      </p>
+      <p className="mt-1.5 font-mono text-[22px] font-semibold leading-none tabular-nums tracking-[-0.02em] text-fg">
         ${usd.toLocaleString(undefined, { maximumFractionDigits: 0 })}
       </p>
-      <div className="mt-1 flex items-center gap-1 text-xs text-green-bright">
+      <div className="mt-1.5 flex items-center gap-1 text-[11.5px] text-green-bright">
         <TrendingUp className="h-3 w-3" />
         <span className="tabular-nums">{eth.toFixed(2)} ETH</span>
       </div>
@@ -86,34 +89,26 @@ export default function PaymentsTab() {
   const pageTxs = filteredTxs.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
   return (
-    <div className="flex flex-1 flex-col gap-6 p-5 lg:p-6">
-      {/* Header — hidden on mobile (dropdown nav already identifies the section) */}
-      <div className="hidden lg:block">
-        <h2 className="text-lg font-semibold text-fg">Payments</h2>
-        <p className="mt-1 text-sm text-fg-muted">
-          ETH fees flowing through the network for completed inference jobs, paid to orchestrators.
-        </p>
-      </div>
-      <p className="text-sm text-fg-muted lg:hidden">
-        ETH fees flowing through the network for completed inference jobs, paid to orchestrators.
-      </p>
+    <div className="mx-auto flex w-full max-w-[1200px] flex-1 flex-col gap-7 px-7 pt-7 pb-20">
+      {/* No in-tab section header — page chrome + active tab pill identify
+          the section. */}
 
       {/* Revenue chart */}
-      <div className="rounded-xl border border-hairline bg-dark-surface p-5">
-        <div className="mb-1 flex items-start justify-between gap-3">
+      <div className="rounded-md border border-hairline bg-dark-lighter shadow-card px-5 pt-5 pb-4">
+        <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-fg-label">
-              Network Revenue
+            <p className="font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-fg-faint">
+              Network revenue
             </p>
-            <p className="mt-1 text-3xl font-semibold text-fg">
+            <p className="mt-1.5 font-mono text-[28px] font-semibold leading-[1.05] tracking-[-0.02em] tabular-nums text-fg">
               ${(chartData.reduce((s, r) => s + r.volumeUsd, 0) / 1000).toFixed(1)}k
+            </p>
+            <p className="mt-1 text-[12px] text-fg-muted">
+              Daily fees paid to orchestrators for inference work.
             </p>
           </div>
           <PeriodToggle value={period} onChange={setPeriod} options={PERIOD_OPTIONS} />
         </div>
-        <p className="mt-1 text-sm text-fg-muted">
-          Daily fees paid to orchestrators for inference work.
-        </p>
 
         <div className="mt-4">
           <ResponsiveContainer width="100%" height={240}>
@@ -138,7 +133,7 @@ export default function PaymentsTab() {
               <Tooltip content={<SimpleChartTooltip />} cursor={{ fill: "var(--color-zebra)" }} />
               <Bar
                 dataKey="volumeUsd"
-                fill="#40bf86"
+                fill="var(--chart-revenue)"
                 radius={[4, 4, 0, 0]}
                 animationDuration={600}
                 animationEasing="ease-out"
@@ -170,29 +165,41 @@ export default function PaymentsTab() {
       </div>
 
       {/* Recent payments table */}
-      <div className="rounded-xl border border-hairline bg-dark-surface">
-        <div className="border-b border-hairline px-4 py-3 sm:px-5">
+      <div className="overflow-hidden rounded-md border border-hairline bg-dark-lighter shadow-card">
+        <div className="border-b border-hairline px-4 py-3.5">
           <div className="flex items-start justify-between gap-3">
-            <h3 className="text-sm font-medium text-fg-muted">Recent Payments</h3>
-            <span className="shrink-0 text-[11px] text-fg-label">
-              {filteredTxs.length} payments{search ? " found" : " loaded"}
-            </span>
+            <div>
+              <p className="text-[17px] font-bold text-fg">Recent payments</p>
+              <p className="mt-0.5 text-[12px] text-fg-muted">
+                {filteredTxs.length} payments{search ? ` matching "${search}"` : " · all-time"}
+              </p>
+            </div>
           </div>
-          <div className="relative mt-2.5">
-            <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-fg-disabled" />
+          <div className="mt-3 flex h-[26px] w-full items-center gap-1.5 rounded-[4px] border border-hairline bg-dark-card px-2.5 sm:max-w-[280px]">
+            <Search className="h-3 w-3 shrink-0 text-fg-faint" aria-hidden="true" />
             <input
-              type="text"
+              type="search"
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(0); }}
-              placeholder="Search payments..."
-              className="w-full rounded-lg border border-subtle bg-zebra py-1.5 pl-9 pr-3 text-xs text-fg placeholder:text-fg-disabled focus:border-strong focus:outline-none"
+              placeholder="Search payments…"
+              className="flex-1 bg-transparent text-[11.5px] text-fg-strong placeholder:text-fg-faint outline-none"
             />
           </div>
         </div>
 
+        {filteredTxs.length === 0 ? (
+          <div className="px-5 py-6">
+            <EmptyState
+              variant="guided"
+              icon={<Search className="h-4 w-4" />}
+              title="No payments match your search"
+              description={`No results for "${search}". Try a different orchestrator, pipeline, or tx hash — or clear the search.`}
+            />
+          </div>
+        ) : (
         <div className="md:overflow-x-auto">
           {/* Header — desktop only */}
-          <div className="hidden md:flex min-w-[700px] items-center gap-4 border-b border-hairline px-5 py-2 text-[11px] font-medium uppercase tracking-wider text-fg-disabled">
+          <div className="hidden md:flex min-w-[700px] items-center gap-4 border-b border-hairline px-4 py-2 font-mono text-[10.5px] font-medium uppercase tracking-[0.06em] text-fg-disabled">
             <span className="w-36">Date</span>
             <span className="w-28">Orchestrator</span>
             <span className="flex-1">Pipeline</span>
@@ -214,7 +221,7 @@ export default function PaymentsTab() {
               return (
                 <div key={tx.id}>
                   {/* Desktop row */}
-                  <div className="hidden md:flex min-w-[700px] items-center gap-4 px-5 py-3 transition-colors hover:bg-zebra">
+                  <div className="hidden md:flex min-w-[700px] items-center gap-4 px-4 py-2.5 transition-colors hover:bg-zebra">
                     <span className="w-36 text-xs tabular-nums text-fg-faint">{dateStr}</span>
                     <span className="w-28 truncate text-xs text-fg-muted">{tx.orchestrator}</span>
                     <span className="flex-1 text-xs text-fg-faint">{tx.pipeline}</span>
@@ -263,26 +270,28 @@ export default function PaymentsTab() {
             })}
           </div>
         </div>
+        )}
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-hairline px-5 py-2.5">
-            <span className="text-xs text-fg-label">
-              {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, filteredTxs.length)} of{" "}
-              {filteredTxs.length} payments
+          <div className="flex items-center justify-between border-t border-hairline px-4 py-2.5">
+            <span className="text-[12px] text-fg-faint tabular-nums">
+              Page {page + 1} of {totalPages} · {filteredTxs.length} payments
             </span>
             <div className="flex gap-1.5">
               <button
+                type="button"
                 onClick={() => setPage(Math.max(0, page - 1))}
                 disabled={page === 0}
-                className="rounded-lg border border-subtle bg-zebra px-3 py-1.5 text-xs text-fg-strong transition-colors hover:border-strong hover:bg-hover hover:text-fg disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-subtle disabled:hover:bg-zebra"
+                className="inline-flex h-[26px] items-center rounded-[4px] border border-transparent px-2.5 text-[12.5px] text-fg-strong transition-colors hover:border-hairline hover:bg-hover hover:text-fg disabled:cursor-not-allowed disabled:text-fg-disabled disabled:hover:border-transparent disabled:hover:bg-transparent"
               >
                 Prev
               </button>
               <button
+                type="button"
                 onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
                 disabled={page >= totalPages - 1}
-                className="rounded-lg border border-subtle bg-zebra px-3 py-1.5 text-xs text-fg-strong transition-colors hover:border-strong hover:bg-hover hover:text-fg disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-subtle disabled:hover:bg-zebra"
+                className="inline-flex h-[26px] items-center rounded-[4px] border border-transparent px-2.5 text-[12.5px] text-fg-strong transition-colors hover:border-hairline hover:bg-hover hover:text-fg disabled:cursor-not-allowed disabled:text-fg-disabled disabled:hover:border-transparent disabled:hover:bg-transparent"
               >
                 Next
               </button>

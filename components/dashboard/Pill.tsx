@@ -56,7 +56,7 @@ export default function Pill({ tone = "default", dot = true, children }: PillPro
       {dot && (
         <span
           className={`h-1.5 w-1.5 shrink-0 rounded-full ${t.dot} ${
-            t.pulse ? "motion-safe:animate-pulse" : ""
+            t.pulse ? "motion-safe:animate-breathe" : ""
           }`}
           aria-hidden="true"
         />

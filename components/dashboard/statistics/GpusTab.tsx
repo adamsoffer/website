@@ -14,15 +14,25 @@ import StatCard from "./StatCard";
 import KpiStrip from "@/components/dashboard/KpiStrip";
 import { StackedChartTooltip, SimpleChartTooltip } from "./ChartTooltip";
 import { GPU_NODES, GPU_GROWTH } from "@/lib/dashboard/mock-data";
-import { computeAxisTicks } from "@/lib/dashboard/utils";
+import { computeAxisTicks, generateSparklineData } from "@/lib/dashboard/utils";
 import type { NetworkStat } from "@/lib/dashboard/types";
 
 // ─── Constants ───
-
+//
+// Chart palette tokens — defined once in `globals.css` (`--chart-1..10`).
+// Using `var()` here means light/dark or any future theme retune flows
+// through without touching this file.
 const GPU_COLORS = [
-  "#40bf86", "#25abd0", "#e5a536", "#d94f70",
-  "#8b5cf6", "#06b6d4", "#f59e0b", "#ec4899",
-  "#84cc16", "#a855f7",
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+  "var(--chart-6)",
+  "var(--chart-7)",
+  "var(--chart-8)",
+  "var(--chart-9)",
+  "var(--chart-10)",
 ];
 
 // Short label for bar segments — the unique model identifier
@@ -104,6 +114,20 @@ export default function GpusTab() {
     { label: "90D Growth", value: `${growthPct}%`, delta: `+${latestGrowth.total - earliestGrowth.total}`, trend: "up" as const },
   ], [totalGpus, totalVram, growthPct, latestGrowth.total, earliestGrowth.total]);
 
+  // Mock sparklines for the 4 GPU KPIs — generated client-side only since
+  // `generateSparklineData` uses `Math.random()` (would mismatch SSR/hydration
+  // if run inside useMemo).
+  const [kpiSparks, setKpiSparks] = useState<number[][]>([]);
+  useEffect(() => {
+    setKpiSparks(kpi.map(() => generateSparklineData(20)));
+  }, [kpi]);
+  const kpiSparkColors = [
+    "var(--chart-1)",
+    "var(--chart-2)",
+    "var(--chart-1)",
+    "var(--chart-1)",
+  ];
+
   // Compute per-segment tooltip shift so each tooltip stays centered on its
   // segment unless that would clip the bar's left/right edge, in which case
   // shift just enough to remain in view.
@@ -138,68 +162,74 @@ export default function GpusTab() {
   }, []);
 
   return (
-    <div className="flex flex-1 flex-col gap-6 p-5 lg:p-6">
-      {/* Header — hidden on mobile (dropdown nav already identifies the section) */}
-      <div className="hidden lg:block">
-        <h2 className="text-lg font-semibold text-fg">GPUs</h2>
-        <p className="mt-1 text-sm text-fg-muted">
-          GPU hardware backing the network — node growth, type distribution, and hardware specifications.
-        </p>
-      </div>
-      <p className="text-sm text-fg-muted lg:hidden">
-        GPU hardware backing the network — node growth, type distribution, and hardware specifications.
-      </p>
+    <div className="mx-auto flex w-full max-w-[1200px] flex-1 flex-col gap-7 px-7 pt-7 pb-20">
+      {/* No in-tab section header — page chrome + active tab pill identify
+          the section. */}
 
-      {/* KPI cards */}
+      {/* KPI cards — sparklines per stat so the cells read as monitoring,
+          not just static figures. */}
       <KpiStrip cols={4}>
-        {kpi.map((stat) => (
-          <StatCard key={stat.label} stat={stat} />
+        {kpi.map((stat, i) => (
+          <StatCard
+            key={stat.label}
+            stat={stat}
+            spark={kpiSparks[i]}
+            sparkColor={kpiSparkColors[i]}
+          />
         ))}
       </KpiStrip>
 
       {/* Growth chart */}
-      <div className="rounded-xl border border-hairline bg-dark-surface p-5">
-        <div className="mb-1 flex items-start justify-between gap-3">
+      <div className="rounded-md border border-hairline bg-dark-lighter shadow-card px-5 pt-5 pb-4">
+        <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-fg-label">
-              GPU Growth
+            <p className="font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-fg-faint">
+              GPU growth
             </p>
-            <p className="mt-1 text-3xl font-semibold text-fg">
+            <p className="mt-1.5 font-mono text-[28px] font-semibold leading-[1.05] tracking-[-0.02em] tabular-nums text-fg">
               {latestGrowth.total.toLocaleString()}
             </p>
-            <div className="mt-1 flex items-center gap-1 text-xs text-green-bright">
+            <div className="mt-1.5 flex items-center gap-1 text-[11.5px] text-green-bright">
               <TrendingUp className="h-3 w-3" />
-              {growthPct}% growth
+              <span className="tabular-nums">{growthPct}%</span>
+              <span className="text-fg-muted"> · last 90 days</span>
             </div>
           </div>
 
-          {/* Mode toggle — mirrors the PeriodToggle slot on other cards */}
-          <div className="flex shrink-0 rounded-lg bg-hover p-0.5">
+          {/* Mode toggle — uses the same shape as PeriodToggle for visual
+              parity with the other tabs' chart cards. */}
+          <div
+            className="flex h-[26px] shrink-0 items-center rounded-[4px] border border-hairline bg-dark-lighter p-0.5"
+            role="tablist"
+          >
             <button
+              type="button"
+              role="tab"
+              aria-selected={chartMode === "total"}
               onClick={() => setChartMode("total")}
-              className={`rounded-md px-2.5 py-1 text-xs transition-colors ${
+              className={`flex h-5 items-center rounded-[3px] px-2 text-[11.5px] font-medium transition-colors ${
                 chartMode === "total"
-                  ? "bg-pop font-medium text-fg"
+                  ? "bg-pop text-fg"
                   : "text-fg-faint hover:text-fg-strong"
               }`}
             >
               Total
             </button>
             <button
+              type="button"
+              role="tab"
+              aria-selected={chartMode === "byType"}
               onClick={() => setChartMode("byType")}
-              className={`rounded-md px-2.5 py-1 text-xs transition-colors ${
+              className={`flex h-5 items-center rounded-[3px] px-2 text-[11.5px] font-medium transition-colors ${
                 chartMode === "byType"
-                  ? "bg-pop font-medium text-fg"
+                  ? "bg-pop text-fg"
                   : "text-fg-faint hover:text-fg-strong"
               }`}
             >
-              By Type
+              By type
             </button>
           </div>
         </div>
-        <p className="mt-1 text-sm text-fg-muted">
-          Total GPU count across all nodes over the last 90 days.
-        </p>
 
         <div className="mt-4" />
 
@@ -207,8 +237,8 @@ export default function GpusTab() {
           <AreaChart data={GPU_GROWTH}>
             <defs>
               <linearGradient id="gpuTotalFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#40bf86" stopOpacity={0.15} />
-                <stop offset="100%" stopColor="#40bf86" stopOpacity={0} />
+                <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.15} />
+                <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0} />
               </linearGradient>
               {chartMode === "byType" &&
                 GPU_TYPE_KEYS.map((key, i) => (
@@ -235,7 +265,7 @@ export default function GpusTab() {
                 <Area
                   type="monotone"
                   dataKey="total"
-                  stroke="#40bf86"
+                  stroke="var(--chart-1)"
                   strokeWidth={2}
                   fill="url(#gpuTotalFill)"
                 />
@@ -277,16 +307,16 @@ export default function GpusTab() {
       </div>
 
       {/* GPU Inventory — mix bar + table in one card */}
-      <div className="overflow-x-clip rounded-xl border border-hairline bg-dark-surface">
-        <div className="border-b border-hairline px-5 py-3">
-          <h3 className="text-sm font-medium text-fg-muted">GPU Inventory</h3>
-          <p className="text-[11px] text-fg-label">
+      <div className="overflow-x-clip rounded-md border border-hairline bg-dark-lighter shadow-card">
+        <div className="border-b border-hairline px-4 py-3.5">
+          <p className="text-[17px] font-bold text-fg">GPU inventory</p>
+          <p className="mt-0.5 text-[12px] text-fg-muted">
             Current GPU types on the network with hardware specifications
           </p>
         </div>
 
         {/* GPU Mix bar — inline above table */}
-        <div className="relative border-b border-hairline px-5 py-4">
+        <div className="relative border-b border-hairline px-4 py-4">
           <div ref={barRef} className="flex h-10 gap-[1px] rounded-lg">
             {GPU_NODES.map((node, i) => {
               const pct = (node.count / totalGpus) * 100;
@@ -348,8 +378,8 @@ export default function GpusTab() {
         </div>
 
         {/* Header */}
-        <div className="flex items-center gap-3 border-b border-hairline px-5 py-2 text-[11px] font-medium uppercase tracking-wider text-fg-disabled">
-          <span className="flex-1 pl-[18px]">GPU Name</span>
+        <div className="flex items-center gap-3 border-b border-hairline px-4 py-2 font-mono text-[10.5px] font-medium uppercase tracking-[0.06em] text-fg-disabled">
+          <span className="flex-1 pl-[18px]">GPU name</span>
           <span className="w-14 text-right">Count</span>
           <span className="w-12 text-right">Share</span>
           <span className="hidden w-24 text-right sm:block">Memory</span>
@@ -362,7 +392,7 @@ export default function GpusTab() {
           {GPU_NODES.map((node, i) => {
             const pct = ((node.count / totalGpus) * 100).toFixed(1);
             return (
-              <div key={node.name} className="flex items-center gap-3 px-5 py-3">
+              <div key={node.name} className="flex items-center gap-3 px-4 py-2.5">
                 <span className="flex flex-1 items-center gap-2 text-sm text-fg-strong">
                   <span
                     className="h-2 w-2 shrink-0 rounded-full"
@@ -391,7 +421,7 @@ export default function GpusTab() {
         </div>
 
         {/* Total row */}
-        <div className="flex items-center gap-3 border-t border-subtle bg-zebra px-5 py-3">
+        <div className="flex items-center gap-3 border-t border-subtle bg-zebra px-4 py-2.5">
           <span className="flex-1 text-sm font-medium text-fg-muted">Total</span>
           <span className="w-14 text-right text-sm font-semibold text-fg">
             {totalGpus.toLocaleString()}

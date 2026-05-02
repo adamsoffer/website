@@ -5,6 +5,12 @@ interface PeriodOption<T extends string> {
   label: string;
 }
 
+/**
+ * PeriodToggle — segmented control aligned with the rest of the dashboard's
+ * view-toggle vocabulary (`h-[26px] rounded-[4px] border-hairline bg-dark-lighter`).
+ * Active option uses `bg-pop` + `text-fg`; inactive options sit muted with
+ * a hover bump.
+ */
 export default function PeriodToggle<T extends string>({
   value,
   onChange,
@@ -15,16 +21,22 @@ export default function PeriodToggle<T extends string>({
   options: PeriodOption<T>[];
 }) {
   return (
-    <div className="flex rounded-lg bg-hover">
-      {options.map(({ key, label }, i) => (
+    <div
+      className="flex h-[26px] items-center rounded-[4px] border border-hairline bg-dark-lighter p-0.5"
+      role="tablist"
+    >
+      {options.map(({ key, label }) => (
         <button
           key={key}
+          type="button"
+          role="tab"
+          aria-selected={value === key}
           onClick={() => onChange(key)}
-          className={`flex h-9 items-center px-3 text-xs transition-colors sm:h-7 ${
+          className={`flex h-5 items-center rounded-[3px] px-2 text-[11.5px] font-medium transition-colors ${
             value === key
-              ? "bg-pop font-medium text-fg"
-              : "text-fg-faint hover:text-fg-muted"
-          } ${i === 0 ? "rounded-l-lg" : i === options.length - 1 ? "rounded-r-lg" : ""}`}
+              ? "bg-pop text-fg"
+              : "text-fg-faint hover:text-fg-strong"
+          }`}
         >
           {label}
         </button>

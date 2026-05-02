@@ -1,9 +1,8 @@
 "use client";
 
-import { Suspense, useCallback } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { BarChart3, Activity, Globe, Wallet, Cpu, ArrowUpRight } from "lucide-react";
-import { useAuth } from "@/components/dashboard/AuthContext";
 import OverviewTab from "@/components/dashboard/statistics/OverviewTab";
 import UtilizationTab from "@/components/dashboard/statistics/UtilizationTab";
 import PaymentsTab from "@/components/dashboard/statistics/PaymentsTab";
@@ -11,7 +10,35 @@ import GpusTab from "@/components/dashboard/statistics/GpusTab";
 import TabStrip from "@/components/dashboard/TabStrip";
 import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
 import DashboardPageSkeleton from "@/components/dashboard/DashboardPageSkeleton";
-import SignInWall from "@/components/dashboard/SignInWall";
+
+/**
+ * "Updated Xs ago" pill with a breathing green dot. Network is a monitoring
+ * surface — recency is the page's whole job, so the chrome surfaces it
+ * visibly. Updates the relative-time label every 5 seconds; mock-only for
+ * now (the real source would be a backend `lastUpdatedAt` from each tab's
+ * data fetcher).
+ */
+function LastUpdatedPill() {
+  const [secondsAgo, setSecondsAgo] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setSecondsAgo((s) => s + 5), 5000);
+    return () => clearInterval(id);
+  }, []);
+  const label =
+    secondsAgo < 60
+      ? `${secondsAgo}s ago`
+      : `${Math.floor(secondsAgo / 60)}m ago`;
+  return (
+    <span className="inline-flex h-[26px] shrink-0 items-center gap-1.5 rounded-full bg-green-bright/10 px-2.5 text-[11px] font-medium text-green-bright">
+      <span
+        className="h-1.5 w-1.5 animate-breathe rounded-full bg-green-bright"
+        aria-hidden="true"
+      />
+      <span className="hidden sm:inline">Live · updated </span>
+      <span className="tabular-nums">{label}</span>
+    </span>
+  );
+}
 
 type NetworkTab = "overview" | "utilization" | "payments" | "gpus";
 
@@ -35,7 +62,6 @@ export default function NetworkPage() {
 }
 
 function NetworkContent() {
-  const { isConnected, isLoading } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -45,9 +71,6 @@ function NetworkContent() {
     ? (rawTab as NetworkTab)
     : "overview";
 
-  // `setTab` lives above the auth gates so the hook order stays stable
-  // between rendered states (loading → wall → content). Calling hooks after
-  // an early return violates the Rules of Hooks.
   const setTab = useCallback(
     (key: NetworkTab) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -62,12 +85,11 @@ function NetworkContent() {
     [searchParams, router, pathname],
   );
 
-  // Network is per-workspace per the v4 prototype — even though the sidebar
-  // surfaces it for logged-out users in its footer (no lock icon), clicking
-  // through lands on a sign-in wall with route-specific copy. Keeps the
-  // workspace gate consistent without hiding the entry point entirely.
-  if (isLoading) return null;
-  if (!isConnected) return <SignInWall route="network" />;
+  // Network is public — orchestrators, payments, and GPU inventory are
+  // network-wide state, not workspace-scoped, so the page renders for
+  // signed-out visitors too. (Earlier the route was sign-in-walled to
+  // match the v4 prototype's per-workspace framing; that gate has been
+  // removed because none of the tabs surface user-specific data.)
 
   return (
     <main id="main-content" className="flex flex-1 flex-col bg-dark">
@@ -76,21 +98,25 @@ function NetworkContent() {
         icon={Globe}
         description="Live state of the open GPU network — orchestrators, payments, hardware."
         actions={
-          <a
-            href="https://status.livepeer.org"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-transparent px-2.5 text-[12.5px] font-medium text-fg-strong transition-colors hover:border-hairline hover:bg-hover hover:text-fg"
-          >
-            Status page
-            <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
-          </a>
+          <>
+            <LastUpdatedPill />
+            <a
+              href="https://status.livepeer.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-[26px] items-center gap-1.5 rounded-[4px] border border-transparent px-2.5 text-[12.5px] font-medium text-fg-strong transition-colors hover:border-hairline hover:bg-hover hover:text-fg"
+            >
+              Status page
+              <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+            </a>
+          </>
         }
       />
 
-      {/* Horizontal tab strip */}
+      {/* Horizontal tab strip — width matches the tab content's max-w-[1200px]
+          so the active-tab underline lines up with the panels below it. */}
       <div className="sticky top-0 z-20 border-b border-hairline bg-dark">
-        <div className="mx-auto w-full max-w-6xl px-5 lg:px-6">
+        <div className="mx-auto w-full max-w-[1200px] px-7">
           <TabStrip
             tabs={TABS}
             active={tab}

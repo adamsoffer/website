@@ -333,6 +333,23 @@
   --motion-easing-out: cubic-bezier(0.16, 1, 0.3, 1);   /* entrance */
   --motion-easing-in: cubic-bezier(0.4, 0, 1, 1);       /* exit */
   --motion-easing-spring: cubic-bezier(0.32, 0.72, 0, 1);  /* drawer-style spring */
+
+  /* ─── Chart palette ───────────────────────────────────────────────────────
+   * Tokens for chart fills, stroke colors, and segment swatches. Centralised
+   * here so Recharts `fill="var(--chart-N)"` and inline `style={{ background:
+   * 'var(--chart-N)' }}` resolve to the same source of truth instead of
+   * hardcoded hex values scattered across tab files. */
+  --chart-revenue: #40bf86;        /* primary revenue / single-series green */
+  --chart-1: #40bf86;              /* green-bright */
+  --chart-2: #25abd0;              /* blue-bright */
+  --chart-3: #e5a536;              /* amber */
+  --chart-4: #d94f70;              /* rose */
+  --chart-5: #8b5cf6;              /* violet */
+  --chart-6: #06b6d4;              /* cyan */
+  --chart-7: #f59e0b;              /* warm amber */
+  --chart-8: #ec4899;              /* magenta */
+  --chart-9: #84cc16;              /* lime */
+  --chart-10: #a855f7;             /* purple */
 }
 
 /* ─── Branded text selection + caret (was browser default) ─────────────────── */
@@ -538,6 +555,13 @@ summary {
 
 .animate-status-halo {
   animation: statusHalo 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Status-dot breathing — slower + smoother than Tailwind's `animate-pulse`.
+   Used on live indicators (Network LIVE badge, sidebar status dot) where a
+   gentle 0.6 → 1 → 0.6 opacity loop reads as "active" without jitter. */
+.animate-breathe {
+  animation: breathe 2.5s ease-in-out infinite;
 }
 
 /* Starburst node pulse — brightens every ~6s */

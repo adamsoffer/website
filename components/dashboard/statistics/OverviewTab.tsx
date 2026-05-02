@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   BarChart,
   Bar,
@@ -20,7 +20,12 @@ import {
   API_COLORS,
   MODELS,
 } from "@/lib/dashboard/mock-data";
-import { computeAxisTicks, formatRuns, getModelIcon } from "@/lib/dashboard/utils";
+import {
+  computeAxisTicks,
+  formatRuns,
+  generateSparklineData,
+  getModelIcon,
+} from "@/lib/dashboard/utils";
 import Link from "next/link";
 import type { NetworkStat } from "@/lib/dashboard/types";
 
@@ -70,19 +75,23 @@ function TopPipelinesGrid() {
   const totalRuns = MODELS.reduce((s, m) => s + m.runs7d, 0);
 
   return (
-    <div className="rounded-xl border border-hairline bg-dark-surface">
-      <div className="border-b border-hairline px-5 py-3">
-        <h3 className="text-sm font-medium text-fg-muted">Top Pipelines</h3>
-        <p className="text-[11px] text-fg-label">By request volume (last 3 months)</p>
+    <div className="overflow-hidden rounded-md border border-hairline bg-dark-lighter shadow-card">
+      <div className="flex items-start justify-between gap-3 border-b border-hairline px-4 py-3.5">
+        <div>
+          <p className="text-[17px] font-bold text-fg">Top pipelines</p>
+          <p className="mt-0.5 text-[12px] text-fg-muted">
+            By request volume · last 3 months
+          </p>
+        </div>
       </div>
 
       {/* Column headers */}
-      <div className="flex items-center gap-3 border-b border-hairline px-5 py-2">
+      <div className="flex items-center gap-3 border-b border-hairline px-4 py-2">
         <span className="w-5" />
         <span className="w-7" />
-        <span className="min-w-0 flex-1 text-[11px] font-medium uppercase tracking-wider text-fg-disabled">Pipeline</span>
-        <span className="hidden w-12 shrink-0 text-right text-[11px] font-medium uppercase tracking-wider text-fg-disabled sm:block">Share</span>
-        <span className="w-16 shrink-0 text-right text-[11px] font-medium uppercase tracking-wider text-fg-disabled">Requests</span>
+        <span className="min-w-0 flex-1 font-mono text-[10.5px] font-medium uppercase tracking-[0.06em] text-fg-disabled">Pipeline</span>
+        <span className="hidden w-12 shrink-0 text-right font-mono text-[10.5px] font-medium uppercase tracking-[0.06em] text-fg-disabled sm:block">Share</span>
+        <span className="w-16 shrink-0 text-right font-mono text-[10.5px] font-medium uppercase tracking-[0.06em] text-fg-disabled">Requests</span>
       </div>
 
       <div className="divide-y divide-[var(--color-border-hairline)]">
@@ -94,7 +103,7 @@ function TopPipelinesGrid() {
             <Link
               key={model.id}
               href={`/dashboard/models/${model.id}`}
-              className="group flex items-center gap-3 px-5 py-3 transition-colors hover:bg-zebra"
+              className="group flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-zebra"
             >
               <span className="w-5 text-right text-[11px] text-fg-disabled">
                 {i + 1}
@@ -118,7 +127,7 @@ function TopPipelinesGrid() {
           );
         })}
         {othersRuns > 0 && (
-          <div className="flex items-center gap-3 px-5 py-3">
+          <div className="flex items-center gap-3 px-4 py-2.5">
             <span className="w-5 text-right text-[11px] text-fg-label">+</span>
             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-hover">
               <span className="text-xs text-fg-label">...</span>
@@ -155,42 +164,60 @@ export default function OverviewTab() {
     return sum;
   }, [chartData]);
 
-  return (
-    <div className="flex flex-1 flex-col gap-6 p-5 lg:p-6">
-      {/* Header — hidden on mobile (dropdown nav already identifies the section) */}
-      <div className="hidden lg:block">
-        <h2 className="text-lg font-semibold text-fg">Network Stats</h2>
-        <p className="mt-1 text-sm text-fg-muted">
-          Network-wide request volumes, top APIs, and growth metrics for the Livepeer AI inference network.
-        </p>
-      </div>
-      <p className="text-sm text-fg-muted lg:hidden">
-        Network-wide request volumes, top APIs, and growth metrics for the Livepeer AI inference network.
-      </p>
+  // Stable per-stat sparkline series so each KPI reads as a chart cell, not a
+  // bare number. Generated client-side only — `generateSparklineData` uses
+  // `Math.random()`, which would mismatch between SSR and hydration if it
+  // ran inside `useMemo`. Empty array on first paint; sparklines render
+  // after mount.
+  const [kpiSparks, setKpiSparks] = useState<number[][]>([]);
+  useEffect(() => {
+    setKpiSparks(OVERVIEW_KPI.map(() => generateSparklineData(20)));
+  }, []);
+  const kpiSparkColors = [
+    "var(--chart-1)",
+    "var(--chart-1)",
+    "var(--chart-2)",
+    "var(--chart-3)",
+  ];
 
-      {/* KPI cards — 4 metrics, responsive via shared KpiStrip */}
+  return (
+    <div className="mx-auto flex w-full max-w-[1200px] flex-1 flex-col gap-7 px-7 pt-7 pb-20">
+      {/* No in-tab section header — the page chrome (`Network · Live state of
+          the open GPU network…`) and the active tab pill ("Overview") already
+          identify the section. Repeating the title in the tab body adds noise
+          without adding signal — same pattern as `/dashboard/usage`. */}
+
+      {/* KPI cards — 4 metrics with sparklines so each cell reads as
+          monitoring, not just static figures. */}
       <KpiStrip cols={4}>
-        {OVERVIEW_KPI.map((stat) => (
-          <StatCard key={stat.label} stat={stat} />
+        {OVERVIEW_KPI.map((stat, i) => (
+          <StatCard
+            key={stat.label}
+            stat={stat}
+            spark={kpiSparks[i]}
+            sparkColor={kpiSparkColors[i]}
+          />
         ))}
       </KpiStrip>
 
-      {/* Total Requests section */}
-      <div className="rounded-xl border border-hairline bg-dark-surface p-5">
-        <div className="mb-1 flex items-start justify-between gap-3">
+      {/* Total Requests panel — chart card with mono eyebrow + headline KPI
+          on the left, period toggle pinned to the right. Mirrors the Home
+          view's "Your overview" / hero KPI rhythm. */}
+      <div className="rounded-md border border-hairline bg-dark-lighter shadow-card px-5 pt-5 pb-4">
+        <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-fg-label">
-              Total Requests
+            <p className="font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-fg-faint">
+              Total requests
             </p>
-            <p className="mt-1 text-3xl font-semibold text-fg">
+            <p className="mt-1.5 font-mono text-[28px] font-semibold leading-[1.05] tracking-[-0.02em] tabular-nums text-fg">
               {(totalRequests / 1_000_000).toFixed(1)}M
+            </p>
+            <p className="mt-1 text-[12px] text-fg-muted">
+              Total inference requests across all APIs on the network.
             </p>
           </div>
           <PeriodToggle value={period} onChange={setPeriod} options={PERIOD_OPTIONS} />
         </div>
-        <p className="mt-1 text-sm text-fg-muted">
-          Total inference requests across all APIs on the network.
-        </p>
 
         <div className="mt-4">
           <ResponsiveContainer width="100%" height={280}>
