@@ -20,7 +20,7 @@ const SUGGESTIONS: SearchResult[] = [
   { title: "Generate a video", subtitle: "Text-to-video and image-to-video on the network", href: "/dashboard/explore" },
   { title: "Explore capabilities", subtitle: "Browse capabilities available on the network", href: "/dashboard/explore" },
   { title: "Get your API key", subtitle: "Authenticate and start sending requests", href: "/dashboard/settings?tab=tokens" },
-  { title: "Transcode a stream", subtitle: "Live transcoding on GPU infrastructure", href: "/dashboard/models/livepeer-transcode" },
+  { title: "Transcode a stream", subtitle: "Live transcoding on GPU infrastructure", href: "/dashboard/models/frameworks-transcoding" },
 ];
 
 // ─── All searchable items ────────────────────────────────────────────────────
@@ -28,7 +28,7 @@ const SUGGESTIONS: SearchResult[] = [
 const ALL_RESULTS: SearchResult[] = [
   ...SUGGESTIONS,
   { title: "Daydream Video API", subtitle: "Real-time AI video generation", href: "/dashboard/models/daydream-video" },
-  { title: "Livepeer Transcoding", subtitle: "Adaptive bitrate transcoding", href: "/dashboard/models/livepeer-transcode" },
+  { title: "Frameworks Transcoding", subtitle: "Adaptive bitrate transcoding", href: "/dashboard/models/frameworks-transcoding" },
   { title: "FLUX.1 [schnell]", subtitle: "Fast text-to-image generation", href: "/dashboard/models/flux-schnell" },
   { title: "SDXL Turbo", subtitle: "Real-time image generation", href: "/dashboard/models/sdxl-turbo" },
   { title: "Stable Video Diffusion", subtitle: "Image-to-video synthesis", href: "/dashboard/models/stable-video-diffusion" },

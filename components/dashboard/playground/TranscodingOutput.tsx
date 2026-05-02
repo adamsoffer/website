@@ -205,9 +205,9 @@ export default function TranscodingOutput({
       id,
       playbackId,
       streamKey,
-      hlsUrl: `https://livepeercdn.studio/hls/${playbackId}/index.m3u8`,
-      rtmpUrl: `rtmp://rtmp.livepeer.com/live/${streamKey}`,
-      whipUrl: `https://playback.livepeer.studio/webrtc/${streamKey}`,
+      hlsUrl: `https://playback.frameworks.network/hls/${playbackId}/index.m3u8`,
+      rtmpUrl: `rtmp://rtmp.frameworks.network/live/${streamKey}`,
+      whipUrl: `https://playback.frameworks.network/webrtc/${streamKey}`,
     };
   }, [result]);
 

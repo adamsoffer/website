@@ -691,7 +691,7 @@ function SidebarContent({
                 {[
                   { id: "daydream-video", label: "Daydream Video" },
                   { id: "flux-schnell", label: "FLUX [schnell]" },
-                  { id: "livepeer-transcode", label: "Transcode" },
+                  { id: "frameworks-transcoding", label: "Transcode" },
                 ].map((pin) => {
                   const model = MODELS.find((m) => m.id === pin.id);
                   const Icon = model ? getModelIcon(model.category) : LayoutGrid;

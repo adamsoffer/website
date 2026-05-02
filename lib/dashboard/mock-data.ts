@@ -103,12 +103,12 @@ Full-stack real-time AI video API powered by the Livepeer network.
 3. Use the API key in the \`Authorization\` header`,
   },
   {
-    id: "livepeer-transcode",
-    name: "Livepeer Transcoding",
-    provider: "Livepeer Studio",
+    id: "frameworks-transcoding",
+    name: "Frameworks Transcoding",
+    provider: "Frameworks",
     category: "Live Transcoding",
     realtime: true,
-    coverImage: "/images/dashboard/explore/livepeer-transcode.webp",
+    coverImage: "/images/dashboard/explore/frameworks-transcoding.webp",
     description:
       "Adaptive bitrate transcoding routed across independent orchestrators on the Livepeer network.",
     status: "hot",
@@ -120,8 +120,8 @@ Full-stack real-time AI video API powered by the Livepeer network.
     featured: true,
     tags: ["transcoding", "streaming", "cdn", "enterprise"],
     sla: { uptime: "99.95%", latencyP99: "<200ms" },
-    apiEndpoint: "https://livepeer.studio/api",
-    providerUrl: "https://livepeer.studio/dashboard",
+    apiEndpoint: "https://frameworks.network/api",
+    providerUrl: "https://frameworks.network/dashboard",
     playgroundConfig: {
       fields: [
         {
@@ -136,7 +136,7 @@ Full-stack real-time AI video API powered by the Livepeer network.
           name: "source_url",
           label: "Source",
           type: "text",
-          placeholder: "rtmp://rtmp.livepeer.com/live or https://example.com/video.mp4",
+          placeholder: "rtmp://rtmp.frameworks.network/live or https://example.com/video.mp4",
           description: "RTMP/WHIP ingest URL for live, or an HTTPS file URL for VOD.",
         },
         {
@@ -159,7 +159,7 @@ Full-stack real-time AI video API powered by the Livepeer network.
       mockOutputUrl: "https://picsum.photos/seed/livepeer-stream/1280/720",
       playgroundVariant: "transcoding",
     },
-    readme: `# Livepeer Transcoding
+    readme: `# Frameworks Transcoding
 
 Production-grade adaptive bitrate transcoding powered by the Livepeer network with global CDN delivery.
 
@@ -170,7 +170,7 @@ Production-grade adaptive bitrate transcoding powered by the Livepeer network wi
 - Enterprise SLA: 99.95% uptime
 
 ## Getting Started
-Visit [livepeer.studio](https://livepeer.studio) to create an account and get your API key.`,
+Visit [frameworks.network](https://frameworks.network) to create an account and get your API key.`,
   },
 
   // ── Network Capabilities ───────────────────────────────────────────────────
@@ -1232,17 +1232,6 @@ export const SOLUTIONS: SolutionProvider[] = [
     trustBadges: ["Managed", "SLA"],
   },
   {
-    id: "livepeer-studio",
-    name: "Livepeer Studio",
-    provider: "Livepeer Studio",
-    description:
-      "Production-grade adaptive bitrate transcoding with global CDN delivery, live streaming, and comprehensive developer APIs.",
-    dashboardUrl: "https://livepeer.studio/dashboard",
-    capabilities: ["Live Transcoding", "Speech", "Language"],
-    pricingSummary: "Pay-per-minute from $0.005/min",
-    trustBadges: ["Managed", "SLA", "Enterprise"],
-  },
-  {
     id: "livepeer-network",
     name: "Livepeer Network",
     provider: "Livepeer Foundation",
@@ -1835,7 +1824,7 @@ function generateRecentRequests(): import("./types").AccountActivityRow[] {
 
   const specs: Spec[] = [
     { model: "daydream/video-v2", pipeline: "video-to-video", signer: "paymthouse", tokenId: "key-1", status: "success", latencyMs: 234, costDisplay: "$0.006", minutesAgo: 2 },
-    { model: "livepeer/transcode", pipeline: "live-transcoding", signer: "livepeerCloud", tokenId: "key-1", status: "success", latencyMs: 156, costDisplay: "$0.005", minutesAgo: 5 },
+    { model: "frameworks/transcoding", pipeline: "live-transcoding", signer: "livepeerCloud", tokenId: "key-1", status: "success", latencyMs: 156, costDisplay: "$0.005", minutesAgo: 5 },
     { model: "flux/schnell", pipeline: "text-to-image", signer: "freeTier", tokenId: "key-foundation", status: "success", latencyMs: 812, costDisplay: "$0.003", minutesAgo: 8 },
     { model: "qwen/qwen3-32b", pipeline: "language", signer: "paymthouse", tokenId: "key-1", status: "success", latencyMs: 412, costDisplay: "$0.004", minutesAgo: 11 },
     { model: "stability/sdxl-turbo", pipeline: "text-to-image", signer: "paymthouse", tokenId: "key-1", status: "success", latencyMs: 1180, costDisplay: "$0.011", minutesAgo: 15 },
@@ -1844,14 +1833,14 @@ function generateRecentRequests(): import("./types").AccountActivityRow[] {
     { model: "daydream/video-v2", pipeline: "video-to-video", signer: "paymthouse", tokenId: "key-1", status: "success", latencyMs: 248, costDisplay: "$0.006", minutesAgo: 26 },
     { model: "meta/llama-3-70b", pipeline: "language", signer: "paymthouse", tokenId: "key-1", status: "success", latencyMs: 389, costDisplay: "$0.012", minutesAgo: 31 },
     { model: "stability/sdxl-turbo", pipeline: "text-to-image", signer: "freeTier", tokenId: "key-foundation", status: "success", latencyMs: 1240, costDisplay: "$0.000", minutesAgo: 36 },
-    { model: "livepeer/transcode", pipeline: "live-transcoding", signer: "livepeerCloud", tokenId: "key-1", status: "success", latencyMs: 142, costDisplay: "$0.005", minutesAgo: 41 },
+    { model: "frameworks/transcoding", pipeline: "live-transcoding", signer: "livepeerCloud", tokenId: "key-1", status: "success", latencyMs: 142, costDisplay: "$0.005", minutesAgo: 41 },
     { model: "hexgrad/kokoro-tts", pipeline: "text-to-speech", signer: "paymthouse", tokenId: "key-2", status: "success", latencyMs: 318, costDisplay: "$0.004", minutesAgo: 47 },
     { model: "flux/schnell", pipeline: "text-to-image", signer: "freeTier", tokenId: "key-foundation", status: "success", latencyMs: 798, costDisplay: "$0.000", minutesAgo: 53 },
     { model: "ultralytics/yolov8", pipeline: "video-understanding", signer: "paymthouse", tokenId: "key-1", status: "success", latencyMs: 87, costDisplay: "$0.001", minutesAgo: 58 },
     { model: "qwen/qwen3-32b", pipeline: "language", signer: "paymthouse", tokenId: "key-1", status: "timeout", latencyMs: null, costDisplay: "—", minutesAgo: 64 },
     { model: "daydream/video-v2", pipeline: "video-to-video", signer: "paymthouse", tokenId: "key-1", status: "success", latencyMs: 261, costDisplay: "$0.006", minutesAgo: 71 },
     { model: "stability/sdxl-turbo", pipeline: "text-to-image", signer: "paymthouse", tokenId: "key-1", status: "success", latencyMs: 1095, costDisplay: "$0.011", minutesAgo: 78 },
-    { model: "livepeer/transcode", pipeline: "live-transcoding", signer: "livepeerCloud", tokenId: "key-1", status: "success", latencyMs: 169, costDisplay: "$0.005", minutesAgo: 86 },
+    { model: "frameworks/transcoding", pipeline: "live-transcoding", signer: "livepeerCloud", tokenId: "key-1", status: "success", latencyMs: 169, costDisplay: "$0.005", minutesAgo: 86 },
     { model: "openai/whisper-v3", pipeline: "audio-to-text", signer: "freeTier", tokenId: "key-foundation", status: "success", latencyMs: 2280, costDisplay: "$0.000", minutesAgo: 93 },
     { model: "meta/llama-3-70b", pipeline: "language", signer: "paymthouse", tokenId: "key-1", status: "success", latencyMs: 401, costDisplay: "$0.012", minutesAgo: 101 },
     { model: "flux/schnell", pipeline: "text-to-image", signer: "paymthouse", tokenId: "key-1", status: "success", latencyMs: 824, costDisplay: "$0.003", minutesAgo: 109 },
@@ -1860,7 +1849,7 @@ function generateRecentRequests(): import("./types").AccountActivityRow[] {
     { model: "ultralytics/yolov8", pipeline: "video-understanding", signer: "paymthouse", tokenId: "key-1", status: "success", latencyMs: 92, costDisplay: "$0.001", minutesAgo: 132 },
     { model: "hexgrad/kokoro-tts", pipeline: "text-to-speech", signer: "paymthouse", tokenId: "key-1", status: "success", latencyMs: 304, costDisplay: "$0.004", minutesAgo: 141 },
     { model: "qwen/qwen3-32b", pipeline: "language", signer: "freeTier", tokenId: "key-foundation", status: "success", latencyMs: 422, costDisplay: "$0.000", minutesAgo: 150 },
-    { model: "livepeer/transcode", pipeline: "live-transcoding", signer: "livepeerCloud", tokenId: "key-1", status: "success", latencyMs: 158, costDisplay: "$0.005", minutesAgo: 158 },
+    { model: "frameworks/transcoding", pipeline: "live-transcoding", signer: "livepeerCloud", tokenId: "key-1", status: "success", latencyMs: 158, costDisplay: "$0.005", minutesAgo: 158 },
     { model: "meta/llama-3-70b", pipeline: "language", signer: "paymthouse", tokenId: "key-1", status: "success", latencyMs: 376, costDisplay: "$0.012", minutesAgo: 167 },
     { model: "daydream/video-v2", pipeline: "video-to-video", signer: "paymthouse", tokenId: "key-1", status: "success", latencyMs: 271, costDisplay: "$0.006", minutesAgo: 175 },
     { model: "flux/schnell", pipeline: "text-to-image", signer: "ethWallet", tokenId: "key-1", status: "success", latencyMs: 833, costDisplay: "0.0000 ETH", minutesAgo: 184 },
