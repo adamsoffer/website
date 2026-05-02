@@ -22,8 +22,15 @@ import {
  *  4. Invoices — table of historical invoices
  */
 export default function BillingSection() {
+  // Billing view is rendered behind a blur with a "Work in progress" notice
+  // on top — reviewers can see the surface area without mistaking it for a
+  // finalized flow. Real treatment is still being designed.
   return (
-    <>
+    <div className="relative">
+      <div
+        className="pointer-events-none select-none blur-sm"
+        aria-hidden="true"
+      >
       <SettingsHeader
         title="Plan"
         sub="You're on the free tier · 10,000 runs/month"
@@ -230,7 +237,29 @@ export default function BillingSection() {
           </div>
         ))}
       </SettingsCard>
-    </>
+      </div>
+
+      {/* WIP overlay — sits above the blurred content. Pointer-events-none
+          on the wrapper so the blur layer below stays inert; the notice
+          itself re-enables pointer-events so it's selectable text. */}
+      <div className="pointer-events-none absolute inset-0 flex items-start justify-center pt-24">
+        <div
+          role="status"
+          className="pointer-events-auto max-w-md rounded-md border border-subtle bg-dark-lighter px-6 py-5 text-center shadow-popover"
+        >
+          <p className="font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-fg-faint">
+            Work in progress
+          </p>
+          <p className="mt-2 text-[15px] font-semibold tracking-[-0.005em] text-fg">
+            Billing UX is not finalized
+          </p>
+          <p className="mt-1.5 text-[13px] leading-[1.5] text-fg-muted">
+            This view is still in flux while we settle on the
+            payment-provider model.
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }
 
